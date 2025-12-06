@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ورود</title>
+</head>
+<body>
+    <h1>ورود</h1>
+
+    {% for message in messages %}
+        <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">ورود</button>
+    </form>
+</body>
+</html>

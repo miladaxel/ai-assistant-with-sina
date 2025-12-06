@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ exam.exam_title }}</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .exam-header {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.08);
+        }
+        .question-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .question-type {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            white-space: pre-line;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        ul {
+            margin-top: 4px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="exam-header">
+        <h1>{{ exam.exam_title }}</h1>
+        {% if exam.source %}
+            <p>منبع: {{ exam.source }}</p>
+        {% endif %}
+    </div>
+
+    {% if questions %}
+        {% for q in questions %}
+            <div class="question-card">
+                <div class="question-title">
+                    سؤال {{ q.number }}
+                </div>
+
+                <div class="question-type">
+                    نوع سؤال:
+                    <span class="badge">{{ q.question_type }}</span>
+                </div>
+
+                <div class="question-text">
+                    {{ q.question_text }}
+                </div>
+
+                {# گزینه‌ها (برای چهارگزینه‌ای) #}
+                {% if q.options %}
+                    <div class="section-title">گزینه‌ها:</div>
+                    <ul>
+                        {% for opt in q.options %}
+                            <li>{{ opt }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {# نمایش پاسخ درست #}
+
+                {# ۱) مکالمه (correct_answer دیکشنری بوده) #}
+                {% if q.is_conversation and q.correct_answer_items %}
+                    <div class="section-title">پاسخ درست:</div>
+                    <ul>
+                        {% for item in q.correct_answer_items %}
+                            <li>{{ item.0 }}: {{ item.1 }}</li>
+                        {% endfor %}
+                    </ul>
+
+                {# ۲) spelling (correct_answer لیست از کلمات) #}
+                {% elif q.is_spelling %}
+                    {% if q.correct_answer %}
+                        <div class="section-title">پاسخ درست:</div>
+                        <p>
+                            {% for ans in q.correct_answer %}
+                                {{ ans }}{% if not forloop.last %} ، {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                {# ۳) بقیه انواع (رشته ساده) #}
+                {% else %}
+                    {% if q.correct_answer %}
+                        <div class="section-title">پاسخ درست:</div>
+                        <p>{{ q.correct_answer }}</p>
+                    {% endif %}
+                {% endif %}
+            {# جفت‌سازی (matching) #}
+                {% if q.pairs_items %}
+                    <div class="section-title">جفت‌های صحیح:</div>
+                    <ul>
+                        {% for pair in q.pairs_items %}
+                            <li>{{ pair.0 }} → {{ pair.1 }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {# مفاهیم #}
+                {% if q.concepts %}
+                    <div class="section-title">مفاهیم:</div>
+                    <ul>
+                        {% for c in q.concepts %}
+                            <li>{{ c }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {# ارجاع به کتاب #}
+                {% if q.book_reference %}
+                    <div class="section-title">ارجاع به کتاب:</div>
+                    <p>
+                        صفحه {{ q.book_reference.page }} –
+                        بخش: {{ q.book_reference.section }}<br>
+                        توضیح: {{ q.book_reference.note }}
+                    </p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>سؤالی برای نمایش وجود ندارد.</p>
+    {% endif %}
+</div>
+</body>
+</html>

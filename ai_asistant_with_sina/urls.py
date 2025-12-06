@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from Profile import urls
+from question import urls_1
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(urls)),
+    path('question/', include(urls_1)),
 ]

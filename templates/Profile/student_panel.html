@@ -1,0 +1,32 @@
+{# Profile/student_panel.html #}
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>پنل دانش‌آموز</title>
+</head>
+<body>
+    <h1>سلام {{ student.full_name }} 👋</h1>
+
+    <h2>اطلاعات فردی</h2>
+    <ul>
+        <li>نام: {{ student.full_name }}</li>
+        <li>نام پدر: {{ student.fathers_name }}</li>
+        <li>کد ملی: {{ student.national_code }}</li>
+        <li>شماره شناسنامه: {{ student.id_card_number }}</li>
+        <li>تاریخ تولد: {{ student.birth_date }}</li>
+        <li>محل تولد: {{ student.birth_place }}</li>
+        <li>جنسیت: {{ student.get_sex_display }}</li>
+        <li>کلاس: {{ student.clas }}</li>
+        <li>آدرس: {{ student.address }}</li>
+        <li>شماره موبایل: {{ student.phone_number }}</li>
+        <li>تلفن منزل: {{ student.home_phone_number }}</li>
+        <li>وضعیت: {{ student.transition }}</li>
+        <li>توضیحات: {{ student.description }}</li>
+    </ul>
+
+    <p>
+        <a href="{% url 'logout' %}">خروج از حساب</a>
+    </p>
+</body>
+</html>
