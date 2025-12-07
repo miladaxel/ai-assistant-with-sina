@@ -12,6 +12,7 @@ from .forms import LoginForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Student, Users
+from question.exam_data import get_student_analyze_by_name
 
 
 class ExcelUploadView(FormView):
@@ -72,13 +73,6 @@ class HomeView(TemplateView):
 
 
 
-def student_dashboard(request):
-    student = request.user.student
-    return render(request, 'Profile/student_dashboard.html', {'student' : student})
-
-
-
-
 class LoginView(View):
     template_name = "Profile/login.html"
 
@@ -116,7 +110,11 @@ class StuedentPanelView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         student = self.request.user.student_profile
+        full_name = student.full_name
+        student_analyze = get_student_analyze_by_name(full_name)
+        print(student_analyze)
         context['student'] = student
+        context['student_analyze'] = student_analyze
         return context
 
 

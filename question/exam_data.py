@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 EXAM_DATA = {
     "exam_title": "آزمون زبان انگلیسی پایه هفتم - فصل اول",
     "source": "کتاب درسی انگلیسی هفتم - فصل 1",
@@ -392,3 +394,18 @@ student_exercises = {
     }
   ]
 }
+
+
+def get_student_analyze_by_name(full_name:str):
+    data_copy = deepcopy(students_data)
+    target_student = None
+    for student in data_copy["students"]:
+        if student["name"] == full_name:
+            target_student = student
+            break
+    if not target_student:
+        return None
+    target_student["issues"] = [issue for issue in target_student.get("issues", [])
+        if issue.get("student_answer") != issue.get("correct_answer")]
+    return target_student
+

@@ -28,5 +28,32 @@
     <p>
         <a href="{% url 'logout' %}">خروج از حساب</a>
     </p>
+
+ <h3>گزارش عملکرد در آزمون</h3>
+
+ {% if student_analyze %}
+    <h4>{{ student_analyze.name }}</h4>
+
+    {% if student_analyze.issues %}
+        <ul>
+            {% for issue in student_analyze.issues %}
+                <li>
+                    سوال شماره {{ issue.question_number }}<br>
+                    جواب درست: {{ issue.correct_answer }}<br>
+                    جواب شما: {{ issue.student_answer }}<br>
+                    صفحه کتاب: {{ issue.book_reference.page }} -
+                    بخش: {{ issue.book_reference.section }}<br>
+                    یادداشت: {{ issue.book_reference.note }}<br>
+                    مفاهیم: {{ issue.concepts|join:" ، " }}
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>تبریک 🎉 هیچ جواب اشتباهی برای شما ثبت نشده.</p>
+    {% endif %}
+{% else %}
+    <p>برای شما هنوز گزارشی ثبت نشده است.</p>
+{% endif %}
 </body>
 </html>

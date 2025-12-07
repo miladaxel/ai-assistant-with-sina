@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>تمرین‌های اختصاصی برای دانش‌آموزان</title>
+    <title>تحلیل نتایج آزمون</title>
     <style>
         body {
             font-family: sans-serif;
@@ -20,41 +20,77 @@
             border-radius: 8px;
             box-shadow: 0 0 4px rgba(0,0,0,0.08);
         }
-        .exercise-card {
+        .question-card {
             background: #ffffff;
             border-radius: 8px;
             padding: 15px 20px;
             margin-bottom: 15px;
             box-shadow: 0 0 4px rgba(0,0,0,0.08);
         }
-        .exercise-title {
+        .question-title {
             font-weight: bold;
             margin-bottom: 8px;
         }
-        .exercise-type {
+        .question-type {
             font-size: 0.85rem;
             color: #666;
             margin-bottom: 10px;
+        }
+        .question-text {
+            white-space: pre-line;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        ul {
+            margin-top: 4px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: #eee;
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="student-header">
-        <h1>تمرین‌های اختصاصی برای دانش‌آموزان</h1>
+        <h1>نتایج تحلیل آزمون</h1>
     </div>
 
-    {% for student in students_exercises %}
-        <div class="student-header">
-            <h2>{{ student.name }}</h2>
-            <h3>تمرین‌های اختصاصی:</h3>
-            <ul>
-                {% for exercise in student.exercises %}
-                    <li>{{ exercise }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endfor %}
+    {% if students_analysis %}
+        {% for student in students_analysis %}
+            <div class="student-header">
+                <h2>{{ student.name }}</h2>
+                {% if student.issues %}
+                    {% for issue in student.issues %}
+                        <div class="question-card">
+                            <h3>سؤال {{ issue.question_number }}</h3>
+                            <p><strong>پاسخ صحیح:</strong> {{ issue.correct_answer }}</p>
+                            <p><strong>پاسخ دانش‌آموز:</strong> {{ issue.student_answer }}</p>
+                            <p><strong>کتاب مرجع:</strong> صفحه {{ issue.book_reference.page }} – بخش {{ issue.book_reference.section }}</p>
+                            <p><strong>مفاهیم:</strong></p>
+                            <ul>
+                                {% for concept in issue.concepts %}
+                                    <li>{{ concept }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>این دانش‌آموز هیچ مشکلی نداشته است.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>داده‌ها به درستی بارگذاری نشدند.</p>
+    {% endif %}
 </div>
 </body>
 </html>
