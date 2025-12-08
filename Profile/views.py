@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from .forms import ExelUploadForm
 from .models import Student, Users
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, DetailView
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -13,6 +13,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Student, Users
 from question.exam_data import get_student_analyze_by_name
+from django.shortcuts import get_object_or_404
 
 
 class ExcelUploadView(FormView):
@@ -77,7 +78,6 @@ class LoginView(View):
     template_name = "Profile/login.html"
 
     def get(self, request):
-        # اگر لاگین است، مستقیم بفرستش خونه (اختیاری)
         if request.user.is_authenticated:
             return redirect("home")
 
@@ -90,15 +90,28 @@ class LoginView(View):
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
+            selected_role = form.cleaned_data["role"]
 
-            # فقط خود یوزر چک می‌شود
             user = authenticate(request, username=username, password=password)
 
-            if user is not None:
-                login(request, user)
-                return redirect("home")   # یا هر جایی که می‌خوای
+            if user is None:
+                messages.error(request, "نام کاربری یا رمز عبور اشتباه است.")
+                return render(request, self.template_name, {"form": form})
 
-            messages.error(request, "نام کاربری یا رمز عبور اشتباه است.")
+            # اینجا نقش کاربر را چک می‌کنیم
+            if user.role != selected_role:
+                messages.error(request, "نقش انتخاب‌شده با حساب شما مطابقت ندارد.")
+                return render(request, self.template_name, {"form": form})
+
+            # همه چیز درست → ورود
+            login(request, user)
+
+            # هدایت به پروفایل مناسب
+            if user.role == "student":
+                return redirect("student panel")
+
+            if user.role == "teacher":
+                return redirect("teacher panel")
 
         return render(request, self.template_name, {"form": form})
 
@@ -118,8 +131,46 @@ class StuedentPanelView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class TeacherPanelView(LoginRequiredMixin, TemplateView):
+    template_name = 'Profile/teacher_panel.html'
+    login_url = 'login'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        teacher = self.request.user.teacher_profile
+        context['teacher'] = teacher
+        return context
+
+class StudentPracticeView(TemplateView, LoginRequiredMixin):
+    template_name = 'Profile/student_practice.html'
+    login_url = 'login'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        student = self.request.user.student_profile
+        full_name = student.full_name
+        student_analyze = get_student_analyze_by_name(full_name)
+        context['student'] = student
+        context['student_analyze'] = student_analyze
+        return context
+
 class LogoutView(View):
     template_name = "Profile/logout.html"
     def get(self, request):
         logout(request)
         return redirect("login")
+
+
+class StudentDetailView(LoginRequiredMixin, DetailView):
+    model = Student
+    template_name = 'Profile/student_detail.html'
+    context_object_name = 'student'
+    login_url = 'login'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if hasattr(user, 'student_profile'):
+            teacher = user.teacher_profile
+            return Student.objects.filter(teacher=teacher)
+        return Student.objects.all()

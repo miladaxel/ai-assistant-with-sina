@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>پنل معلم</title>
+</head>
+<body>
+    <h1>سلام {{ teacher.first_name }} {{ teacher.last_name }} 👋</h1>
+
+    <h2>لیست دانش‌آموزان شما</h2>
+    <ul>
+        {% for student in teacher.students.all %}
+            <a href="{% url 'student_detail' student.id %}">
+            <li>{{ student.full_name }} - کلاس: {{ student.clas }}</li>
+        {% empty %}
+            <li>هنوز هیچ دانش‌آموزی برای شما ثبت نشده است.</li>
+            </a>
+        {% endfor %}
+    </ul>
+
+    <p>
+        <a href="{% url 'logout' %}">خروج از حساب</a>
+    </p>
+</body>
+</html>

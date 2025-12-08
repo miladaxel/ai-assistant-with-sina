@@ -37,17 +37,24 @@ class Student(models.Model):
     birth_date = models.CharField(max_length=20)
     birth_place = models.CharField(max_length=100)
     sex = models.CharField(max_length=1, choices=GENDER, default='M')
-    clas = models.IntegerField(blank=True, null=True)
+    classes = models.ManyToManyField('SchoolClass', related_name='students', blank=True)
     address = models.TextField(blank=True, null=True)
     phone_number = models.TextField(blank=True, null=True)
     home_phone_number = models.CharField(max_length=20)
     transition = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
-    # teachers = models.ManyToManyField('TeacherUser', related_name='teachers',blank=True)
+    teachers = models.ManyToManyField('TeacherUser', related_name='teachers',blank=True)
     # manager = models.ForeignKey('ManagerUser', on_delete=models.CASCADE, related_name='student_manager', blank=True, null=True)
 
     def __str__(self):
         return self.full_name
+
+    def save(self, *args, **kwargs):
+        if self.user:
+            self.user.role = "student"
+
+            self.user.save(update_fields=['role'])
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Student_information'
@@ -67,12 +74,20 @@ class TeacherUser(models.Model):
     number_of_classes = models.IntegerField(blank=True, null=True)
     number_of_students = models.IntegerField(blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    # students = models.ManyToManyField(Student, related_name='students', blank=True)
+    students = models.ManyToManyField(Student, related_name='students', blank=True)
     # manager = models.ForeignKey('ManagerUser', on_delete=models.CASCADE, related_name='teacher_manager', blank=True, null=True)
 
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+
+    def save(self, *args, **kwargs):
+        if self.user:
+            self.user.role = "teacher"
+
+            self.user.save(update_fields=['role'])
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Teacher'
@@ -99,3 +114,12 @@ class ManagerUser(models.Model):
     class Meta:
         verbose_name = 'Manager'
         verbose_name_plural = 'Managers'
+
+
+class SchoolClass(models.Model):
+    number = models.PositiveIntegerField()
+    subject = models.CharField(max_length=100)
+    teacher = models.ForeignKey(TeacherUser, on_delete=models.SET_NULL, related_name='classes', null=True, blank=True)
+
+    def __str__(self):
+        return f"کلاس {self.number} {self.subject}"

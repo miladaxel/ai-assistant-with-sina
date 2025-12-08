@@ -60,3 +60,13 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput,
         required=True,
     )
+    ROLE_CHOICES = (
+        ('student', 'دانش‌آموز'),
+        ('teacher', 'معلم'),
+        ('manager', 'مدیر'),
+    )
+    role = forms.ChoiceField(
+        label="نقش کاربری",
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+    )
