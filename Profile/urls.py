@@ -12,5 +12,6 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('student_practice/',views.StudentPracticeView.as_view(), name='student_practice'),
     path('students/<int:pk>/', views.StudentDetailView.as_view(), name='student_detail'),
+    path('teacher/classes/', views.SchoolClassStudentView.as_view(template_name='Profile/teacher_classes.html'), name='teacher_classes'),
 
 ]

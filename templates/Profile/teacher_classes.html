@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>کلاس‌های من</title>
+</head>
+<body>
+    <h1>سلام {{ teacher.first_name }} {{ teacher.last_name }} 👋</h1>
+
+    <h2>کلاس‌های شما</h2>
+
+    <p>تعداد کلاس‌ها: {{ classes|length }}</p>
+
+    <ul>
+        {% for c in classes %}
+            <li>
+                <strong>کلاس {{ c.number }} - {{ c.subject }}</strong>
+                <br>
+                معلم: {{ c.teacher.first_name }} {{ c.teacher.last_name }}
+
+                <br>
+                <span>دانش‌آموزها:</span>
+                <ul>
+                    {% for s in c.students.all %}
+                        <li>{{ s.full_name }}</li>
+                    {% empty %}
+                        <li>هنوز هیچ دانش‌آموزی در این کلاس ثبت نشده است.</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+            <li>هیچ کلاسی برای شما ثبت نشده است.</li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="{% url 'logout' %}">خروج</a></p>
+</body>
+</html>

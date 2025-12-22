@@ -11,13 +11,17 @@
     <ul>
         {% for student in teacher.students.all %}
             <a href="{% url 'student_detail' student.id %}">
-            <li>{{ student.full_name }} - کلاس: {{ student.clas }}</li>
+            <li>{{ student.full_name }} - کلاس: {% for c in student.classes.all %}
+        {{ c.number }} - {{ c.subject }}
+    {% endfor %}</li>
         {% empty %}
             <li>هنوز هیچ دانش‌آموزی برای شما ثبت نشده است.</li>
             </a>
         {% endfor %}
     </ul>
-
+    {% for c in classes %}
+        <a href="{% url 'teacher_classes' %}"> {{ c }}
+    {% endfor %}
     <p>
         <a href="{% url 'logout' %}">خروج از حساب</a>
     </p>

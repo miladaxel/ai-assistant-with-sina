@@ -1,3 +1,5 @@
+from urllib.parse import uses_netloc
+
 import pandas as pd
 from django.http import HttpResponse
 from django.urls import reverse_lazy
@@ -10,8 +12,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import LoginForm
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Student, Users
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .models import Student, Users, SchoolClass, TeacherUser
 from question.exam_data import get_student_analyze_by_name
 from django.shortcuts import get_object_or_404
 
@@ -138,7 +140,9 @@ class TeacherPanelView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         teacher = self.request.user.teacher_profile
+        classes = teacher.classes.all()
         context['teacher'] = teacher
+        context['classes'] = classes
         return context
 
 class StudentPracticeView(TemplateView, LoginRequiredMixin):
@@ -174,3 +178,23 @@ class StudentDetailView(LoginRequiredMixin, DetailView):
             teacher = user.teacher_profile
             return Student.objects.filter(teacher=teacher)
         return Student.objects.all()
+
+
+class SchoolClassStudentView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'Profile/teacher_classes.html'
+
+    def test_func(self):
+        user = self.request.user
+
+        return hasattr(user, 'teacher_profile') and user.role == 'teacher'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        teacher = get_object_or_404(TeacherUser, user=self.request.user)
+
+        classes = (
+            SchoolClass.objects.filter(teacher=teacher).prefetch_related('students')
+        )
+        context['teacher'] = teacher
+        context['classes'] = classes
+        return context

@@ -14,7 +14,10 @@
         <li>تاریخ تولد: {{ student.birth_date }}</li>
         <li>محل تولد: {{ student.birth_place }}</li>
         <li>جنسیت: {{ student.get_sex_display }}</li>
-        <li>کلاس: {{ student.classes }}</li>
+        <li>کلاس: {% for c in student.classes.all %}
+        {{ c.number }} - {{ c.subject }}
+            {% endfor %}
+        </li>
         <li>آدرس: {{ student.address }}</li>
         <li>شماره موبایل: {{ student.phone_number }}</li>
         <li>تلفن ثابت: {{ student.home_phone_number }}</li>

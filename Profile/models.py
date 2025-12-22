@@ -122,4 +122,4 @@ class SchoolClass(models.Model):
     teacher = models.ForeignKey(TeacherUser, on_delete=models.SET_NULL, related_name='classes', null=True, blank=True)
 
     def __str__(self):
-        return f"کلاس {self.number} {self.subject}"
+        return f"کلاس {self.number}-{self.subject}"

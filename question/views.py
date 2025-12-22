@@ -1,36 +1,86 @@
 import json
 from symtable import Class
-
+import time
 from django.views import View
 from django.shortcuts import render
 from .exam_data import EXAM_DATA, students_data, student_exercises
 from django.views.generic import TemplateView
+from openai import OpenAI
+from django.conf import settings
+
+
 
 
 class ChatTestView(View):
     def get(self, request):
-        fake_response = {
-            "id": "chatcmpl-abc123",
-            "object": "chat.completion",
-            "created": 1732879200,
-            "model": "gpt-5.1-mini",
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": "سلام 👋 من یک پاسخ تستی از سمت ChatGPT هستم تا بتونی فرمت API رو توی جنگو نمایش بدی."
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
-            "usage": {
-                "prompt_tokens": 12,
-                "completion_tokens": 24,
-                "total_tokens": 36,
-            },
-        }
-        return render(request, "questions/chat_test.html", {"response": fake_response})
+        q = (request.GET.get("q") or "").strip()
+
+        if not q:
+            return render(request, "questions/chat_test_1.html")
+
+        try:
+            client = OpenAI(
+                api_key=settings.OPENAI_API_KEY
+            )
+
+            resp = client.responses.create(
+                model="gpt-5.2",
+                input=q,
+            )
+
+            # برای اطمینان
+            answer_text = resp.output_text
+            if not answer_text:
+                answer_text = str(resp)
+
+            response = {
+                "choices": [
+                    {
+                        "message": {
+                            "content": answer_text
+                        }
+                    }
+                ]
+            }
+
+            return render(
+                request,
+                "questions/chat_test_1.html",
+                {"response": response}
+            )
+
+        except Exception as e:
+            return render(
+                request,
+                "questions/chat_test_1.html",
+                {"error": str(e)}
+            )
+
+
+# class ChatTestView(View):
+#     def get(self, request):
+#         fake_response = {
+#             "id": "chatcmpl-abc123",
+#             "object": "chat.completion",
+#             "created": 1732879200,
+#             "model": "gpt-5.1-mini",
+#             "choices": [
+#                 {
+#                     "index": 0,
+#                     "message": {
+#                         "role": "assistant",
+#                         "content": "سلام 👋 من یک پاسخ تستی از سمت ChatGPT هستم تا بتونی فرمت API رو توی جنگو نمایش بدی."
+#                     },
+#                     "finish_reason": "stop",
+#                 }
+#             ],
+#             "usage": {
+#                 "prompt_tokens": 12,
+#                 "completion_tokens": 24,
+#                 "total_tokens": 36,
+#             },
+#         }
+#         return render(request, "questions/chat_test.html", {"response": fake_response})
 
 
 
