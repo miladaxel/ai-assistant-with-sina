@@ -2,11 +2,18 @@ import json
 from symtable import Class
 import time
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .exam_data import EXAM_DATA, students_data, student_exercises
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView, DetailView
 from openai import OpenAI
 from django.conf import settings
+from django.db import transaction
+from .forms import AnalysisBundleCreateForm
+from .models import AnalysisBundle, AnalysisResult, PromptTemplate
+from question.services.openai_client import OpenAIAnalyzer
+import inspect
+import importlib
+
 
 
 
@@ -57,42 +64,8 @@ class ChatTestView(View):
             )
 
 
-# class ChatTestView(View):
-#     def get(self, request):
-#         fake_response = {
-#             "id": "chatcmpl-abc123",
-#             "object": "chat.completion",
-#             "created": 1732879200,
-#             "model": "gpt-5.1-mini",
-#             "choices": [
-#                 {
-#                     "index": 0,
-#                     "message": {
-#                         "role": "assistant",
-#                         "content": "سلام 👋 من یک پاسخ تستی از سمت ChatGPT هستم تا بتونی فرمت API رو توی جنگو نمایش بدی."
-#                     },
-#                     "finish_reason": "stop",
-#                 }
-#             ],
-#             "usage": {
-#                 "prompt_tokens": 12,
-#                 "completion_tokens": 24,
-#                 "total_tokens": 36,
-#             },
-#         }
-#         return render(request, "questions/chat_test.html", {"response": fake_response})
-
-
 
 class ExamQuestionListView(TemplateView):
-    # template_name = "questions/exam_question_list.html"
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #
-    #     context['exam'] = EXAM_DATA
-    #     context['questions'] = EXAM_DATA.get(['questions', []])
-    #     return context
         template_name = "questions/exam_question_list.html"
 
         def get_context_data(self, **kwargs):
@@ -169,3 +142,62 @@ class AssignExercisesView(TemplateView):
 
         context["students_exercises"] = student_exercises["students"]
         return context
+
+
+class AnalysisBundleCreateView(CreateView):
+    model = AnalysisBundle
+    form_class = AnalysisBundleCreateForm
+    template_name = "questions/bundle_create.html"
+
+    def form_valid(self, form):
+        prompt = PromptTemplate.objects.filter(is_active=True).order_by("-version").first()
+        if not prompt:
+            form.add_error(None, "No active PromptTemplate found. Create one in admin.")
+            return self.form_invalid(form)
+
+        with transaction.atomic():
+            bundle: AnalysisBundle = form.save(commit=False)
+            bundle.prompt_template = prompt
+            bundle.status = AnalysisBundle.STATUS_PENDING
+            bundle.save()
+
+        analyzer = OpenAIAnalyzer()
+        try:
+            textbook_file_id = analyzer.upload_pdf(bundle.lesson_pdf.path)
+            exam_file_id = analyzer.upload_pdf(bundle.example_pdf.path)
+
+            bundle.openai_lesson_file_id = textbook_file_id
+            bundle.openai_exam_file_id = exam_file_id
+            bundle.save(update_fields=["openai_lesson_file_id", "openai_example_file_id"])
+
+            out = analyzer.analyze(
+                model=bundle.model_name,
+                instructions=prompt.instruction_text,
+                json_schema=prompt.schema_json,
+                textbook_file_id=textbook_file_id,
+                exam_file_id=exam_file_id,
+            )
+
+            AnalysisResult.objects.create(
+                bundle=bundle,
+                result_json=out.parsed_json,
+                raw_output_text=out.raw_output_text,
+                openai_response_id=out.response_id,
+                usage_json=out.usage,
+            )
+
+            bundle.status = AnalysisBundle.STATUS_SUCCESS
+            bundle.save(update_fields=["status"])
+
+        except Exception as e:
+            bundle.status = AnalysisBundle.STATUS_FAILURE
+            bundle.error_message = str(e)
+            bundle.save(update_fields=["status", "error_message"])
+
+        return redirect("bundle_detail", pk=bundle.pk)
+
+
+class AnalysisBundleDetailView(DetailView):
+    model = AnalysisBundle
+    template_name = "questions/bundle_detail.html"
+    context_object_name = "bundle"

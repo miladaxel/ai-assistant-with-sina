@@ -1,0 +1,517 @@
+
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>جزئیات تحلیل - Bundle #{{ bundle.id }}</title>
+
+  <style>
+    :root{
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e5e7eb;
+      --shadow: 0 10px 30px rgba(15,23,42,.06);
+      --shadow2: 0 2px 10px rgba(15,23,42,.06);
+
+      --green:#16a34a;
+      --yellow:#f59e0b;
+      --red:#ef4444;
+      --blue:#2563eb;
+      --purple:#7c3aed;
+
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Arabic", "Noto Sans", sans-serif;
+      line-height:1.85;
+      padding:24px;
+    }
+    .container{max-width:1100px;margin:0 auto}
+
+    .topbar{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap; margin-bottom:14px;
+    }
+    .title{display:flex;flex-direction:column;gap:6px}
+    h1{margin:0;font-size:1.35rem;letter-spacing:-.2px}
+    .subtitle{color:var(--muted);font-size:.92rem}
+
+    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:12px;
+      border:1px solid var(--border); background:var(--card);
+      text-decoration:none; color:var(--text);
+      box-shadow: var(--shadow2); font-size:.92rem; cursor:pointer;
+      transition: transform .12s ease;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0)}
+
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:start}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:16px;
+    }
+
+    .section-title{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin: 10px 0 12px;
+    }
+    .section-title h2,.section-title h3{margin:0}
+    .section-title h2{font-size:1.05rem}
+    .section-title h3{font-size:1.02rem}
+
+    .pill{
+      font-size:.78rem; color:var(--muted);
+      border:1px solid var(--border);
+      border-radius:999px; padding:4px 10px;
+      background:#fff; white-space:nowrap;
+    }
+
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:5px 10px; border-radius:999px;
+      font-size:.78rem; border:1px solid var(--border);
+      background:#fff; color:var(--text);
+      white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+    .badge.success .dot{background: var(--green)}
+    .badge.pending .dot{background: var(--yellow)}
+    .badge.failure .dot{background: var(--red)}
+
+    .meta{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 650px){ .meta{grid-template-columns:1fr} }
+    .kv{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background: #fbfdff;
+    }
+    .k{color:var(--muted);font-size:.82rem;margin-bottom:4px}
+    .v{font-weight:700;font-size:.98rem;overflow-wrap:anywhere}
+
+    .alert{
+      border-radius:16px;
+      padding:12px 14px;
+      border:1px solid rgba(239,68,68,.25);
+      background: rgba(239,68,68,.06);
+      color:#7f1d1d;
+      margin-top:12px;
+      white-space:pre-wrap;
+      overflow:auto;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 14px 0;
+      border-radius:999px;
+    }
+
+    .exam-name{
+
+margin:0;
+      font-size:1.2rem;
+      font-weight:900;
+      letter-spacing:-.2px;
+    }
+    .exam-meta{
+      display:flex; flex-wrap:wrap; gap:8px;
+      color:var(--muted); font-size:.92rem; margin-top:8px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--border);
+      background:#f8fafc;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:700;
+      color:#0f172a;
+    }
+    .tag.blue{border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.06); color:#1e40af}
+    .tag.purple{border-color:rgba(124,58,237,.25); background:rgba(124,58,237,.06); color:#5b21b6}
+    .tag.green{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.06); color:#166534}
+    .tag.yellow{border-color:rgba(245,158,11,.30); background:rgba(245,158,11,.08); color:#7c2d12}
+
+    .questions-wrap{margin-top:14px}
+
+    .question{
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      background:#fff;
+      margin-top:12px;
+    }
+    .qhead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .qnum{
+      font-weight:900;
+      font-size: .98rem;
+    }
+    .qmeta{
+      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+      color:var(--muted); font-size:.85rem;
+    }
+    .qtext{white-space:pre-line; margin-top:8px}
+
+    .block{
+      margin-top:12px;
+      border-top:1px dashed var(--border);
+      padding-top:10px;
+    }
+    .block h4{
+      margin:0 0 6px 0;
+      font-size:.92rem;
+      color:#0f172a;
+    }
+    ul{margin:8px 0 0; padding-right: 18px}
+    li{margin:4px 0}
+
+    .answer{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .answer strong{
+      min-width: 90px;
+      color: var(--muted);
+      font-weight:800;
+      font-size:.85rem;
+      margin-top:2px;
+    }
+    .answer .val{
+      font-weight:800;
+      color:#0f172a;
+    }
+
+    .small-note{color:var(--muted);font-size:.88rem}
+    details{
+      margin-top:12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fbfdff;
+    }
+    summary{
+      cursor:pointer;
+      color: var(--blue);
+      font-weight:800;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .code{
+      margin-top:10px;
+      white-space:pre-wrap;
+      overflow:auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: .86rem;
+      color:#0f172a;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="topbar">
+    <div class="title">
+      <h1>خروجی تحلیل آزمون — Bundle #{{ bundle.id }}</h1>
+      <div class="subtitle">
+        {% if bundle.created_at %}ایجاد شده در: {{ bundle.created_at }}{% endif %}
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="javascript:history.back()">⬅️ برگشت</a>
+    </div>
+  </div>
+
+  <!-- Bundle Info + Quick Help -->
+  <div class="grid">
+
+    <div class="card">
+      <div class="section-title">
+        <h2>اطلاعات Bundle</h2>
+
+        {% if bundle.status == "success" %}
+          <span class="badge success"><span class="dot"></span> موفق</span>
+        {% elif bundle.status == "pending" %}
+          <span class="badge pending"><span class="dot"></span> در حال پردازش</span>
+        {% else %}
+          <span class="badge failure"><span class="dot"></span> ناموفق</span>
+        {% endif %}
+      </div>
+
+      <div class="meta">
+        <div class="kv">
+          <div class="k">عنوان</div>
+          <div class="v">{{ bundle.title|default:"—" }}</div>
+        </div>
+        <div class="kv">
+          <div class="k">مدل</div>
+
+milad, [12/23/2025 1:26 AM]
+<div class="v">{{ bundle.model_name|default:"—" }}</div>
+        </div>
+        <div class="kv">
+          <div class="k">Template</div>
+          <div class="v">
+            {% if bundle.prompt_template %}
+              {{ bundle.prompt_template.name }} (v{{ bundle.prompt_template.version }})
+            {% else %}
+              —
+            {% endif %}
+          </div>
+        </div>
+        <div class="kv">
+          <div class="k">File IDs</div>
+          <div class="v">
+            {% if bundle.openai_lesson_file_id %}درس: {{ bundle.openai_lesson_file_id }}{% else %}درس: —{% endif %}
+            <br/>
+            {% if bundle.openai_example_file_id %}آزمون: {{ bundle.openai_example_file_id }}{% else %}آزمون: —{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if bundle.error_message %}
+        <div class="alert">خطا: {{ bundle.error_message }}</div>
+      {% endif %}
+
+      {% if bundle.status == "pending" %}
+        <div class="alert" style="border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.08); color:#7c2d12;">
+          تحلیل هنوز کامل نشده. چند لحظه بعد این صفحه رو رفرش کن.
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <h2>راهنما</h2>
+        <span class="pill">نمایش خوانا</span>
+      </div>
+      <div class="small-note">
+        اینجا خروجی تحلیل به زبان آدمیزاد نمایش داده می‌شه: مشخصات آزمون، سوال‌ها، سطح سختی و نوع سوالات.
+      </div>
+      <div class="divider"></div>
+      <div class="small-note">
+        اگر خواستی، قدم بعدی می‌تونه این باشه که روی هر سوال «ویرایش پاسخ» یا «ساخت PDF خروجی» هم اضافه کنیم.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Result -->
+  {% if bundle.result %}
+    {% with data=bundle.result.result_json %}
+      {% with exam=data.exam_identity %}
+      <div class="card" style="margin-top:14px;">
+
+        <div class="section-title">
+          <h2>مشخصات آزمون</h2>
+          <span class="pill">سوالات: {{ exam.total_questions|default:"—" }}</span>
+        </div>
+
+        <h3 class="exam-name">{{ exam.exam_name|default:"—" }}</h3>
+
+        <div class="exam-meta">
+          {% if exam.grade_level %}<span class="tag blue">پایه: {{ exam.grade_level }}</span>{% endif %}
+          {% if exam.exam_duration %}<span class="tag purple">مدت: {{ exam.exam_duration }}</span>{% endif %}
+          {% if exam.exam_date %}<span class="tag green">تاریخ: {{ exam.exam_date }}</span>{% endif %}
+        </div>
+
+        {% if exam.budgeting %}
+          <div class="divider"></div>
+
+          <div class="section-title">
+            <h3>بودجه‌بندی و مفاهیم</h3>
+            <span class="pill">صفحات: {{ exam.budgeting.page_range|default:"—" }}</span>
+          </div>
+
+          <div class="meta">
+            <div class="kv">
+              <div class="k">فصل‌ها</div>
+              <div class="v">
+                {% if exam.budgeting.chapters %}
+                  {% for ch in exam.budgeting.chapters %}
+                    فصل {{ ch.chapter_number }}{% if ch.chapter_name %} — {{ ch.chapter_name }}{% endif %}{% if not forloop.last %}<br/>{% endif %}
+                  {% endfor %}
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="k">مفاهیم کلی</div>
+              <div class="v">
+                {% if exam.budgeting.general_concepts %}
+                  {% for c in exam.budgeting.general_concepts %}
+                    • {{ c }}{% if not forloop.last %}<br/>{% endif %}
+                  {% endfor %}
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="divider"></div>
+
+        <div class="section-title">
+          <h2>سوالات آزمون</h2>
+          <span class="pill">تعداد: {{ data.questions|length }}</span>
+        </div>
+
+        <div class="questions-wrap">
+          {% for q in data.questions %}
+            <div class="question">
+
+milad, [12/23/2025 1:26 AM]
+<div class="qhead">
+                <div class="qnum">سؤال {{ q.question_number|default:forloop.counter }}</div>
+
+                <div class="qmeta">
+                  {% if q.question_type %}<span class="tag">{{ q.question_type }}</span>{% endif %}
+                  {% if q.difficulty %}
+                    {% if q.difficulty == "آسان" %}
+                      <span class="tag green">سختی: {{ q.difficulty }}</span>
+                    {% elif q.difficulty == "متوسط" %}
+                      <span class="tag yellow">سختی: {{ q.difficulty }}</span>
+                    {% else %}
+                      <span class="tag">سختی: {{ q.difficulty }}</span>
+                    {% endif %}
+                  {% endif %}
+                  {% if q.textbook_source and q.textbook_source.page %}
+                    <span class="tag blue">صفحه: {{ q.textbook_source.page }}</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="qtext">{{ q.question_text }}</div>
+
+              {% if q.correct_answer %}
+                <div class="block">
+                  <h4>پاسخ / کلید</h4>
+                  <div class="answer">
+                    <strong>پاسخ</strong>
+                    <div class="val">{{ q.correct_answer }}</div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="block">
+                  <h4>پاسخ / کلید</h4>
+                  <div class="small-note">برای این سوال کلید مشخص نشده یا نیاز به پاسخ دانش‌آموز دارد.</div>
+                </div>
+              {% endif %}
+
+              {% if q.measured_concept %}
+                <div class="block">
+                  <h4>مفهوم سنجیده‌شده</h4>
+                  <div class="small-note">{{ q.measured_concept }}</div>
+                </div>
+              {% endif %}
+
+              {% if q.textbook_source %}
+                <div class="block">
+                  <h4>ارجاع به کتاب</h4>
+                  <div class="small-note">
+                    {% if q.textbook_source.topic_title %}موضوع: {{ q.textbook_source.topic_title }}{% endif %}
+                    {% if q.textbook_source.page %}{% if q.textbook_source.topic_title %} — {% endif %}صفحه: {{ q.textbook_source.page }}{% endif %}
+                  </div>
+                </div>
+              {% endif %}
+
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if data.final_analysis %}
+          <div class="divider"></div>
+
+          <div class="section-title">
+            <h2>جمع‌بندی تحلیل</h2>
+            <span class="pill">Final Analysis</span>
+          </div>
+
+          <div class="meta">
+            <div class="kv">
+              <div class="k">سختی کلی</div>
+              <div class="v">
+                {% if data.final_analysis.overall_difficulty %}
+                  آسان: {{ data.final_analysis.overall_difficulty.easy_count|default:"0" }} |
+                  متوسط: {{ data.final_analysis.overall_difficulty.medium_count|default:"0" }} |
+                  سخت: {{ data.final_analysis.overall_difficulty.hard_count|default:"0" }}
+                  {% if data.final_analysis.overall_difficulty.comment %}
+                    <div class="small-note" style="margin-top:6px;">
+                      {{ data.final_analysis.overall_difficulty.comment }}
+                    </div>
+                  {% endif %}
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="k">توزیع نوع سوالات</div>
+              <div class="v">
+                {% if data.final_analysis.question_type_distribution %}
+                  {% for k,v in data.final_analysis.question_type_distribution.items %}
+                    {{ k }}: {{ v }}{% if not forloop.last %}<br/>{% endif %}
+                  {% endfor %}
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+milad, [12/23/2025 1:26 AM]
+<details>
+          <summary>نمایش خروجی خام (برای بررسی)</summary>
+          <div class="code">{{ data }}</div>
+        </details>
+
+      </div>
+      {% endwith %}
+    {% endwith %}
+  {% else %}
+    <div class="card" style="margin-top:14px;">
+      <div class="alert" style="border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.08); color:#7c2d12;">
+        هنوز نتیجه‌ای برای این Bundle ذخیره نشده.
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+</body>
+</html>
