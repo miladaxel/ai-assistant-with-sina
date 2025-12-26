@@ -21,7 +21,7 @@ class OpenAIAnalyzer:
         api_key = getattr(settings, "OPENAI_API_KEY", None)
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is not set.")
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=api_key, timeout=3000)
 
     def _ensure_client(self) -> None:
         if not hasattr(self, "client") or self.client is None:

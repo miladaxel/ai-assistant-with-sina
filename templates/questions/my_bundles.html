@@ -1,0 +1,26 @@
+<h2>آزمون‌های تحلیل‌شده‌ی من</h2>
+
+<ul>
+  {% for b in bundles %}
+    <li>
+      <a href="{% url 'bundle_detail' b.pk %}">
+        #{{ b.id }} - {{ b.title|default:"بدون عنوان" }} - {{ b.status }}
+      </a>
+      <small>({{ b.created_at }})</small>
+    </li>
+  {% empty %}
+    <li>هنوز آزمونی تحلیل نکردی.</li>
+  {% endfor %}
+</ul>
+
+{% if is_paginated %}
+  <div>
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}">قبلی</a>
+    {% endif %}
+    <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">بعدی</a>
+    {% endif %}
+  </div>
+{% endif %}

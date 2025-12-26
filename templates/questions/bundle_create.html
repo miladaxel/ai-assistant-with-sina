@@ -1,6 +1,37 @@
-<h2>New Analysis Bundle</h2>
+<h2>تحلیل آزمون جدید</h2>
+
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Analyze</button>
+
+  {{ form.non_field_errors }}
+
+  <p>
+    {{ form.title.label_tag }}<br>
+    {{ form.title }}
+    {{ form.title.errors }}
+  </p>
+
+  <p>
+    {{ form.lesson_pdf.label_tag }}<br>
+    {{ form.lesson_pdf }}
+    {{ form.lesson_pdf.errors }}
+  </p>
+
+  <p>
+    {{ form.example_pdf.label_tag }}<br>
+    {{ form.example_pdf }}
+    {{ form.example_pdf.errors }}
+  </p>
+
+  <p>
+    {{ form.prompt_template.label_tag }}<br>
+    {{ form.prompt_template }}
+    {{ form.prompt_template.errors }}
+    <br>
+    <small style="color:#666;">
+      فقط پرامپت‌های فعال نمایش داده می‌شوند.
+    </small>
+  </p>
+
+  <button type="submit">شروع تحلیل</button>
 </form>

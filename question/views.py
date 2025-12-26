@@ -1,10 +1,11 @@
 import json
 from symtable import Class
 import time
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import render, redirect
 from .exam_data import EXAM_DATA, students_data, student_exercises
-from django.views.generic import TemplateView, CreateView, DetailView
+from django.views.generic import TemplateView, CreateView, DetailView, ListView
 from openai import OpenAI
 from django.conf import settings
 from django.db import transaction
@@ -13,6 +14,7 @@ from .models import AnalysisBundle, AnalysisResult, PromptTemplate
 from question.services.openai_client import OpenAIAnalyzer
 import inspect
 import importlib
+from .mixins import TeacherRequiredMixin
 
 
 
@@ -144,24 +146,22 @@ class AssignExercisesView(TemplateView):
         return context
 
 
-class AnalysisBundleCreateView(CreateView):
+class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
     model = AnalysisBundle
     form_class = AnalysisBundleCreateForm
     template_name = "questions/bundle_create.html"
 
     def form_valid(self, form):
-        prompt = PromptTemplate.objects.filter(is_active=True).order_by("-version").first()
-        if not prompt:
-            form.add_error(None, "No active PromptTemplate found. Create one in admin.")
-            return self.form_invalid(form)
+        analyzer = OpenAIAnalyzer()
 
         with transaction.atomic():
             bundle: AnalysisBundle = form.save(commit=False)
-            bundle.prompt_template = prompt
+            selected_prompt = form.cleaned_data["prompt_template"]
+            bundle.prompt_template = selected_prompt
+            bundle.teacher = self.request.user
             bundle.status = AnalysisBundle.STATUS_PENDING
             bundle.save()
 
-        analyzer = OpenAIAnalyzer()
         try:
             textbook_file_id = analyzer.upload_pdf(bundle.lesson_pdf.path)
             exam_file_id = analyzer.upload_pdf(bundle.example_pdf.path)
@@ -172,8 +172,8 @@ class AnalysisBundleCreateView(CreateView):
 
             out = analyzer.analyze(
                 model=bundle.model_name,
-                instructions=prompt.instruction_text,
-                json_schema=prompt.schema_json,
+                instructions=selected_prompt.instruction_text,
+                json_schema=selected_prompt.schema_json,
                 textbook_file_id=textbook_file_id,
                 exam_file_id=exam_file_id,
             )
@@ -197,7 +197,19 @@ class AnalysisBundleCreateView(CreateView):
         return redirect("bundle_detail", pk=bundle.pk)
 
 
-class AnalysisBundleDetailView(DetailView):
+class AnalysisBundleDetailView(LoginRequiredMixin, TeacherRequiredMixin ,DetailView):
     model = AnalysisBundle
     template_name = "questions/bundle_detail.html"
     context_object_name = "bundle"
+
+
+class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+    model = AnalysisBundle
+    template_name = "questions/my_bundles.html"
+    context_object_name = 'bundles'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return (
+            AnalysisBundle.objects.filter(teacher=self.request.user).order_by('-created_at')
+        )

@@ -1,26 +1,24 @@
-
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>جزئیات تحلیل - Bundle #{{ bundle.id }}</title>
+  <title>نمایش تحلیل آزمون - Bundle #{{ bundle.id }}</title>
 
   <style>
     :root{
-      --bg:#f4f6f9;
+      --bg:#f5f7fb;
       --card:#ffffff;
       --text:#0f172a;
       --muted:#64748b;
       --border:#e5e7eb;
       --shadow: 0 10px 30px rgba(15,23,42,.06);
       --shadow2: 0 2px 10px rgba(15,23,42,.06);
-
       --green:#16a34a;
       --yellow:#f59e0b;
       --red:#ef4444;
       --blue:#2563eb;
       --purple:#7c3aed;
-
       --radius:18px;
     }
 
@@ -30,26 +28,25 @@
       background:var(--bg);
       color:var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Arabic", "Noto Sans", sans-serif;
-      line-height:1.85;
+      line-height:1.9;
       padding:24px;
     }
-    .container{max-width:1100px;margin:0 auto}
+    .container{max-width:1150px;margin:0 auto}
 
     .topbar{
       display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
       flex-wrap:wrap; margin-bottom:14px;
     }
-    .title{display:flex;flex-direction:column;gap:6px}
     h1{margin:0;font-size:1.35rem;letter-spacing:-.2px}
-    .subtitle{color:var(--muted);font-size:.92rem}
+    .subtitle{color:var(--muted);font-size:.92rem;margin-top:6px}
 
-    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
     .btn{
       display:inline-flex; align-items:center; gap:8px;
       padding:10px 12px; border-radius:12px;
       border:1px solid var(--border); background:var(--card);
       text-decoration:none; color:var(--text);
-      box-shadow: var(--shadow2); font-size:.92rem; cursor:pointer;
+      box-shadow: var(--shadow2); font-size:.92rem;
       transition: transform .12s ease;
     }
     .btn:hover{transform: translateY(-1px)}
@@ -85,8 +82,7 @@
       display:inline-flex; align-items:center; gap:6px;
       padding:5px 10px; border-radius:999px;
       font-size:.78rem; border:1px solid var(--border);
-      background:#fff; color:var(--text);
-      white-space:nowrap;
+      background:#fff; color:var(--text); white-space:nowrap;
     }
     .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
     .badge.success .dot{background: var(--green)}
@@ -107,7 +103,8 @@
       background: #fbfdff;
     }
     .k{color:var(--muted);font-size:.82rem;margin-bottom:4px}
-    .v{font-weight:700;font-size:.98rem;overflow-wrap:anywhere}
+    .v{font-weight:850;font-size:.98rem;overflow-wrap:anywhere}
+    .muted{color:var(--muted);font-weight:650}
 
     .alert{
       border-radius:16px;
@@ -120,41 +117,30 @@
       overflow:auto;
     }
 
-    .divider{
-      height:1px;
-      background: var(--border);
-      margin: 14px 0;
-      border-radius:999px;
-    }
+    .divider{height:1px;background:var(--border);margin:14px 0;border-radius:999px}
 
-    .exam-name{
-
-margin:0;
-      font-size:1.2rem;
-      font-weight:900;
-      letter-spacing:-.2px;
-    }
-    .exam-meta{
-      display:flex; flex-wrap:wrap; gap:8px;
-      color:var(--muted); font-size:.92rem; margin-top:8px;
-    }
     .tag{
       display:inline-flex; align-items:center; gap:8px;
       border:1px solid var(--border);
-      background:#f8fafc;
+
+background:#f8fafc;
       padding:4px 10px;
       border-radius:999px;
       font-size:.78rem;
-      font-weight:700;
+      font-weight:850;
       color:#0f172a;
+      white-space:nowrap;
     }
     .tag.blue{border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.06); color:#1e40af}
     .tag.purple{border-color:rgba(124,58,237,.25); background:rgba(124,58,237,.06); color:#5b21b6}
     .tag.green{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.06); color:#166534}
     .tag.yellow{border-color:rgba(245,158,11,.30); background:rgba(245,158,11,.08); color:#7c2d12}
+    .tag.red{border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.08); color:#7f1d1d}
+
+    .exam-name{margin:0;font-size:1.2rem;font-weight:950;letter-spacing:-.2px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 
     .questions-wrap{margin-top:14px}
-
     .question{
       border:1px solid var(--border);
       border-radius:16px;
@@ -163,54 +149,43 @@ margin:0;
       margin-top:12px;
     }
     .qhead{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:flex-start;
-      flex-wrap:wrap;
-      margin-bottom:8px;
+      display:flex; justify-content:space-between; gap:10px;
+      align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;
     }
-    .qnum{
-      font-weight:900;
-      font-size: .98rem;
-    }
-    .qmeta{
-      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-      color:var(--muted); font-size:.85rem;
-    }
-    .qtext{white-space:pre-line; margin-top:8px}
+    .qnum{font-weight:950;font-size:1rem}
+    .qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}
+    .qtext{white-space:pre-line;margin-top:8px;font-weight:750}
 
     .block{
       margin-top:12px;
       border-top:1px dashed var(--border);
       padding-top:10px;
     }
-    .block h4{
-      margin:0 0 6px 0;
-      font-size:.92rem;
-      color:#0f172a;
-    }
-    ul{margin:8px 0 0; padding-right: 18px}
+    .block h4{margin:0 0 6px 0;font-size:.92rem;color:#0f172a}
+    ul{margin:8px 0 0;padding-right:18px}
     li{margin:4px 0}
+    .small-note{color:var(--muted);font-size:.9rem}
 
-    .answer{
-      display:flex;
-      align-items:flex-start;
+    .subparts{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
       gap:10px;
+      margin-top:10px;
     }
-    .answer strong{
-      min-width: 90px;
-      color: var(--muted);
-      font-weight:800;
-      font-size:.85rem;
-      margin-top:2px;
+    @media (max-width: 850px){ .subparts{grid-template-columns:1fr} }
+    .subcard{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background:#fbfdff;
     }
-    .answer .val{
-      font-weight:800;
-      color:#0f172a;
+    .subhead{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:8px; flex-wrap:wrap; margin-bottom:6px;
     }
+    .subid{font-weight:950;font-size:.92rem}
+    .subtext{white-space:pre-line;margin-top:6px}
 
-    .small-note{color:var(--muted);font-size:.88rem}
     details{
       margin-top:12px;
       border:1px solid var(--border);
@@ -218,12 +193,7 @@ margin:0;
       padding:10px 12px;
       background:#fbfdff;
     }
-    summary{
-      cursor:pointer;
-      color: var(--blue);
-      font-weight:800;
-      list-style:none;
-    }
+    summary{cursor:pointer;color:var(--blue);font-weight:950;list-style:none}
     summary::-webkit-details-marker{display:none}
     .code{
       margin-top:10px;
@@ -239,27 +209,20 @@ margin:0;
 <body>
 <div class="container">
 
-  <!-- Header -->
   <div class="topbar">
-    <div class="title">
-      <h1>خروجی تحلیل آزمون — Bundle #{{ bundle.id }}</h1>
-      <div class="subtitle">
-        {% if bundle.created_at %}ایجاد شده در: {{ bundle.created_at }}{% endif %}
-      </div>
+    <div>
+      <h1>نمایش تحلیل آزمون</h1>
+      <div class="subtitle">Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}</div>
     </div>
-
     <div class="actions">
       <a class="btn" href="javascript:history.back()">⬅️ برگشت</a>
     </div>
   </div>
 
-  <!-- Bundle Info + Quick Help -->
   <div class="grid">
-
     <div class="card">
       <div class="section-title">
-        <h2>اطلاعات Bundle</h2>
-
+        <h2>وضعیت پردازش</h2>
         {% if bundle.status == "success" %}
           <span class="badge success"><span class="dot"></span> موفق</span>
         {% elif bundle.status == "pending" %}
@@ -276,26 +239,23 @@ margin:0;
         </div>
         <div class="kv">
           <div class="k">مدل</div>
+          <div class="v">{{ bundle.model_name|default:"—" }}</div>
 
-milad, [12/23/2025 1:26 AM]
-<div class="v">{{ bundle.model_name|default:"—" }}</div>
-        </div>
+</div>
         <div class="kv">
           <div class="k">Template</div>
           <div class="v">
             {% if bundle.prompt_template %}
               {{ bundle.prompt_template.name }} (v{{ bundle.prompt_template.version }})
-            {% else %}
-              —
-            {% endif %}
+            {% else %}—{% endif %}
           </div>
         </div>
         <div class="kv">
           <div class="k">File IDs</div>
           <div class="v">
-            {% if bundle.openai_lesson_file_id %}درس: {{ bundle.openai_lesson_file_id }}{% else %}درس: —{% endif %}
+            {% if bundle.openai_lesson_file_id %}درس: {{ bundle.openai_lesson_file_id }}{% else %}درس: <span class="muted">ذکر نشده</span>{% endif %}
             <br/>
-            {% if bundle.openai_example_file_id %}آزمون: {{ bundle.openai_example_file_id }}{% else %}آزمون: —{% endif %}
+            {% if bundle.openai_example_file_id_ %}آزمون: {{ bundle.openai_example_file_id }}{% else %}آزمون: <span class="muted">ذکر نشده</span>{% endif %}
           </div>
         </div>
       </div>
@@ -303,90 +263,162 @@ milad, [12/23/2025 1:26 AM]
       {% if bundle.error_message %}
         <div class="alert">خطا: {{ bundle.error_message }}</div>
       {% endif %}
-
-      {% if bundle.status == "pending" %}
-        <div class="alert" style="border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.08); color:#7c2d12;">
-          تحلیل هنوز کامل نشده. چند لحظه بعد این صفحه رو رفرش کن.
-        </div>
-      {% endif %}
     </div>
 
     <div class="card">
       <div class="section-title">
         <h2>راهنما</h2>
-        <span class="pill">نمایش خوانا</span>
+        <span class="pill">exam_map_v2</span>
       </div>
       <div class="small-note">
-        اینجا خروجی تحلیل به زبان آدمیزاد نمایش داده می‌شه: مشخصات آزمون، سوال‌ها، سطح سختی و نوع سوالات.
+        هرجایی مقدار <b>null</b> باشد، این صفحه آن را «ذکر نشده» نمایش می‌دهد.
+        کلیدهای خروجی انگلیسی هستند تا در Django template راحت و بدون دردسر استفاده شوند.
       </div>
       <div class="divider"></div>
       <div class="small-note">
-        اگر خواستی، قدم بعدی می‌تونه این باشه که روی هر سوال «ویرایش پاسخ» یا «ساخت PDF خروجی» هم اضافه کنیم.
+        اگر نگاشت به کتاب مبهم باشد، هشدارها در پایین صفحه نمایش داده می‌شوند.
       </div>
     </div>
-
   </div>
 
-  <!-- Result -->
   {% if bundle.result %}
     {% with data=bundle.result.result_json %}
-      {% with exam=data.exam_identity %}
-      <div class="card" style="margin-top:14px;">
 
+      <!-- Exam Info -->
+      <div class="card" style="margin-top:14px;">
         <div class="section-title">
           <h2>مشخصات آزمون</h2>
-          <span class="pill">سوالات: {{ exam.total_questions|default:"—" }}</span>
+          <span class="pill">نسخه: {{ data.schema_version|default:"—" }}</span>
         </div>
 
-        <h3 class="exam-name">{{ exam.exam_name|default:"—" }}</h3>
+        <h3 class="exam-name">
+          {% if data.exam_info.exam_name %}{{ data.exam_info.exam_name }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+        </h3>
 
-        <div class="exam-meta">
-          {% if exam.grade_level %}<span class="tag blue">پایه: {{ exam.grade_level }}</span>{% endif %}
-          {% if exam.exam_duration %}<span class="tag purple">مدت: {{ exam.exam_duration }}</span>{% endif %}
-          {% if exam.exam_date %}<span class="tag green">تاریخ: {{ exam.exam_date }}</span>{% endif %}
+        <div class="chips">
+          <span class="tag blue">پایه:
+            {% if data.exam_info.target_grade_level %}{{ data.exam_info.target_grade_level }}{% else %}ذکر نشده{% endif %}
+          </span>
+          <span class="tag purple">مدت:
+            {% if data.exam_info.exam_duration %}{{ data.exam_info.exam_duration }}{% else %}ذکر نشده{% endif %}
+          </span>
+          <span class="tag green">تاریخ:
+            {% if data.exam_info.exam_date %}{{ data.exam_info.exam_date }}{% else %}ذکر نشده{% endif %}
+          </span>
         </div>
 
-        {% if exam.budgeting %}
-          <div class="divider"></div>
-
-          <div class="section-title">
-            <h3>بودجه‌بندی و مفاهیم</h3>
-            <span class="pill">صفحات: {{ exam.budgeting.page_range|default:"—" }}</span>
-          </div>
-
-          <div class="meta">
-            <div class="kv">
-              <div class="k">فصل‌ها</div>
-              <div class="v">
-                {% if exam.budgeting.chapters %}
-                  {% for ch in exam.budgeting.chapters %}
-                    فصل {{ ch.chapter_number }}{% if ch.chapter_name %} — {{ ch.chapter_name }}{% endif %}{% if not forloop.last %}<br/>{% endif %}
-                  {% endfor %}
-                {% else %}
-                  —
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="kv">
-              <div class="k">مفاهیم کلی</div>
-              <div class="v">
-                {% if exam.budgeting.general_concepts %}
-                  {% for c in exam.budgeting.general_concepts %}
-                    • {{ c }}{% if not forloop.last %}<br/>{% endif %}
-                  {% endfor %}
-                {% else %}
-                  —
-                {% endif %}
-              </div>
+        <div class="meta" style="margin-top:12px;">
+          <div class="kv">
+            <div class="k">تعداد سوالات اصلی</div>
+            <div class="v">
+              {% if data.exam_info.main_questions_count != None %}
+                {{ data.exam_info.main_questions_count }}
+              {% else %}
+                <span class="muted">ذکر نشده</span>
+              {% endif %}
             </div>
           </div>
-        {% endif %}
+          <div class="kv">
+            <div class="k">تعداد کل زیرسوال‌ها</div>
+            <div class="v">
+              {% if data.exam_info.total_subparts_count != None %}
+                {{ data.exam_info.total_subparts_count }}
+              {% else %}
+                <span class="muted">ذکر نشده</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
 
         <div class="divider"></div>
 
         <div class="section-title">
-          <h2>سوالات آزمون</h2>
+          <h3>بودجه‌بندی نسبت به کتاب</h3>
+          <span class="pill">Book Mapping</span>
+        </div>
+
+        <div class="meta">
+          <div class="kv">
+            <div class="k">محدوده صفحات</div>
+            <div class="v">
+              {% if data.exam_info.budgeting.page_range %}{{ data.exam_info.budgeting.page_range }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="kv">
+
+<div class="k">فصل‌ها/درس‌ها</div>
+            <div class="v">
+              {% if data.exam_info.budgeting.chapters_or_units and data.exam_info.budgeting.chapters_or_units|length %}
+                {% for c in data.exam_info.budgeting.chapters_or_units %}
+                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}
+                {% endfor %}
+              {% else %}
+                <span class="muted">ذکر نشده</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="kv" style="grid-column:1/-1;">
+            <div class="k">مفاهیم/مهارت‌های کلی</div>
+            <div class="v">
+              {% if data.exam_info.budgeting.general_concepts_or_skills and data.exam_info.budgeting.general_concepts_or_skills|length %}
+                {% for c in data.exam_info.budgeting.general_concepts_or_skills %}
+                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}
+                {% endfor %}
+              {% else %}
+                <span class="muted">ذکر نشده</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>جمع‌بندی آماری</h2>
+          <span class="pill">Overall: {{ data.summary.overall_level }}</span>
+        </div>
+
+        <div class="meta">
+          <div class="kv">
+            <div class="k">تعداد سطح سختی</div>
+            <div class="v">
+              آسان: {{ data.summary.difficulty_counts.easy }} |
+              متوسط: {{ data.summary.difficulty_counts.medium }} |
+              سخت: {{ data.summary.difficulty_counts.hard }} |
+              نامشخص: {{ data.summary.difficulty_counts.unknown }}
+            </div>
+          </div>
+
+          <div class="kv">
+            <div class="k">تعداد نوع سوال</div>
+            <div class="v">
+              تستی: {{ data.summary.question_type_counts.multiple_choice }} |
+              تشریحی: {{ data.summary.question_type_counts.descriptive }} |
+              جای‌خالی: {{ data.summary.question_type_counts.fill_blank }} |
+              وصل‌کردنی: {{ data.summary.question_type_counts.matching }}
+              <br/>
+              صحیح/غلط: {{ data.summary.question_type_counts.true_false }} |
+              سایر: {{ data.summary.question_type_counts.other }} |
+              نامشخص: {{ data.summary.question_type_counts.unknown }}
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h4>راهنمای سریع برچسب‌ها</h4>
+          <div class="small-note">
+            easy=آسان، medium=متوسط، hard=سخت، unknown=نامشخص
+          </div>
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>سوال‌ها</h2>
           <span class="pill">تعداد: {{ data.questions|length }}</span>
         </div>
 
@@ -394,57 +426,134 @@ milad, [12/23/2025 1:26 AM]
           {% for q in data.questions %}
             <div class="question">
 
-milad, [12/23/2025 1:26 AM]
-<div class="qhead">
-                <div class="qnum">سؤال {{ q.question_number|default:forloop.counter }}</div>
+              <div class="qhead">
+                <div class="qnum">سؤال {{ q.question_number }} <span class="muted">({{ q.question_id }})</span></div>
 
                 <div class="qmeta">
-                  {% if q.question_type %}<span class="tag">{{ q.question_type }}</span>{% endif %}
-                  {% if q.difficulty %}
-                    {% if q.difficulty == "آسان" %}
-                      <span class="tag green">سختی: {{ q.difficulty }}</span>
-                    {% elif q.difficulty == "متوسط" %}
-                      <span class="tag yellow">سختی: {{ q.difficulty }}</span>
-                    {% else %}
-                      <span class="tag">سختی: {{ q.difficulty }}</span>
-                    {% endif %}
+                  <span class="tag blue">نوع: {{ q.prompt.type }}</span>
+
+                  {% if q.question_level_difficulty == "easy" %}
+                    <span class="tag green">سختی: آسان</span>
+                  {% elif q.question_level_difficulty == "medium" %}
+                    <span class="tag yellow">سختی: متوسط</span>
+                  {% elif q.question_level_difficulty == "hard" %}
+                    <span class="tag red">سختی: سخت</span>
+                  {% else %}
+                    <span class="tag">سختی: نامشخص</span>
                   {% endif %}
-                  {% if q.textbook_source and q.textbook_source.page %}
-                    <span class="tag blue">صفحه: {{ q.textbook_source.page }}</span>
+
+{% if q.confidence == "high" %}
+                    <span class="tag green">اعتماد: بالا</span>
+                  {% elif q.confidence == "medium" %}
+                    <span class="tag yellow">اعتماد: متوسط</span>
+                  {% else %}
+                    <span class="tag red">اعتماد: پایین</span>
                   {% endif %}
                 </div>
               </div>
 
-              <div class="qtext">{{ q.question_text }}</div>
+              <div class="qtext">
+                {% if q.prompt.text %}{{ q.prompt.text }}{% else %}<span class="muted">متن سوال ذکر نشده</span>{% endif %}
+              </div>
 
-              {% if q.correct_answer %}
-                <div class="block">
-                  <h4>پاسخ / کلید</h4>
-                  <div class="answer">
-                    <strong>پاسخ</strong>
-                    <div class="val">{{ q.correct_answer }}</div>
+              <div class="block">
+                <h4>مفهوم کلی سوال</h4>
+                <div class="small-note">
+                  {% if q.question_level_concept %}{{ q.question_level_concept }}{% else %}ذکر نشده{% endif %}
+                </div>
+              </div>
+
+              <div class="block">
+                <h4>ارجاع به کتاب (سطح سوال)</h4>
+                <div class="meta">
+                  <div class="kv">
+                    <div class="k">صفحه</div>
+                    <div class="v">{% if q.question_level_book_ref.page %}{{ q.question_level_book_ref.page }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>
+                  </div>
+                  <div class="kv">
+                    <div class="k">عنوان بخش</div>
+                    <div class="v">{% if q.question_level_book_ref.section_title %}{{ q.question_level_book_ref.section_title }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>
+                  </div>
+                  <div class="kv">
+                    <div class="k">درس/یونیت</div>
+                    <div class="v">{% if q.question_level_book_ref.lesson_or_unit %}{{ q.question_level_book_ref.lesson_or_unit }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>
+                  </div>
+                  <div class="kv">
+                    <div class="k">مهارت</div>
+                    <div class="v">{{ q.question_level_book_ref.skill }}</div>
+                  </div>
+                  <div class="kv" style="grid-column:1/-1;">
+                    <div class="k">عبارت شاهد (anchor_quote)</div>
+                    <div class="v">{% if q.question_level_book_ref.anchor_quote %}{{ q.question_level_book_ref.anchor_quote }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>
                   </div>
                 </div>
-              {% else %}
-                <div class="block">
-                  <h4>پاسخ / کلید</h4>
-                  <div class="small-note">برای این سوال کلید مشخص نشده یا نیاز به پاسخ دانش‌آموز دارد.</div>
-                </div>
-              {% endif %}
+              </div>
 
-              {% if q.measured_concept %}
+              {% if q.subparts and q.subparts|length %}
                 <div class="block">
-                  <h4>مفهوم سنجیده‌شده</h4>
-                  <div class="small-note">{{ q.measured_concept }}</div>
-                </div>
-              {% endif %}
+                  <h4>زیرسوال‌ها</h4>
+                  <div class="subparts">
+                    {% for sp in q.subparts %}
+                      <div class="subcard">
+                        <div class="subhead">
+                          <div class="subid">زیرسوال {{ sp.sub_id }}</div>
+                          <div class="qmeta">
+                            {% if sp.difficulty == "easy" %}
+                              <span class="tag green">آسان</span>
+                            {% elif sp.difficulty == "medium" %}
+                              <span class="tag yellow">متوسط</span>
+                            {% elif sp.difficulty == "hard" %}
+                              <span class="tag red">سخت</span>
+                            {% else %}
+                              <span class="tag">نامشخص</span>
+                            {% endif %}
 
-              {% if q.textbook_source %}
-                <div class="block">
-                  <h4>ارجاع به کتاب</h4>
-                  <div class="small-note">
-                    {% if q.textbook_source.topic_title %}موضوع: {{ q.textbook_source.topic_title }}{% endif %}
-                    {% if q.textbook_source.page %}{% if q.textbook_source.topic_title %} — {% endif %}صفحه: {{ q.textbook_source.page }}{% endif %}
+                            {% if sp.confidence == "high" %}
+                              <span class="tag green">اعتماد بالا</span>
+                            {% elif sp.confidence == "medium" %}
+                              <span class="tag yellow">اعتماد متوسط</span>
+                            {% else %}
+                              <span class="tag red">اعتماد پایین</span>
+                            {% endif %}
+                          </div>
+                        </div>
+
+                        <div class="subtext">
+                          {% if sp.text %}{{ sp.text }}{% else %}<span class="muted">متن زیرسوال ذکر نشده</span>{% endif %}
+                        </div>
+
+<div class="block" style="border-top:0;padding-top:0;">
+                          <h4>کلید/پاسخ</h4>
+                          <div class="small-note">
+                            {% if sp.answer_key %}{{ sp.answer_key }}{% else %}ذکر نشده{% endif %}
+                          </div>
+                        </div>
+
+                        <div class="block" style="border-top:0;padding-top:0;">
+                          <h4>مفهوم</h4>
+                          <div class="small-note">
+                            {% if sp.concept_tested %}{{ sp.concept_tested }}{% else %}ذکر نشده{% endif %}
+                          </div>
+                        </div>
+
+                        <div class="block" style="border-top:0;padding-top:0;">
+                          <h4>ارجاع به کتاب (سطح زیرسوال)</h4>
+                          <div class="small-note">
+                            صفحه:
+                            {% if sp.book_ref.page %}{{ sp.book_ref.page }}{% else %}ذکر نشده{% endif %}
+                            — بخش:
+                            {% if sp.book_ref.section_title %}{{ sp.book_ref.section_title }}{% else %}ذکر نشده{% endif %}
+                            <br/>
+                            درس/یونیت:
+                            {% if sp.book_ref.lesson_or_unit %}{{ sp.book_ref.lesson_or_unit }}{% else %}ذکر نشده{% endif %}
+                            — مهارت: {{ sp.book_ref.skill }}
+                            <br/>
+                            شاهد:
+                            {% if sp.book_ref.anchor_quote %}{{ sp.book_ref.anchor_quote }}{% else %}ذکر نشده{% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
                   </div>
                 </div>
               {% endif %}
@@ -452,57 +561,36 @@ milad, [12/23/2025 1:26 AM]
             </div>
           {% endfor %}
         </div>
-
-        {% if data.final_analysis %}
-          <div class="divider"></div>
-
-          <div class="section-title">
-            <h2>جمع‌بندی تحلیل</h2>
-            <span class="pill">Final Analysis</span>
-          </div>
-
-          <div class="meta">
-            <div class="kv">
-              <div class="k">سختی کلی</div>
-              <div class="v">
-                {% if data.final_analysis.overall_difficulty %}
-                  آسان: {{ data.final_analysis.overall_difficulty.easy_count|default:"0" }} |
-                  متوسط: {{ data.final_analysis.overall_difficulty.medium_count|default:"0" }} |
-                  سخت: {{ data.final_analysis.overall_difficulty.hard_count|default:"0" }}
-                  {% if data.final_analysis.overall_difficulty.comment %}
-                    <div class="small-note" style="margin-top:6px;">
-                      {{ data.final_analysis.overall_difficulty.comment }}
-                    </div>
-                  {% endif %}
-                {% else %}
-                  —
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="kv">
-              <div class="k">توزیع نوع سوالات</div>
-              <div class="v">
-                {% if data.final_analysis.question_type_distribution %}
-                  {% for k,v in data.final_analysis.question_type_distribution.items %}
-                    {{ k }}: {{ v }}{% if not forloop.last %}<br/>{% endif %}
-                  {% endfor %}
-                {% else %}
-                  —
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        {% endif %}
-
-milad, [12/23/2025 1:26 AM]
-<details>
-          <summary>نمایش خروجی خام (برای بررسی)</summary>
-          <div class="code">{{ data }}</div>
-        </details>
-
       </div>
-      {% endwith %}
+
+      <!-- Parse Warnings -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>هشدارهای پردازش</h2>
+          <span class="pill">Parse Warnings</span>
+        </div>
+
+        {% if data.parse_warnings and data.parse_warnings|length %}
+          <ul>
+            {% for w in data.parse_warnings %}
+              <li>
+                <b>{{ w.code }}</b> —
+                {{ w.message }}
+                <span class="muted">(location: {{ w.location }})</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="small-note">هشداری ثبت نشده.</div>
+        {% endif %}
+      </div>
+
+      <!-- Raw JSON -->
+      <details class="card" style="margin-top:14px;">
+        <summary>نمایش خروجی خام (برای دیباگ)</summary>
+        <div class="code">{{ data }}</div>
+      </details>
+
     {% endwith %}
   {% else %}
     <div class="card" style="margin-top:14px;">

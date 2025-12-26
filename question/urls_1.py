@@ -8,4 +8,5 @@ urlpatterns = [
     path('assignment/', views.AssignExercisesView.as_view(), name='assignment_question_list'),
     path('bundles/new/', views.AnalysisBundleCreateView.as_view(), name='bundle_create'),
     path('bundles/<int:pk>/', views.AnalysisBundleDetailView.as_view(), name='bundle_detail'),
+    path('bundles/mine/', views.MyAnalysisBundlesView.as_view(), name='my_bundles'),
 ]

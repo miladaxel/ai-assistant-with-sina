@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class PromptTemplate(models.Model):
     name = models.CharField(max_length=120)
@@ -27,6 +28,7 @@ class AnalysisBundle(models.Model):
     ]
 
     title = models.CharField(max_length=120, blank=True, default='')
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='analysis_bundles', blank=True, null=True)
     prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.PROTECT, related_name="bundles")
     lesson_pdf = models.FileField(upload_to='lessons_pdfs/', blank=True, null=True)
     example_pdf = models.FileField(upload_to='example_pdfs/', blank=True, null=True)
