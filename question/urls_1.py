@@ -9,4 +9,6 @@ urlpatterns = [
     path('bundles/new/', views.AnalysisBundleCreateView.as_view(), name='bundle_create'),
     path('bundles/<int:pk>/', views.AnalysisBundleDetailView.as_view(), name='bundle_detail'),
     path('bundles/mine/', views.MyAnalysisBundlesView.as_view(), name='my_bundles'),
+    path('exam/create', views.ExamCreateView.as_view(), name='exam_create'),
+    path('exam/<int:exam_id>/question/setup/', views.ExamQuestionsSetupView.as_view(), name='exam_question_setup'),
 ]

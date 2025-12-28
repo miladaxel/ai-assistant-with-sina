@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PromptTemplate, AnalysisBundle, AnalysisResult
+from .models import PromptTemplate, AnalysisBundle, AnalysisResult, Exam, Question, SubQuestion
 
 @admin.register(PromptTemplate)
 class PromptTemplateAdmin(admin.ModelAdmin):
@@ -17,3 +17,14 @@ class AnalysisBundleAdmin(admin.ModelAdmin):
 class AnalysisResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'bundle', 'created_at')
 
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name',)
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(SubQuestion)
+class SubQuestionAdmin(admin.ModelAdmin):
+    pass

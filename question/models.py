@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from Profile.models import Student, TeacherUser
 class PromptTemplate(models.Model):
     name = models.CharField(max_length=120)
     version = models.PositiveIntegerField(default=1)
@@ -55,3 +55,31 @@ class AnalysisResult(models.Model):
     def __str__(self):
         return f"Bundle {self.bundle.id} - {self.bundle.status}"
 
+class Exam(models.Model):
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
+    name = models.CharField(max_length=120, blank=True, default='')
+    total_question = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Question(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='questions')
+    number = models.PositiveIntegerField(default=0)
+    has_subquestion = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    subquestion_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"question {self.number} - {self.subquestion_count}"
+
+
+class SubQuestion(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='subquestions')
+    number = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"subquestion {self.number} of question {self.question.number}"

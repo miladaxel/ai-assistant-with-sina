@@ -1,0 +1,7 @@
+<h2>ایجاد سوالات برای آزمون: {{ exam.name }}</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">ذخیره سوالات</button>
+</form>
