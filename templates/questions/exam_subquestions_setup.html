@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>تعداد زیرسوال‌ها</title>
+  <style>
+    body { font-family: sans-serif; background:#f6f6f6; margin:0; }
+    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }
+    h1 { margin:0 0 10px; font-size: 20px; }
+    .muted { color:#666; font-size: 13px; margin-bottom: 16px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:10px; border-bottom:1px solid #eee; text-align:right; }
+    th { background:#fafafa; font-weight:600; }
+    input[type="number"] { width: 110px; padding:6px; }
+    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; }
+    .btn-primary { background:#111; color:#fff; }
+    .err { color:#b00020; font-size: 13px; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>تعیین تعداد زیرسوال‌ها: {{ exam.name }}</h1>
+    <div class="muted">اینجا فقط سوال‌هایی نمایش داده می‌شن که زیرسوال دارند. تعداد رو بزن و ذخیره کن.</div>
+
+    {% if formset.total_form_count == 0 %}
+      <div class="muted">هیچ سوالی با گزینه «زیرسوال دارد» انتخاب نشده.</div>
+    {% else %}
+      <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table>
+          <thead>
+            <tr>
+              <th>شماره سوال</th>
+              <th>تعداد زیرسوال</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for form in formset %}
+              <tr>
+                <td>
+                  سوال {{ form.instance.number }}
+                  {{ form.id }}
+                </td>
+                <td>
+                  {{ form.subquestion_count }}
+                  {% if form.subquestion_count.errors %}
+                    <div class="err">{{ form.subquestion_count.errors.0 }}</div>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" type="submit">ذخیره</button>
+        </div>
+      </form>
+    {% endif %}
+  <div class="muted">تعداد فرم‌ها: {{ formset.total_form_count }}</div>
+  </div>
+</body>
+</html>

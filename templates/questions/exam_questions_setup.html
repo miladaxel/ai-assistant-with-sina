@@ -1,24 +1,51 @@
-<form method="post">
-  {% csrf_token %}
-  {{ formset.management_form }}
-  <table>
-    <thead>
-      <tr>
-        <th>سوال</th>
-        <th>زیرسوال دارد؟</th>
-        <th>تعداد زیرسوال</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for form in formset %}
-        <tr>
-          <td>سوال {{ form.instance.number }}</td>
-          <td>{{ form.has_subquestion }}</td>
-          <td>{{ form.subquestion_count }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>تنظیم سوال‌های آزمون</title>
+  <style>
+    body { font-family: sans-serif; background:#f6f6f6; margin:0; }
+    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }
+    h1 { margin:0 0 15px; font-size: 20px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:10px; border-bottom:1px solid #eee; text-align:right; }
+    th { background:#fafafa; font-weight:600; }
+    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; }
+    .btn-primary { background:#111; color:#fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>تنظیم سوال‌ها: {{ exam.name }}</h1>
 
-  <button type="submit">ذخیره</button>
-</form>
+    <form method="post">
+      {% csrf_token %}
+      {{ formset.management_form }}
+
+      <table>
+        <thead>
+          <tr>
+            <th>شماره سوال</th>
+            <th>زیرسوال دارد؟</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for form in formset %}
+            <tr>
+              <td>
+                سوال {{ form.instance.number }}
+                {{ form.id }}
+              </td>
+              <td>{{ form.has_subquestion }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div style="margin-top:16px;">
+        <button class="btn btn-primary" type="submit">ذخیره</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

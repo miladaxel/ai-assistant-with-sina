@@ -60,10 +60,22 @@ class Exam(models.Model):
     name = models.CharField(max_length=120, blank=True, default='')
     total_question = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    students = models.ManyToManyField(Student,through="ExamParticipation" ,related_name='taken_exams', blank=True)
 
     def __str__(self):
         return self.name
 
+
+class ExamParticipation(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='participations')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_participations')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('exam', 'student')
+
+    def __str__(self):
+        return f"{self.student.full_name} - {self.exam.name}"
 
 class Question(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='questions')
@@ -73,7 +85,7 @@ class Question(models.Model):
     subquestion_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"question {self.number} - {self.subquestion_count}"
+        return f"exam {self.exam.name} - question {self.number} - {self.subquestion_count}"
 
 
 class SubQuestion(models.Model):
@@ -82,4 +94,6 @@ class SubQuestion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"subquestion {self.number} of question {self.question.number}"
+        return f"exam {self.question.exam.name} - subquestion {self.number} of question {self.question.number}"
+
+

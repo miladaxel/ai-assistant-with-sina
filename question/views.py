@@ -11,14 +11,15 @@ from django.views.generic import TemplateView, CreateView, DetailView, ListView,
 from openai import OpenAI
 from django.conf import settings
 from django.db import transaction
-from .forms import AnalysisBundleCreateForm, ExamForm, QuestionForm, QuestionSetupFormSet
-from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion
+from .forms import AnalysisBundleCreateForm, ExamForm, QuestionHasSubFormSet, QuestionSubCountForm, QuestionSubCountFormSet, QuestionHasSubForm, ExamStudentForm
+from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion, ExamParticipation
 from question.services.openai_client import OpenAIAnalyzer
 import inspect
 import importlib
 from .mixins import TeacherRequiredMixin
 from django.urls import reverse_lazy
 from Profile.models import TeacherUser
+from django.db.models import Sum
 
 
 
@@ -231,85 +232,151 @@ class ExamCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
 
         total_question = exam.total_question
         Question.objects.bulk_create(
-            [Question(exam=exam, number=i) for i in range(total_question + 1)],
+            [Question(exam=exam, number=i) for i in range(1, total_question + 1)],
             ignore_conflicts=True,
         )
         return redirect('exam_question_setup', exam_id=exam.pk)
 
 
 
-class ExamQuestionsSetupView(LoginRequiredMixin, FormView):
+class ExamQuestionsSetupView(LoginRequiredMixin, TemplateView):
     template_name = "questions/exam_questions_setup.html"
 
     def dispatch(self, request, *args, **kwargs):
-        # پیدا کردن آزمون مربوط به معلم جاری
-        self.exam = get_object_or_404(Exam, pk=kwargs["exam_id"], teacher=request.user)
+        self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
         return super().dispatch(request, *args, **kwargs)
 
-    def get_form(self, form_class=None):
-        # دریافت سوالات این آزمون برای ویرایش
-        qs = self.exam.questions.all().order_by("number")
-        if self.request.method == "POST":
-            return QuestionSetupFormSet(self.request.POST, queryset=qs)
-        return QuestionSetupFormSet(queryset=qs)
+    def get_queryset(self):
+        return (Question.objects.filter(exam=self.exam).order_by('number'))
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        formset = kwargs.get("formset") or QuestionHasSubFormSet(queryset=self.get_queryset())
         ctx["exam"] = self.exam
-        ctx["formset"] = kwargs.get("formset") or self.get_form()
+        ctx["formset"] = formset
         return ctx
 
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
+
     @transaction.atomic
-    def form_valid(self, form):
-        formset = form
+    def post(self, request, *args, **kwargs):
+        formset = QuestionHasSubFormSet(request.POST, queryset=self.get_queryset())
+        if not formset.is_valid():
+            return self.render_to_response(self.get_context_data(formset=formset))
 
-        for f in formset:
-            obj = f.save(commit=False)
+        formset.save()
+        return redirect('exam_sub_question_setup', exam_id=self.exam.pk)
 
-            # چاپ برای بررسی داده‌های سوال
-            print(f"Question Object: {obj}")
-            print(f"Has Subquestion: {obj.has_subquestion}")
-            print(f"Subquestion Count: {obj.subquestion_count}")
+class ExamSubQuestionsSetupView(LoginRequiredMixin, TemplateView):
+    template_name = "questions/exam_subquestions_setup.html"
 
-            # فقط اگر سوال زیرسوال دارد
-            if obj.has_subquestion:
-                obj.save()  # ذخیره سوال اصلی اگر زیرسوالی داشته باشد
+    def dispatch(self, request, *args, **kwargs):
+        self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
+        return super().dispatch(request, *args, **kwargs)
 
-                # ایجاد زیرسوال‌ها به تعداد subquestion_count
-                for i in range(1, obj.subquestion_count + 1):  # از شماره 1 تا subquestion_count
-                    print(f"Creating Subquestion {i} for Question {obj.number}")
-                    SubQuestion.objects.create(
-                        question=obj,
-                        number=i,  # شماره زیرسوال
-                    )
-            else:
-                obj.save()  # ذخیره سوال اصلی اگر زیرسوالی نداشته باشد
-
-        print("Form Saved Successfully!")  # چاپ برای بررسی که فرم به درستی ذخیره شد
-
-        # ریدایرکت به صفحه تنظیم سوالات بعد از ذخیره
-        return redirect("question:exam_questions_setup", exam_id=self.exam.pk)
-
-    def form_invalid(self, form):
-        # چاپ ارورهای فرم برای کمک در دیباگ
-        print(f"Form Errors: {form.errors}")
-        return self.render_to_response(self.get_context_data(formset=form))
-
-
-class QuestionCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
-    model = Question
-    form_class = QuestionForm
-    template_name = 'questions/question_create.html'
+    def get_queryset(self):
+        return (Question.objects.filter(exam=self.exam, has_subquestion=True).exclude(number=0).order_by('number'))
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["exam"] = self.kwargs["exam_id"]
-        return context
+        ctx = super().get_context_data(**kwargs)
+        formset = kwargs.get("formset") or QuestionSubCountFormSet(queryset=self.get_queryset())
+        ctx["exam"] = self.exam
+        ctx["formset"] = formset
+        return ctx
 
-    def form_valid(self, form):
-        exam = self.kwargs["exam_id"]
-        form.instance.exam = Exam.objects.get(id=exam)
-        return super().form_valid(form)
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        formset = QuestionSubCountFormSet(request.POST, queryset=self.get_queryset())
+        if not formset.is_valid():
+            return self.render_to_response(self.get_context_data(formset=formset))
+
+        question = formset.save(commit=False)
+        for q in question :
+            desired = q.subquestion_count or 0
+            q.save(update_fields=["subquestion_count"])
+            existing_qs = q.subquestions.order_by('number')
+            existing_count = existing_qs.count()
+
+            if desired > existing_count:
+                start = existing_count + 1
+                SubQuestion.objects.bulk_create([
+                    SubQuestion(question=q, number=i) for i in range(start, desired + 1)
+                ])
+            elif desired < existing_count:
+                q.subquestions.order_by('-number')[:existing_count - desired].delete()
+
+        return redirect('exam_summary', exam_id=self.exam.pk)
+
+class ExamSummaryView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
+    template_name = "questions/exam_summary.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        questions = (Question.objects.filter(exam=self.exam).order_by('number'))
+
+        total_sub = questions.aggregate(total=Sum('subquestion_count'))
+        participants = (ExamParticipation.objects.filter(exam=self.exam).select_related('student').order_by('student__full_name'))
+
+        ctx["exam"] = self.exam
+        ctx["questions"] = questions
+        ctx["total_questions"] = questions.count()
+        ctx["total_subquestions"] = total_sub
+        ctx["participants"] = participants
+        return ctx
+
+
+class ExamSelectStudentsView(LoginRequiredMixin, TemplateView):
+    template_name = 'questions/exam_select_students.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
+        self.teacher_profile = get_object_or_404(TeacherUser, user=request.user)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_students_qs(self):
+        return self.teacher_profile.students.all().order_by('full_name')
+
+    def get_initial_selected(self):
+        return ExamParticipation.objects.filter(exam=self.exam).values_list('student_id', flat=True)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        form = kwargs.get('form') or ExamStudentForm(
+            students_qs=self.get_students_qs(),
+            initial={'students': self.get_initial_selected()}
+        )
+        ctx['exam'] = self.exam
+        ctx['form'] = form
+        return ctx
+
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        form = ExamStudentForm(request.POST, students_qs=self.get_students_qs())
+        if not form.is_valid():
+            return self.render_to_response(self.get_context_data(form=form))
+
+        selected_students = form.cleaned_data['students']
+
+        ExamParticipation.objects.filter(exam=self.exam).exclude(student__in=selected_students).delete()
+
+        existing_ids = ExamParticipation.objects.filter(exam=self.exam, student__in=selected_students).values_list('student_id', flat=True)
+
+        new_rows = [ExamParticipation(exam=self.exam, student=s) for s in selected_students if s.id not in existing_ids]
+        if new_rows:
+            ExamParticipation.objects.bulk_create(new_rows)
+
+        return redirect('exam_summary', exam_id=self.exam.pk)
 
 # class StudentAnswerCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
 #     model = StudentAnswer

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>انتخاب دانش‌آموزها</title>
+  <style>
+    body { font-family:sans-serif; background:#f6f6f6; margin:0; }
+    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }
+    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; background:#111; color:#fff; }
+    ul { list-style:none; padding:0; margin:0; }
+    li { padding:8px 0; border-bottom:1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>دانش‌آموزهای شرکت‌کننده در آزمون: {{ exam.name }}</h2>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.students }}
+      <div style="margin-top:16px;">
+        <button class="btn" type="submit">ذخیره</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
