@@ -1,8 +1,9 @@
 from symtable import Class
 
 from django import forms
-from .models import AnalysisBundle, PromptTemplate, Exam, Question
+from .models import AnalysisBundle, PromptTemplate, Exam, Question, StudentQuestionResult
 from django.forms import modelformset_factory
+
 
 
 class AnalysisBundleCreateForm(forms.ModelForm):
@@ -68,3 +69,24 @@ class ExamStudentForm(forms.Form):
         student_qs = kwargs.pop('students_qs')
         super().__init__(*args, **kwargs)
         self.fields['students'].queryset = student_qs
+
+
+
+from django import forms
+from django.forms import modelformset_factory
+from .models import StudentQuestionResult
+
+class StudentQuestionResultForm(forms.ModelForm):
+    # فقط یک Checkbox ساده
+    is_correct = forms.BooleanField(
+        required=False,
+        label='درست است؟'
+    )
+
+    class Meta:
+        model = StudentQuestionResult
+        fields = ('is_correct',)
+
+
+
+StudentQuestionResultFormSet = modelformset_factory(StudentQuestionResult, form=StudentQuestionResultForm, extra=0)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PromptTemplate, AnalysisBundle, AnalysisResult, Exam, Question, SubQuestion, ExamParticipation
+from .models import PromptTemplate, AnalysisBundle, AnalysisResult, Exam, Question, SubQuestion, ExamParticipation, StudentQuestionResult
 
 @admin.register(PromptTemplate)
 class PromptTemplateAdmin(admin.ModelAdmin):
@@ -37,6 +37,8 @@ class SubQuestionAdmin(admin.ModelAdmin):
     pass
 
 
-
+@admin.register(StudentQuestionResult)
+class StudentQuestionResultAdmin(admin.ModelAdmin):
+    pass
 
 

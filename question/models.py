@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from Profile.models import Student, TeacherUser
+from django.core.exceptions import ValidationError
+
 class PromptTemplate(models.Model):
     name = models.CharField(max_length=120)
     version = models.PositiveIntegerField(default=1)
@@ -97,3 +99,23 @@ class SubQuestion(models.Model):
         return f"exam {self.question.exam.name} - subquestion {self.number} of question {self.question.number}"
 
 
+class StudentQuestionResult(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='student_answers')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', null=True, blank=True)
+    subquestion = models.ForeignKey(SubQuestion, on_delete=models.CASCADE, related_name='answers', null=True, blank=True)
+    is_correct = models.BooleanField(default=False)
+    graded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('exam', 'student', 'question', 'subquestion')
+
+    def clean(self):
+        if self.question and self.subquestion:
+            raise ValidationError("Only one of question or subquestion allowed")
+        if not self.question and not self.subquestion:
+            raise ValidationError("Question or subquestion is required")
+
+    def __str__(self):
+        target = self.subquestion or self.question
+        return f"{self.student.full_name} - {target} - {'✔' if self.is_correct else '✘'}"

@@ -1,0 +1,32 @@
+
+
+<h2>تصحیح آزمون: {{ exam.name }}</h2>
+<h3>دانش‌آموز: {{ student.full_name }}</h3>
+
+<form method="post">
+    {% csrf_token %}
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>سؤال</th>
+            <th>درست است؟</th>
+        </tr>
+
+        {% for r in results %}
+            <tr>
+                <td>
+                    {% if r.subquestion %}
+                        سؤال {{ r.subquestion.question.number }} - زیرسؤال {{ r.subquestion.number }}
+                    {% else %}
+                        سؤال {{ r.question.number }}
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="checkbox" name="result_{{ r.id }}" {% if r.is_correct %}checked{% endif %}>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <button type="submit">ذخیره تصحیح</button>
+</form>

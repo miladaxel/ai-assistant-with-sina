@@ -1,0 +1,40 @@
+
+<h2>گزارش نتایج آزمون: {{ exam.name }}</h2>
+
+{% for student, results in student_results.items %}
+    <hr>
+    <h3>دانش‌آموز: {{ student.full_name }}</h3>
+
+    <table border="1" cellpadding="8" cellspacing="0" width="100%">
+        <tr>
+            <th>سؤال</th>
+            <th>وضعیت</th>
+        </tr>
+
+        {% for r in results %}
+            <tr>
+                <td>
+                    {% if r.subquestion %}
+                        سؤال {{ r.subquestion.question.number }}
+                        - زیرسؤال {{ r.subquestion.number }}
+                    {% else %}
+                        سؤال {{ r.question.number }}
+                    {% endif %}
+                </td>
+                <td style="text-align:center;">
+                    {% if r.is_correct %}
+                        <span style="color:green;">✔ درست</span>
+                    {% else %}
+                        <span style="color:red;">✘ غلط</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% empty %}
+    <p>هیچ نتیجه‌ای ثبت نشده است.</p>
+{% endfor %}
+
+<br>
+<a href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a>
+

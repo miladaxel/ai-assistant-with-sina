@@ -11,14 +11,14 @@ from django.views.generic import TemplateView, CreateView, DetailView, ListView,
 from openai import OpenAI
 from django.conf import settings
 from django.db import transaction
-from .forms import AnalysisBundleCreateForm, ExamForm, QuestionHasSubFormSet, QuestionSubCountForm, QuestionSubCountFormSet, QuestionHasSubForm, ExamStudentForm
-from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion, ExamParticipation
+from .forms import AnalysisBundleCreateForm, ExamForm, QuestionHasSubFormSet, QuestionSubCountForm, QuestionSubCountFormSet, QuestionHasSubForm, ExamStudentForm, StudentQuestionResultForm, StudentQuestionResultFormSet
+from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion, ExamParticipation, StudentQuestionResult
 from question.services.openai_client import OpenAIAnalyzer
 import inspect
 import importlib
 from .mixins import TeacherRequiredMixin
 from django.urls import reverse_lazy
-from Profile.models import TeacherUser
+from Profile.models import TeacherUser, Student
 from django.db.models import Sum
 
 
@@ -378,10 +378,96 @@ class ExamSelectStudentsView(LoginRequiredMixin, TemplateView):
 
         return redirect('exam_summary', exam_id=self.exam.pk)
 
-# class StudentAnswerCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
-#     model = StudentAnswer
-#     form_class = StudentAnswerForm
-#     template_name = 'questions/create_answer.html'
-#     success_url = reverse_lazy('question_list')
 
 
+
+class ExamCorrectionView(LoginRequiredMixin, View):
+    template_name = 'questions/exam_correction.html'
+
+    def get(self, request, exam_id, student_id):
+        exam = get_object_or_404(Exam, id=exam_id, teacher=request.user)
+        student = get_object_or_404(Student, id=student_id)
+        get_object_or_404(ExamParticipation, exam=exam, student=student)
+
+        # آماده‌سازی نتایج اولیه اگر وجود ندارند
+        results = []
+        for q in exam.questions.all():
+            if q.has_subquestion:
+                for sub in q.subquestions.all():
+                    result, created = StudentQuestionResult.objects.get_or_create(
+                        exam=exam, student=student, subquestion=sub
+                    )
+                    results.append(result)
+            else:
+                result, created = StudentQuestionResult.objects.get_or_create(
+                    exam=exam, student=student, question=q
+                )
+                results.append(result)
+
+        context = {
+            'exam': exam,
+            'student': student,
+            'results': results,
+        }
+        return render(request, self.template_name, context)
+
+    @transaction.atomic
+    def post(self, request, exam_id, student_id):
+        exam = get_object_or_404(Exam, id=exam_id, teacher=request.user)
+        student = get_object_or_404(Student, id=student_id)
+        get_object_or_404(ExamParticipation, exam=exam, student=student)
+
+        # ذخیره نتایج بر اساس checkbox
+        all_results = StudentQuestionResult.objects.filter(exam=exam, student=student)
+        for r in all_results:
+            # اگر checkbox ارسال شده → True، در غیر اینصورت → False
+            r.is_correct = f'result_{r.id}' in request.POST
+            r.save()
+
+        return redirect('exam_summary', exam_id=exam.id)
+
+
+
+class ExamResultsReportView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
+    template_name = "questions/exam_result_report.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.exam = get_object_or_404(
+            Exam,
+            id=kwargs["exam_id"],
+            teacher=request.user
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        participations = (
+            ExamParticipation.objects
+            .filter(exam=self.exam)
+            .select_related('student')
+            .order_by('student__full_name')
+        )
+
+        results = (
+            StudentQuestionResult.objects
+            .filter(exam=self.exam)
+            .select_related(
+                'student',
+                'question',
+                'subquestion',
+                'subquestion__question'
+            )
+            .order_by('student__full_name')
+        )
+
+        # گروه‌بندی نتایج بر اساس دانش‌آموز
+        student_results = {}
+        for r in results:
+            student_results.setdefault(r.student, []).append(r)
+
+        ctx["exam"] = self.exam
+        ctx["student_results"] = student_results
+        ctx["participants"] = participations
+
+        return ctx
