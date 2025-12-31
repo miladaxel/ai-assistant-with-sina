@@ -12,7 +12,7 @@ from openai import OpenAI
 from django.conf import settings
 from django.db import transaction
 from .forms import AnalysisBundleCreateForm, ExamForm, QuestionHasSubFormSet, QuestionSubCountForm, QuestionSubCountFormSet, QuestionHasSubForm, ExamStudentForm, StudentQuestionResultForm, StudentQuestionResultFormSet
-from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion, ExamParticipation, StudentQuestionResult
+from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion, ExamParticipation, StudentQuestionResult, ExamSnapShot
 from question.services.openai_client import OpenAIAnalyzer
 import inspect
 import importlib
@@ -471,3 +471,69 @@ class ExamResultsReportView(LoginRequiredMixin, TeacherRequiredMixin, TemplateVi
         ctx["participants"] = participations
 
         return ctx
+
+
+class ExamSnapShotCreateView(LoginRequiredMixin, TeacherRequiredMixin, View):
+    template_name = "questions/exam_snapshot_create.html"
+    def get(self, request, exam_id):
+        exam = get_object_or_404(Exam, id=exam_id, teacher=request.user)
+
+        return render(request, self.template_name, {'exam': exam})
+
+    def post(self, request, exam_id):
+        exam = get_object_or_404(Exam, id=exam_id, teacher=request.user)
+
+        snap_shot = {
+            "exam" : {
+                "id": exam.id,
+                "name": exam.name,
+                "teacher_id": exam.teacher_id,
+                "created_at": exam.created_at.isoformat()
+            },
+            "students": []
+        }
+
+        seen_students = set()
+        participations = ExamParticipation.objects.filter(exam=exam).select_related('student')
+        for p in participations:
+            student = p.student
+            if student.id in seen_students:
+                continue
+            seen_students.add(student.id)
+            answers = StudentQuestionResult.objects.filter(exam=exam, student=student).select_related('question', 'subquestion', 'subquestion__question')
+            student_data = {"student_id": student.id, "full_name": student.full_name, "results": []}
+            for ans in answers:
+                if ans.question:
+                    student_data["results"].append({
+                        "type": 'question',
+                        "question_id": ans.question.id,
+                        "question_number": ans.question.number,
+                        "is_correct": ans.is_correct,
+                    })
+                else:
+                    student_data["results"].append({
+                        "type": 'subquestion',
+                        "subquestion_id": ans.subquestion.id,
+                        "question_number": ans.subquestion.question.number,
+                        "subquestion_number": ans.subquestion.number,
+                        "is_correct": ans.is_correct,
+                    })
+            snap_shot["students"].append(student_data)
+        ExamSnapShot.objects.create(exam=exam, data=snap_shot)
+
+        return redirect('exam_snapshot_list', exam_id=exam_id)
+
+
+class ExamSnapShotListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+    model = ExamSnapShot
+    template_name = 'questions/snapshot_list.html'
+    context_object_name = 'snapshots'
+
+    def get_queryset(self):
+        self.exam = get_object_or_404(Exam, id=self.kwargs['exam_id'], teacher=self.request.user)
+        return self.exam.snapshots.all().order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['exam'] = self.exam
+        return context

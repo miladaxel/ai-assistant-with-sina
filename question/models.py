@@ -119,3 +119,12 @@ class StudentQuestionResult(models.Model):
     def __str__(self):
         target = self.subquestion or self.question
         return f"{self.student.full_name} - {target} - {'✔' if self.is_correct else '✘'}"
+
+
+class ExamSnapShot(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='snapshots')
+    data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Snapshot for Exam {self.exam.name} at {self.created_at}"

@@ -1,0 +1,15 @@
+<h2>ذخیره Snapshot آزمون</h2>
+
+<p><strong>آزمون:</strong> {{ exam.name }}</p>
+<p><strong>تعداد شرکت‌کنندگان:</strong> {{ exam.participations.count }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">
+        📦 ساخت و ذخیره JSON
+    </button>
+</form>
+
+<a href="{% url 'exam_snapshot_list' exam.id %}">
+    مشاهده Snapshotها
+</a>
