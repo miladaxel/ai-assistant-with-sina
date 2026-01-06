@@ -23,6 +23,10 @@ class ExamParticipationInline(admin.TabularInline):
     extra = 0
     autocomplete_fields = ['student']
 
+@admin.register(ExamParticipation)
+class ExamParticipationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'student', 'exam')
+
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'teacher', 'total_question', 'created_at')

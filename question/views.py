@@ -379,7 +379,19 @@ class ExamSelectStudentsView(LoginRequiredMixin, TemplateView):
         return redirect('exam_summary', exam_id=self.exam.pk)
 
 
+class StudentParticipationListView(LoginRequiredMixin,TeacherRequiredMixin ,ListView):
+    model = ExamParticipation
+    template_name = 'questions/exam_participation_list_students.html'
+    context_object_name = 'students'
 
+    def get_queryset(self):
+        self.exam = get_object_or_404(Exam, id=self.kwargs['exam_id'], teacher=self.request.user,)
+        return ExamParticipation.objects.filter(exam=self.exam)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['exam'] = self.exam
+        return context
 
 class ExamCorrectionView(LoginRequiredMixin, View):
     template_name = 'questions/exam_correction.html'

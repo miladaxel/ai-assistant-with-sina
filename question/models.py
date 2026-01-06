@@ -35,6 +35,7 @@ class AnalysisBundle(models.Model):
     lesson_pdf = models.FileField(upload_to='lessons_pdfs/', blank=True, null=True)
     example_pdf = models.FileField(upload_to='example_pdfs/', blank=True, null=True)
 
+
     openai_lesson_file_id = models.CharField(max_length=120, blank=True, default='')
     openai_example_file_id = models.CharField(max_length=120, blank=True, default='')
     model_name = models.CharField(max_length=120, blank=True, default='gpt-4o-mini')

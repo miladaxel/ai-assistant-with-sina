@@ -1,0 +1,6 @@
+<h1>لیست دانش اموزان شرکت کننده</h1>
+{% for student in students %}
+    <ul>
+    <a href="{% url 'exam_correction' exam.id student.student.id %}">{{ student.student.full_name }}</a>
+    </ul>
+{% endfor %}
