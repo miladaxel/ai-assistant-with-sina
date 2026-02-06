@@ -164,6 +164,8 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
             bundle.prompt_template = selected_prompt
             bundle.teacher = self.request.user
             bundle.status = AnalysisBundle.STATUS_PENDING
+            bundle.exam = form.cleaned_data["exam"]
+            bundle.stage = 'stage1_exam_map'
             bundle.save()
 
         try:
@@ -171,7 +173,7 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
             exam_file_id = analyzer.upload_pdf(bundle.example_pdf.path)
 
             bundle.openai_lesson_file_id = textbook_file_id
-            bundle.openai_exam_file_id = exam_file_id
+            bundle.openai_example_file_id = exam_file_id
             bundle.save(update_fields=["openai_lesson_file_id", "openai_example_file_id"])
 
             out = analyzer.analyze(
@@ -512,7 +514,7 @@ class ExamSnapShotCreateView(LoginRequiredMixin, TeacherRequiredMixin, View):
             if student.id in seen_students:
                 continue
             seen_students.add(student.id)
-            answers = StudentQuestionResult.objects.filter(exam=exam, student=student).select_related('question', 'subquestion', 'subquestion__question')
+            answers = StudentQuestionResult.objects.filter(exam=exam, student=student).select_related('question', 'subquestion', 'subquestion__question').order_by('question__number', 'subquestion__question__number', 'subquestion__number','id')
             student_data = {"student_id": student.id, "full_name": student.full_name, "results": []}
             for ans in answers:
                 if ans.question:

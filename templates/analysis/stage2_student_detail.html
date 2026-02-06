@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stage2 - جزئیات نتیجه</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; background:#f7f7f8; color:#111; }
+    .wrap { max-width: 1050px; margin: 0 auto; padding: 18px; }
+    .card { background:#fff; border:1px solid #e6e6e6; border-radius: 14px; padding:16px; margin: 12px 0; }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    h2 { font-size: 16px; margin: 0 0 10px; }
+    h3 { font-size: 14px; margin: 14px 0 8px; }
+    .muted { color:#666; font-size: 13px; }
+    .msg { border-radius: 12px; padding: 10px 12px; margin: 10px 0; border: 1px solid #ddd; background:#fff; }
+    .msg.error { border-color:#ffb4b4; background:#fff5f5; }
+    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border:1px solid #ddd; font-size: 12px; background:#fafafa; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .k { color:#555; font-size: 12px; margin-bottom: 4px; }
+    .v { font-weight: 700; }
+    pre { white-space: pre-wrap; background:#f7f7f7; border:1px solid #eee; padding: 12px; border-radius: 12px; overflow:auto; }
+    a { color:#111; text-decoration:none; border-bottom: 1px dashed #aaa; }
+    a:hover { border-bottom-color:#111; }
+    .btn { display:inline-block; padding: 9px 12px; border-radius: 12px; border:1px solid #111; background:#111; color:#fff; text-decoration:none; font-weight:600; }
+    .btn.secondary { background:#fff; color:#111; }
+    ul { margin: 8px 0; padding: 0 18px 0 0; }
+    li { margin: 6px 0; line-height: 1.9; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="card">
+      <h1>جزئیات Stage 2 — Bundle #{{ bundle.id }}</h1>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        {% if bundle.exam_id %}
+          <a class="btn secondary" href="{% url 'analysis:stage2_result' bundle.exam_id %}">بازگشت به نتایج Exam</a>
+        {% endif %}
+        <a class="btn secondary" href="{% url 'analysis:stage2_run' %}">اجرای جدید</a>
+      </div>
+
+      <p class="muted" style="margin-top:10px;">
+        این صفحه هم خلاصه نتیجه را نشان می‌دهد و هم برای دیباگ، ورودی‌ها و خروجی خام را قابل مشاهده می‌کند.
+      </p>
+    </div>
+
+    {% if bundle.error_message %}
+      <div class="card">
+        <h2>خطا</h2>
+        <div class="msg error">{{ bundle.error_message }}</div>
+      </div>
+    {% endif %}
+
+    <div class="card">
+      <h2>اطلاعات Bundle</h2>
+      <div class="grid">
+        <div>
+          <div class="k">وضعیت</div>
+          <div class="v">{{ bundle.status }}</div>
+        </div>
+        <div>
+          <div class="k">Stage</div>
+          <div class="v"><span class="pill">{{ bundle.stage }}</span></div>
+        </div>
+        <div>
+          <div class="k">Exam</div>
+          <div class="v">{{ bundle.exam_id }}</div>
+        </div>
+        <div>
+          <div class="k">Teacher</div>
+          <div class="v">{% if bundle.teacher %}{{ bundle.teacher }}{% else %}—{% endif %}</div>
+        </div>
+        <div>
+          <div class="k">Prompt</div>
+          <div class="v">
+            {% if bundle.prompt_template %}
+              {{ bundle.prompt_template.name }} v{{ bundle.prompt_template.version }}
+            {% else %}
+              —
+            {% endif %}
+          </div>
+        </div>
+        <div>
+          <div class="k">Model</div>
+          <div class="v">{{ bundle.model_name }}</div>
+        </div>
+        <div>
+          <div class="k">Created</div>
+          <div class="v">{{ bundle.created_at }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ورودی‌ها (Input JSON)</h2>
+      <p class="muted">
+        برای اطمینان از اینکه پرامپت با داده درست پر شده، اینجا خلاصه ورودی‌ها را می‌بینی.
+      </p>
+
+milad, [2/5/2026 7:39 PM]
+{% if bundle.input_json %}
+        <div class="grid">
+          <div>
+            <div class="k">STAGE1_BUNDLE_ID</div>
+            <div class="v">{{ bundle.input_json.STAGE1_BUNDLE_ID|default:"—" }}</div>
+          </div>
+          <div>
+            <div class="k">SNAPSHOT_ID</div>
+            <div class="v">{{ bundle.input_json.SNAPSHOT_ID|default:"—" }}</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:14px;">Student Answers (خلاصه)</h3>
+        {% if bundle.input_json.STUDENT_ANSWERS %}
+          <ul>
+            <li><b>student_id:</b> {{ bundle.input_json.STUDENT_ANSWERS.student_id }}</li>
+            <li><b>full_name:</b> {{ bundle.input_json.STUDENT_ANSWERS.full_name }}</li>
+            <li><b>results count:</b> {{ bundle.input_json.STUDENT_ANSWERS.results|length }}</li>
+          </ul>
+        {% else %}
+          <p class="muted">کلید STUDENT_ANSWERS در input_json موجود نیست.</p>
+        {% endif %}
+
+      {% else %}
+        <p class="muted">input_json ذخیره نشده است.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>خلاصه نتیجه (Result JSON)</h2>
+
+      {% if bundle.result %}
+        {% with r=bundle.result.result_json %}
+          {% if r.summary %}
+            <h3>Strengths</h3>
+            {% if r.summary.strengths %}
+              <ul>
+                {% for s in r.summary.strengths %}
+                  <li>
+                    <b>{{ s.concept }}</b>
+                    {% if s.book_ref %}
+                      — page: {{ s.book_ref.page }} — section: {{ s.book_ref.section_title }}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">موردی ثبت نشده.</p>
+            {% endif %}
+
+            <h3>Weaknesses</h3>
+            {% if r.summary.weaknesses %}
+              <ul>
+                {% for w in r.summary.weaknesses %}
+                  <li>
+                    <b>{{ w.concept }}</b> — priority: <span class="pill">{{ w.priority }}</span>
+                    {% if w.book_ref %}
+                      — page: {{ w.book_ref.page }} — section: {{ w.book_ref.section_title }}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">موردی ثبت نشده.</p>
+            {% endif %}
+          {% else %}
+            <p class="muted">کلید summary در خروجی وجود ندارد (یا ساختار خروجی متفاوت است).</p>
+          {% endif %}
+
+          <h3>Study Targets</h3>
+          {% if r.study_targets %}
+            <ul>
+              {% for t in r.study_targets %}
+                <li>
+                  priority: <span class="pill">{{ t.priority }}</span>
+                  {% if t.book_ref %}
+                    — page: {{ t.book_ref.page }} — section: {{ t.book_ref.section_title }}
+                  {% endif %}
+                  {% if t.related_skills %}
+                    — skills: {{ t.related_skills }}
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="muted">study_targets خالی است یا وجود ندارد.</p>
+          {% endif %}
+
+          <details style="margin-top:14px;">
+            <summary style="cursor:pointer; font-weight:700;">نمایش Question Results (جزئیات)</summary>
+            <pre>{{ r.question_results }}</pre>
+          </details>
+
+          <details style="margin-top:12px;">
+            <summary style="cursor:pointer; font-weight:700;">نمایش Result JSON کامل</summary>
+            <pre>{{ r }}</pre>
+          </details>
+        {% endwith %}
+      {% else %}
+        <p class="muted">هنوز result ذخیره نشده است.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>خروجی خام مدل (Raw Output Text)</h2>
+      {% if bundle.result %}
+        <pre>{{ bundle.result.raw_output_text }}</pre>
+      {% else %}
+        <p class="muted">raw_output_text موجود نیست.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>

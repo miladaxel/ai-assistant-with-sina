@@ -34,7 +34,9 @@ class AnalysisBundle(models.Model):
     prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.PROTECT, related_name="bundles")
     lesson_pdf = models.FileField(upload_to='lessons_pdfs/', blank=True, null=True)
     example_pdf = models.FileField(upload_to='example_pdfs/', blank=True, null=True)
-
+    input_json = models.JSONField(blank=True, null=True)
+    stage = models.CharField(max_length=120, blank=True, default='')
+    exam = models.ForeignKey('Exam', on_delete=models.SET_NULL, related_name='analysis_bundles', blank=True, null=True)
 
     openai_lesson_file_id = models.CharField(max_length=120, blank=True, default='')
     openai_example_file_id = models.CharField(max_length=120, blank=True, default='')

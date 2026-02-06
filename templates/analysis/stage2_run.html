@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>Stage2 - Run</title>
+  <style>
+    body { font-family:sans-serif; background:#f7f7f8; margin:0; }
+    .wrap { max-width:900px; margin:0 auto; padding:20px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:16px; margin-bottom:16px; }
+    label { font-weight:bold; display:block; margin-top:12px; }
+    select, button { width:100%; padding:10px; margin-top:6px; }
+    .msg { margin-top:10px; padding:10px; border-radius:8px; }
+    .error { background:#ffecec; border:1px solid #ffb3b3; }
+    .success { background:#ecffef; border:1px solid #b3ffc4; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <h2>Stage 2 – تحلیل پاسخ دانش‌آموزان</h2>
+    <p>
+      در این صفحه:
+      <br>1️⃣ خروجی تحلیل آزمون (Stage1)
+      <br>2️⃣ Prompt مرحله ۲
+      <br>3️⃣ Exam
+      <br>را انتخاب می‌کنی و اجرا می‌زنی.
+    </p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="msg {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Exam -->
+      <label>Exam</label>
+      {{ form.exam }}
+      {% for e in form.exam.errors %}
+        <div class="msg error">{{ e }}</div>
+      {% endfor %}
+
+      <!-- Stage1 bundle -->
+      <label>خروجی تحلیل آزمون (Stage1)</label>
+      <select name="stage1_bundle_id" required>
+        <option value="">— انتخاب کن —</option>
+        {% for b in stage1_bundles %}
+          <option value="{{ b.id }}"
+            {% if form.data.stage1_bundle_id == b.id|stringformat:"s" %}selected{% endif %}>
+            #{{ b.id }} | {{ b.title|default:"بدون عنوان" }} | {{ b.created_at|date:"Y-m-d H:i" }}
+          </option>
+        {% endfor %}
+      </select>
+      {% for e in form.stage1_bundle_id.errors %}
+        <div class="msg error">{{ e }}</div>
+      {% endfor %}
+
+      <!-- Prompt stage 2 -->
+      <label>Prompt مرحله ۲</label>
+      {{ form.stage2_prompt }}
+      {% for e in form.stage2_prompt.errors %}
+        <div class="msg error">{{ e }}</div>
+      {% endfor %}
+
+      <button type="submit">اجرای Stage2</button>
+    </form>
+  </div>
+
+</div>
+</body>
+</html>
