@@ -21,3 +21,5 @@ env/
 
 .Ds_store
 Thumbs.db
+
+.env
