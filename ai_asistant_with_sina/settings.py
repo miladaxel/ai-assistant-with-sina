@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'Profile',
-    'question'
+    'question',
+    'analysis',
+    'exercise_generate',
 ]
 
 MIDDLEWARE = [

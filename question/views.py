@@ -165,7 +165,7 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
             bundle.teacher = self.request.user
             bundle.status = AnalysisBundle.STATUS_PENDING
             bundle.exam = form.cleaned_data["exam"]
-            bundle.stage = 'stage1_exam_map'
+            bundle.stage = AnalysisBundle.STAGE_ONE
             bundle.save()
 
         try:
@@ -190,6 +190,7 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
                 raw_output_text=out.raw_output_text,
                 openai_response_id=out.response_id,
                 usage_json=out.usage,
+                stage=AnalysisResult.STAGE_ONE,
             )
 
             bundle.status = AnalysisBundle.STATUS_SUCCESS

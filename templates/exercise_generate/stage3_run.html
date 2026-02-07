@@ -1,0 +1,19 @@
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  {{ form.stage2_bundle.label }}
+  {{ form.stage2_bundle }}
+
+  <br>
+
+  {{ form.stage3_prompt.label }}
+  {{ form.stage3_prompt }}
+
+  <br>
+
+  <label>PDF بانک سوالات</label>
+  {{ form.question_bank_pdf }}
+
+  <br>
+  <button type="submit">Run Stage 3</button>
+</form>

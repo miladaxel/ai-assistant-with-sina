@@ -20,7 +20,7 @@ class Stage2RunView(FormView):
         return self.request.GET.get("exam") or self.request.POST.get("exam")
 
     def _get_stage1_bundles_for_exam(self, exam_id):
-        qs = AnalysisBundle.objects.filter(status=AnalysisBundle.STATUS_SUCCESS).order_by("-created_at")
+        qs = AnalysisBundle.objects.filter(status=AnalysisBundle.STATUS_SUCCESS, stage=AnalysisBundle.STAGE_ONE).order_by("-created_at")
         if exam_id:
             qs = qs.filter(exam_id=exam_id)
         return qs.select_related("prompt_template", "exam")[:300]
@@ -122,7 +122,7 @@ class Stage2RunView(FormView):
                     prompt_template=stage2_prompt,
                     model_name="gpt-4o-mini",
                     status=AnalysisBundle.STATUS_PENDING,
-                    stage="stage2_student_diagnosis",
+                    stage=AnalysisBundle.STAGE_TWO,
                     exam=exam,
                     input_json=input_json,
                 )
@@ -144,6 +144,7 @@ class Stage2RunView(FormView):
                         raw_output_text=resp.raw_output_text,
                         openai_response_id=resp.response_id,
                         usage_json=resp.usage,
+                        stage=AnalysisResult.STAGE_TWO
                     )
 
                     bundle.status = AnalysisBundle.STATUS_SUCCESS
@@ -156,7 +157,7 @@ class Stage2RunView(FormView):
                     bad += 1
 
         messages.success(self.request, f"Stage2 تمام شد. موفق: {ok} | ناموفق: {bad}")
-        return redirect(f"{reverse('analysis:stage2_run')}?exam={exam.id}")
+        return redirect('analysis:stage2_result', exam_id=exam.id)
 
 
 
@@ -168,7 +169,7 @@ class Stage2ResultsView(ListView):
         exam_id = self.kwargs["exam_id"]
         return (
             AnalysisBundle.objects
-            .filter(exam_id=exam_id, stage="stage2_student_diagnosis")
+            .filter(exam_id=exam_id, stage=AnalysisBundle.STAGE_TWO)
             .select_related("prompt_template", "exam")
             .order_by("-created_at")
         )

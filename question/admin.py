@@ -5,17 +5,18 @@ from .models import PromptTemplate, AnalysisBundle, AnalysisResult, Exam, Questi
 @admin.register(PromptTemplate)
 class PromptTemplateAdmin(admin.ModelAdmin):
     list_display = ('name', 'version', 'is_active', 'created_at')
-    list_filter = ('is_active', 'created_at')
+    list_filter = ('is_active', 'stage','created_at')
     search_fields = ('name',)
 
 @admin.register(AnalysisBundle)
 class AnalysisBundleAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'status','model_name', 'created_at')
-    list_filter = ('status', 'model_name')
+    list_filter = ('status', 'model_name','stage')
     search_fields = ('title',)
 
 @admin.register(AnalysisResult)
 class AnalysisResultAdmin(admin.ModelAdmin):
+    list_filter = ('stage',)
     list_display = ('id', 'bundle', 'created_at')
 
 class ExamParticipationInline(admin.TabularInline):

@@ -26,5 +26,6 @@ urlpatterns = [
     path('', include(urls)),
     path('question/', include(urls_1)),
     path('analysis/', include('analysis.urls')),
+    path('exercise_generate/', include('exercise_generate.urls'))
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
