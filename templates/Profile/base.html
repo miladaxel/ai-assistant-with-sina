@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    {% block extra_css %}
+    {% endblock %}
+</head>
+<header>
+    <script>
+    const SITE_URLS = {
+        img:"{% static 'background_removed_image.png' %}",
+        home: "{% url 'home' %}",
+        classes: "{% url 'teacher_classes' %}",
+        exams: "{% url 'bundle_create'  %}",
+        analysis:"{% url 'my_bundles' %}",
+        exercise: "{% url 'exercise_generate:stage3_run' %}" ,
+        memo:"",
+        setting:"",
+        profile:"{% url 'teacher panel' %}"
+
+    };
+    </script>
+    {% block extra_js %}
+    {% endblock %}
+    <script src="{% static 'js/layout.js' %}"></script>
+</header>
+{% block content %}
+{% endblock %}
+</html>

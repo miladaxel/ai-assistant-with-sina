@@ -1,20 +1,94 @@
 <!DOCTYPE html>
-<html lang="fa">
+{% load static %}
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ورود</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود به پنل کاربری</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>ورود</h1>
 
-    {% for message in messages %}
-        <p style="color: red;">{{ message }}</p>
-    {% endfor %}
+    <div class="login-wrapper">
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">ورود</button>
-    </form>
+        <div class="login-card">
+            <div class="card-header">
+                <i class="fa-solid fa-user-shield logo-icon"></i>
+                <h2>ورود به پنل کاربری</h2>
+                <p class="text-gray">جهت ورود به پنل کاربری خود اطلاعات مورد نیاز را وارد نمایید</p>
+            </div>
+
+            <form id="loginForm" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>کد ملی</label>
+                    <input id="national_id" placeholder="مثال: 0012345678" name="username" required>
+                </div>
+
+
+                <div class="form-group">
+                    <label>رمز عبور</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="role-selector">
+                    <label class="role-label">نقش خود را انتخاب کنید:</label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="role" value="teacher" checked>
+                            <span>معلم</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="role" value="manager">
+                            <span>مدیر / معاون / مشاور</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="role" value="student">
+                            <span>دانش‌آموز</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="role" value="parent">
+                            <span>والدین</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <a href="#" class="forgot-link">فراموشی رمز عبور؟</a>
+                    <button type="submit" class="btn-login-submit">ورود</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="schoolModal" class="modal-overlay">
+        <div class="school-card">
+            <div class="modal-header">
+                <h3>انتخاب مدرسه</h3>
+                <p>لطفاً مدرسه‌ای که می‌خواهید وارد آن شوید را انتخاب کنید</p>
+            </div>
+
+            <div class="schools-grid">
+                <div class="school-item" onclick="selectSchool('beheshti')">
+                    <div class="school-icon bg-blue">
+                        <i class="fa-solid fa-school"></i>
+                    </div>
+                    <span>آموزشگاه انقلاب (متوسطه دوره اول)</span>
+
+
+                </div>
+
+                <div class="school-item" onclick="selectSchool('nedaye_eslami')">
+                    <div class="school-icon bg-green">
+                        <i class="fa-solid fa-mosque"></i>
+                    </div>
+                    <span>آموزشگاه شاهد سید الشهدا (متوسطه دوره اول)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/index.js' %}" ></script>
 </body>
 </html>

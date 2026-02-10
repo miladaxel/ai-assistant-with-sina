@@ -1,36 +1,28 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <title>تنظیم سوال‌های آزمون</title>
-  <style>
-    body { font-family: sans-serif; background:#f6f6f6; margin:0; }
-    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }
-    h1 { margin:0 0 15px; font-size: 20px; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { padding:10px; border-bottom:1px solid #eee; text-align:right; }
-    th { background:#fafafa; font-weight:600; }
-    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; }
-    .btn-primary { background:#111; color:#fff; }
-  </style>
-</head>
+{% extends 'Profile/base.html' %}
+{% load static %}
+{% block extra_css %}
+ <title>ورود نمرات آزمون</title>
+     <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
 <body>
-  <div class="wrap">
-    <h1>تنظیم سوال‌ها: {{ exam.name }}</h1>
 
+    <div class="main-content">
+        <div id="matrix-area">
+<div class="matrix-header-info"></div>
+<div class="matrix-container">
     <form method="post">
-      {% csrf_token %}
-      {{ formset.management_form }}
-
-      <table>
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table class="exam-table">
         <thead>
-          <tr>
-            <th>شماره سوال</th>
-            <th>زیرسوال دارد؟</th>
-          </tr>
+            <td><span>سوال</span></td>
+            <td><span>آیا زیر سوال دارد؟</span></td>
         </thead>
         <tbody>
-          {% for form in formset %}
+            {% for form in formset %}
             <tr>
               <td>
                 سوال {{ form.instance.number }}
@@ -38,14 +30,23 @@
               </td>
               <td>{{ form.has_subquestion }}</td>
             </tr>
-          {% endfor %}
+        {% endfor %}
         </tbody>
-      </table>
+    </table>
+    <div style="text-align: center">
 
-      <div style="margin-top:16px;">
-        <button class="btn btn-primary" type="submit">ذخیره</button>
-      </div>
+    <button class="btn-primary-full" style="width: 25% !important;margin: 1rem 0" type="submit" value="ثبت">ثبت</button>
+    </div>
+
     </form>
-  </div>
+</div>
+<div id="quickMenu" class="quick-menu"></div>
+        </div>
+    </div>
+{% block extra_js %}
+    <script src="{% static 'js/layout.js' %}"></script>
+    {% endblock %}
 </body>
-</html>
+{% endblock %}
+
+

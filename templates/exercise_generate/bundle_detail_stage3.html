@@ -1,0 +1,49 @@
+{% load static %}
+
+{% block title %}
+جزئیات Stage 3
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h3>جزئیات Stage 3</h3>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Bundle ID: {{ bundle.id }}
+        </div>
+        <div class="card-body">
+            <p><strong>Exam:</strong> {{ bundle.exam }}</p>
+            <p><strong>Teacher:</strong> {{ bundle.teacher }}</p>
+            <p><strong>Prompt Template:</strong> {{ bundle.prompt_template }}</p>
+            <p><strong>Status:</strong> {{ bundle.status }}</p>
+            <p><strong>Created At:</strong> {{ bundle.created_at|date:"Y/m/d - H:i" }}</p>
+        </div>
+    </div>
+
+    {% if result %}
+        <div class="card">
+            <div class="card-header">
+                نتیجه اجرای Stage 3
+            </div>
+            <div class="card-body">
+                <p><strong>Raw Output:</strong></p>
+                <pre>{{ result.raw_output_text }}</pre>
+
+                <p><strong>Result JSON:</strong></p>
+                <pre>{{ result.result_json|json_script:"result-json" }}</pre>
+
+                <p><strong>OpenAI Response ID:</strong> {{ result.openai_response_id }}</p>
+                <p><strong>Usage:</strong></p>
+                <pre>{{ result.usage_json }}</pre>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            هنوز نتیجه‌ای برای این Bundle ایجاد نشده است.
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

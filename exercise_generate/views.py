@@ -1,12 +1,15 @@
 import tempfile
 
 from django.shortcuts import render, redirect
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView, DetailView
 
 from exercise_generate.forms import Stage3RunForm
 from question.models import AnalysisBundle, AnalysisResult
 from question.services.openai_client import OpenAIAnalyzer
 import json
+from question.mixins import TeacherRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 class Stage3RunView(FormView):
     template_name = "exercise_generate/stage3_run.html"
@@ -69,3 +72,29 @@ class Stage3RunView(FormView):
             "home",
             exam_id=bundle.exam.id
         )
+
+
+class Stage3StudentListView(ListView):
+    template_name = 'exercise_generate/stage3_list.html'
+    context_object_name = 'bundles'
+
+    def get_queryset(self):
+        return (
+            AnalysisBundle.objects.filter(
+                teacher=self.request.user, stage=AnalysisBundle.STAGE_THREE
+            ).order_by('-created_at')
+        )
+
+
+class AnalysisBundleDetailViewStage3(LoginRequiredMixin, TeacherRequiredMixin ,DetailView):
+    model = AnalysisBundle
+    template_name = "exercise_generate/bundle_detail_stage3.html"
+    context_object_name = "bundle"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['result'] = AnalysisResult.objects.filter(
+            bundle=self.object,
+            stage=AnalysisResult.STAGE_THREE
+        ).first()
+        return context

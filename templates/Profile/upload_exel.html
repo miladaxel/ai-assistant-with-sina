@@ -1,14 +1,323 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>upload excel file</title>
-</head>
-<body>
-<h1> upload excel file</h1>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-</body>
-</html>
+{% extends "Profile/base.html" %}
+{% load static %}
+
+{% block title %}آپلود گروهی دانش‌آموزان{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #10b981; /* سبز برای اکسل */
+        --primary-hover: #059669;
+        --bg-gray: #f9fafb;
+        --border-color: #e5e7eb;
+        --text-dark: #1f2937;
+    }
+
+    .upload-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    /* هدر */
+    .page-header-simple {
+        padding: 25px;
+        border-bottom: 1px solid var(--border-color);
+        background: #fdfdfd;
+    }
+
+    .page-header-simple h1 {
+        font-size: 1.4rem;
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .icon-excel {
+        color: #10b981;
+        font-size: 1.8rem;
+    }
+
+    /* بدنه اصلی */
+    .content-body {
+        padding: 30px;
+    }
+
+    /* راهنمای فایل */
+    .guide-box {
+        background: #ecfdf5;
+        border: 1px dashed #6ee7b7;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .guide-title {
+        font-weight: bold;
+        color: #065f46;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .columns-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .col-badge {
+        background: #fff;
+        color: #047857;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-family: monospace;
+        border: 1px solid #a7f3d0;
+    }
+
+    /* ناحیه آپلود */
+    .upload-zone {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        background: var(--bg-gray);
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+        border-color: var(--primary-color);
+        background: #f0fdf4;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: #9ca3af;
+        margin-bottom: 15px;
+        transition: color 0.3s;
+    }
+
+    .upload-zone:hover .upload-icon {
+        color: var(--primary-color);
+    }
+
+    .upload-text {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #4b5563;
+    }
+
+    .file-info {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    /* مخفی کردن اینپوت اصلی */
+    .django-file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* دکمه */
+    .btn-submit {
+        width: 100%;
+        margin-top: 25px;
+        padding: 14px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--primary-hover);
+    }
+
+    /* انیمیشن لودینگ */
+    .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.4);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="upload-container">
+
+        <div class="page-header-simple">
+            <h1>
+                <i class="fa-solid fa-file-excel icon-excel"></i>
+                آپلود گروهی دانش‌آموزان
+            </h1>
+        </div>
+
+        <div class="content-body">
+
+            <div class="guide-box">
+                <div class="guide-title">
+                    <i class="fa-solid fa-circle-info"></i>
+                    فرمت فایل اکسل
+                </div>
+                <p style="font-size: 0.9rem; margin-bottom: 5px; color: #064e3b;">
+                    فایل اکسل شما باید حتماً شامل ستون‌های زیر (در ردیف اول) باشد. ترتیب ستون‌ها مهم نیست.
+                </p>
+                <div class="columns-list">
+                    <span class="col-badge">full_name</span>
+                    <span class="col-badge">نام پدر</span>
+                    <span class="col-badge">کدملی</span>
+                    <span class="col-badge">شناسنامه</span>
+                    <span class="col-badge">تاریخ تولد</span>
+                    <span class="col-badge">محل صدور</span>
+                    <span class="col-badge">جنسیت</span>
+                    <span class="col-badge">کلاس</span>
+                    <span class="col-badge">آدرس</span>
+                    <span class="col-badge">همراه</span>
+                    <span class="col-badge">ثابت</span>
+                </div>
+                <p style="font-size: 0.85rem; margin-top: 10px; color: #064e3b;">
+                    * نام کاربری و رمز عبور دانش‌آموزان به صورت خودکار برابر با <b>کد ملی</b> قرار داده می‌شود.
+                </p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger mb-4">
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+
+                <div class="upload-zone" id="dropZone">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <div class="upload-text">فایل اکسل (.xlsx) را اینجا بکشید و رها کنید</div>
+                    <div class="file-info" id="fileName">یا برای انتخاب فایل کلیک کنید</div>
+
+                    {{ form.excel_file }}
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text">شروع پردازش و ثبت نام</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const fileNameDisplay = document.getElementById('fileName');
+        const uploadZone = document.getElementById('dropZone');
+        const uploadIcon = document.querySelector('.upload-icon');
+        const uploadText = document.querySelector('.upload-text');
+
+        // اضافه کردن کلاس CSS به اینپوت فایل برای اینکه تمام صفحه را بگیرد
+        if(fileInput) {
+            fileInput.classList.add('django-file-input');
+
+            // نمایش نام فایل انتخاب شده
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const name = e.target.files[0].name;
+                    fileNameDisplay.textContent = name;
+                    fileNameDisplay.style.color = '#10b981';
+                    fileNameDisplay.style.fontWeight = 'bold';
+
+                    uploadText.textContent = 'فایل آماده آپلود است';
+                    uploadIcon.className = 'fa-solid fa-file-excel upload-icon';
+                    uploadIcon.style.color = '#10b981';
+
+                    uploadZone.style.borderColor = '#10b981';
+                    uploadZone.style.background = '#ecfdf5';
+                }
+            });
+        }
+
+        // افکت‌های Drag & Drop
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadZone.classList.remove('dragover');
+            }, false);
+        });
+
+        // لودینگ هنگام ارسال
+        const form = document.getElementById('uploadForm');
+        const btn = document.getElementById('submitBtn');
+        const spinner = document.querySelector('.spinner');
+        const btnText = document.querySelector('.btn-text');
+
+        form.addEventListener('submit', function() {
+            if (fileInput.files.length > 0) {
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btnText.textContent = 'در حال خواندن فایل اکسل...';
+                spinner.style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>upload excel file</title>#}
+{#</head>#}
+{#<body>#}
+{#<h1> upload excel file</h1>#}
+{#<form method="post" enctype="multipart/form-data">#}
+{#    {% csrf_token %}#}
+{#    {{ form.as_p }}#}
+{#    <button type="submit">Upload</button>#}
+{#</body>#}
+{#</html>#}

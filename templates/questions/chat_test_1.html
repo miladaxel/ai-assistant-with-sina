@@ -1,81 +1,301 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>Chat Test</title>
+{% extends "Profile/base.html" %}
+{% load static %}
 
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #f6f7f9;
-            padding: 40px;
-        }
+{% block title %}تست هوش مصنوعی (Chat Test){% endblock %}
 
-        .chat-box {
-            max-width: 700px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-        }
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --chat-bg-user: #eef2ff; /* رنگ پس‌زمینه سوال کاربر */
+        --chat-bg-ai: #ffffff;   /* رنگ پس‌زمینه جواب AI */
+        --border-color: #e5e7eb;
+    }
 
-        h2 {
-            margin-bottom: 16px;
-        }
+    .chat-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #f9fafb;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 80vh; /* ارتفاع صفحه چت */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-bottom: 12px;
-        }
+    /* هدر چت */
+    .chat-header {
+        background: #fff;
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        button {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            background: #4f46e5;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-        }
+    .chat-header h1 {
+        font-size: 1.1rem;
+        margin: 0;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        .answer {
-            margin-top: 20px;
-            padding: 16px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            line-height: 1.9;
-            white-space: pre-wrap;
-        }
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #10b981; /* سبز آنلاین */
+        border-radius: 50%;
+        display: inline-block;
+    }
 
-        .error {
-            margin-top: 16px;
-            color: #b91c1c;
-        }
-    </style>
-</head>
-<body>
+    /* ناحیه نمایش پیام‌ها */
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
 
-<div class="chat-box">
-    <h2>سوالتو بپرس</h2>
+    .message-bubble {
+        max-width: 85%;
+        padding: 15px;
+        border-radius: 12px;
+        position: relative;
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
 
-    <form method="get">
-        <input
-            type="text"
-            name="q"
-            placeholder="مثلاً: فرق JWT و Session چیه؟"
-            value="{{ question|default:'' }}"
-            required
-        >
-    </form>
-    {% if error %}
-    <pre style="color:red">{{ error }}</pre>
-{% endif %}
+    /* استایل پیام کاربر */
+    .message-user {
+        align-self: flex-start; /* چپ چین (چون RTL هستیم یعنی سمت راست) */
+        background-color: var(--chat-bg-user);
+        color: #374151;
+        border-bottom-right-radius: 2px;
+        border: 1px solid #c7d2fe;
+    }
+
+    .message-user .avatar {
+        position: absolute;
+        top: -25px;
+        right: 0;
+        font-size: 0.8rem;
+        color: #6b7280;
+        font-weight: bold;
+    }
+
+    /* استایل پیام هوش مصنوعی */
+    .message-ai {
+        align-self: flex-end; /* سمت چپ */
+        background-color: var(--chat-bg-ai);
+        color: #111827;
+        border-bottom-left-radius: 2px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .message-ai .avatar {
+        position: absolute;
+        top: -25px;
+        left: 0;
+        font-size: 0.8rem;
+        color: var(--primary-color);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* فرم ارسال پیام */
+    .chat-input-area {
+        background: #fff;
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #d1d5db;
+        border-radius: 99px; /* گرد */
+        font-size: 1rem;
+        transition: border-color 0.2s;
+        font-family: inherit;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .btn-send {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-send:hover {
+        background-color: #4338ca;
+        transform: scale(1.05);
+    }
+
+    /* استایل‌های متن خروجی */
+    .content-text {
+        white-space: pre-wrap; /* حفظ خط‌شکن‌ها */
+    }
+
+    .content-text code {
+        background: #f3f4f6;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+
+    /* حالت خالی */
+    .empty-state {
+        text-align: center;
+        margin-top: 50px;
+        color: #9ca3af;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    /* لودینگ */
+    .typing-indicator {
+        display: none;
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-left: 10px;
+        align-items: center;
+        gap: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="status-dot"></div>
+            <h1>
+                <i class="fa-solid fa-robot"></i>
+                دستیار هوشمند (GPT-5.2)
+            </h1>
+            <span class="typing-indicator" id="typingIndicator">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                در حال نوشتن...
+            </span>
+        </div>
+
+        <div class="chat-messages" id="messageContainer">
+
+            {% if error %}
+                <div class="alert alert-danger">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    خطا در برقراری ارتباط: {{ error }}
+                </div>
+            {% endif %}
+
+            {% if request.GET.q %}
+                <div class="message-bubble message-user">
+                    <span class="avatar">شما</span>
+                    <div class="content-text">{{ request.GET.q }}</div>
+                </div>
+
+                {% if response %}
+                    <div class="message-bubble message-ai">
+                        <span class="avatar"><i class="fa-solid fa-sparkles"></i> AI</span>
+                        <div class="content-text">
+                            {{ response.choices.0.message.content|linebreaks }}
+                        </div>
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-regular fa-comments"></i>
+                    <h3>هر سوالی داری بپرس!</h3>
+                    <p>من آماده پاسخگویی به سوالات برنامه‌نویسی و درسی تو هستم.</p>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <form method="get" class="chat-input-area" id="chatForm">
+            <input
+                type="text"
+                name="q"
+                class="chat-input"
+                placeholder="اینجا بنویسید..."
+                value="{{ request.GET.q|default:'' }}"
+                autocomplete="off"
+                required
+                autofocus
+            >
+
+            <button type="submit" class="btn-send" id="sendBtn">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+
+    </div>
+
 </div>
-{% if response %}
-    <pre>{{ response.choices.0.message.content }}</pre>
-{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageContainer = document.getElementById('messageContainer');
+        const chatForm = document.getElementById('chatForm');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const sendBtn = document.getElementById('sendBtn');
+        const input = document.querySelector('.chat-input');
+
+        // 1. اسکرول خودکار به پایین صفحه چت
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+
+        // 2. هندل کردن حالت لودینگ
+        chatForm.addEventListener('submit', function() {
+            // جلوگیری از ارسال خالی
+            if (!input.value.trim()) return;
+
+            // نمایش لودینگ
+            typingIndicator.style.display = 'flex';
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.7';
+
+            // اضافه کردن موقت پیام کاربر به صفحه (برای UX بهتر)
+            // نکته: صفحه ریلود می‌شود اما این لحظه حس خوبی می‌دهد
+            const tempUserDiv = document.createElement('div');
+            tempUserDiv.className = 'message-bubble message-user';
+            tempUserDiv.style.opacity = '0.5';
+            tempUserDiv.innerHTML = `<span class="avatar">شما</span><div class="content-text">${input.value}</div>`;
+            messageContainer.appendChild(tempUserDiv);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        });
+    });
+</script>
+{% endblock %}

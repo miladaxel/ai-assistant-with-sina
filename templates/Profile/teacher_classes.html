@@ -1,38 +1,342 @@
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <title>کلاس‌های من</title>
-</head>
-<body>
-    <h1>سلام {{ teacher.first_name }} {{ teacher.last_name }} 👋</h1>
+{% extends "Profile/base.html" %}
+{% load static %}
 
-    <h2>کلاس‌های شما</h2>
+{% block title %}مدیریت کلاس‌ها و دانش‌آموزان{% endblock %}
 
-    <p>تعداد کلاس‌ها: {{ classes|length }}</p>
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-bg: #f3f4f6;
+        --border-color: #e5e7eb;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+        --header-bg: #f9fafb;
+    }
 
-    <ul>
-        {% for c in classes %}
-            <li>
-                <strong>کلاس {{ c.number }} - {{ c.subject }}</strong>
-                <br>
-                معلم: {{ c.teacher.first_name }} {{ c.teacher.last_name }}
+    .classes-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
 
-                <br>
-                <span>دانش‌آموزها:</span>
-                <ul>
-                    {% for s in c.students.all %}
-                        <li>{{ s.full_name }}</li>
-                    {% empty %}
-                        <li>هنوز هیچ دانش‌آموزی در این کلاس ثبت نشده است.</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% empty %}
-            <li>هیچ کلاسی برای شما ثبت نشده است.</li>
-        {% endfor %}
-    </ul>
+    /* هدر صفحه */
+    .page-header {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
 
-    <p><a href="{% url 'logout' %}">خروج</a></p>
-</body>
-</html>
+    .header-text h1 {
+        font-size: 1.5rem;
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .teacher-badge {
+        background: #eef2ff;
+        color: var(--primary-color);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid #c7d2fe;
+    }
+
+    /* کارت کلاس (آکاردئون) */
+    .class-card {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .class-card:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* هدر کارت (بخش قابل کلیک) */
+    .class-header {
+        padding: 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        user-select: none;
+    }
+
+    .class-header:hover {
+        background-color: #fcfcfc;
+    }
+
+    .class-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .class-icon {
+        width: 45px;
+        height: 45px;
+        background: #ecfdf5;
+        color: #059669;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .class-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+    }
+
+    .student-count {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .toggle-icon {
+        color: var(--text-muted);
+        transition: transform 0.3s ease;
+    }
+
+    /* بدنه کارت (لیست دانش‌آموزان) */
+    .class-body {
+        display: none; /* پیش‌فرض مخفی */
+        border-top: 1px solid var(--border-color);
+        background: #fdfdfd;
+        padding: 0;
+    }
+
+    .class-body.open {
+        display: block;
+    }
+
+    /* جدول دانش‌آموزان */
+    .student-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .student-table th {
+        text-align: right;
+        padding: 12px 20px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        background: #f9fafb;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .student-table td {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .student-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .student-table tr:hover {
+        background-color: #fff;
+    }
+
+    /* وضعیت فعال آکاردئون */
+    .class-card.active .toggle-icon {
+        transform: rotate(180deg);
+        color: var(--primary-color);
+    }
+
+    .class-card.active .class-header {
+        background-color: #f8fafc;
+    }
+
+    .empty-list {
+        padding: 20px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="classes-container">
+
+        <div class="page-header">
+            <div class="header-text">
+                <h1>
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    کلاس‌های من
+                </h1>
+                <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 0.9rem;">
+                    مدیریت لیست کلاسی و مشاهده دانش‌آموزان
+                </p>
+            </div>
+            <div class="teacher-badge">
+                <i class="fa-solid fa-user-tie"></i>
+                استاد {{ teacher.user.get_full_name|default:teacher.user.username }}
+            </div>
+        </div>
+
+        {% if classes %}
+            {% for school_class in classes %}
+            <div class="class-card" id="card-{{ school_class.id }}">
+
+                <div class="class-header" onclick="toggleClass('{{ school_class.id }}')">
+                    <div class="class-info">
+                        <div class="class-icon">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <div class="class-title">{{ school_class.name }}</div>
+                            <div class="student-count">
+                                <i class="fa-solid fa-users"></i>
+                                {{ school_class.students.count }} دانش‌آموز
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toggle-icon">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <div class="class-body" id="body-{{ school_class.id }}">
+                    {% if school_class.students.all %}
+                        <div style="overflow-x: auto;">
+                            <table class="student-table">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="30%">نام و نام خانوادگی</th>
+                                        <th width="20%">نام پدر</th>
+                                        <th width="20%">کد ملی</th>
+                                        <th width="25%">عملیات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in school_class.students.all %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <strong>{{ student.full_name }}</strong>
+                                        </td>
+                                        <td>{{ student.fathers_name|default:"-" }}</td>
+                                        <td>{{ student.national_code }}</td>
+                                        <td>
+                                            <a href="#" class="btn-sm-outline" style="text-decoration:none; color:#4f46e5; font-size:0.85rem;">
+                                                <i class="fa-solid fa-address-card"></i>
+                                                پروفایل
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-list">
+                            <i class="fa-regular fa-folder-open"></i>
+                            هنوز دانش‌آموزی در این کلاس ثبت نشده است.
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 50px; background: #fff; border-radius: 12px; border: 1px dashed #d1d5db;">
+                <i class="fa-solid fa-chalkboard" style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px;"></i>
+                <h3 style="color: #374151;">هیچ کلاسی یافت نشد</h3>
+                <p style="color: #6b7280;">شما هنوز کلاسی ایجاد نکرده‌اید یا به کلاسی تخصیص داده نشده‌اید.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleClass(id) {
+        const body = document.getElementById(`body-${id}`);
+        const card = document.getElementById(`card-${id}`);
+
+        // تغییر وضعیت نمایش
+        if (body.classList.contains('open')) {
+            body.classList.remove('open');
+            card.classList.remove('active');
+        } else {
+            // (اختیاری) بستن بقیه کلاس‌ها وقتی یکی باز می‌شود
+            // document.querySelectorAll('.class-body').forEach(el => el.classList.remove('open'));
+            // document.querySelectorAll('.class-card').forEach(el => el.classList.remove('active'));
+
+            body.classList.add('open');
+            card.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="fa">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>کلاس‌های من</title>#}
+{#</head>#}
+{#<body>#}
+{#    <h1>سلام {{ teacher.first_name }} {{ teacher.last_name }} 👋</h1>#}
+{##}
+{#    <h2>کلاس‌های شما</h2>#}
+{##}
+{#    <p>تعداد کلاس‌ها: {{ classes|length }}</p>#}
+{##}
+{#    <ul>#}
+{#        {% for c in classes %}#}
+{#            <li>#}
+{#                <strong>کلاس {{ c.number }} - {{ c.subject }}</strong>#}
+{#                <br>#}
+{#                معلم: {{ c.teacher.first_name }} {{ c.teacher.last_name }}#}
+{##}
+{#                <br>#}
+{#                <span>دانش‌آموزها:</span>#}
+{#                <ul>#}
+{#                    {% for s in c.students.all %}#}
+{#                        <li>{{ s.full_name }}</li>#}
+{#                    {% empty %}#}
+{#                        <li>هنوز هیچ دانش‌آموزی در این کلاس ثبت نشده است.</li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+{#            </li>#}
+{#        {% empty %}#}
+{#            <li>هیچ کلاسی برای شما ثبت نشده است.</li>#}
+{#        {% endfor %}#}
+{#    </ul>#}
+{##}
+{#    <p><a href="{% url 'logout' %}">خروج</a></p>#}
+{#</body>#}
+{#</html>#}

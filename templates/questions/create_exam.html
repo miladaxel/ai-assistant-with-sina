@@ -1,7 +1,102 @@
-<h2>ایجاد آزمون جدید</h2>
+{% extends 'Profile/base.html' %}
+{% load static %}
+{% block extra_css %}
+    <title>ایجاد آزمون و تصحیح</title>
+    <link rel="stylesheet" href="{% static 'css/exam.css' %}" />
+{% endblock %}
+{% block content %}
+  <body>
+    <div class="container">
+      <div class="card config-card expanded" id="configCard">
+        <div class="card-header">
+          <div class="header-title">
+            <i class="fa-solid fa-gear"></i>
+            <h2>پیکربندی آزمون</h2>
+          </div>
+          <button class="btn-edit" id="editBtn" onclick="toggleEditMode()">
+            <i class="fa-solid fa-pen"></i> ویرایش
+          </button>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+        <div class="card-body" id="configBody">
+          <div class="form-group">
+            <label for="examTitle">عنوان آزمون</label>
+            <input
+              type="text"
+              id="examTitle"
+              placeholder="مثلاً: امتحان ریاضی نوبت اول"
+              class="large-input"
+              name="name"
+            />
+          </div>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">ایجاد آزمون</button>
-</form>
+          <div class="form-group">
+            <label for="totalQuestions" >تعداد کل سوالات</label>
+            <input
+              type="number"
+              id="totalQuestions"
+              placeholder="0"
+              min="0"
+              oninput="generateQuestions()"
+              name="total_question"
+            />
+          </div>
+
+          <div class="dynamic-questions-grid" id="questionsContainer"></div>
+        </div>
+
+
+        <div class="card-footer" id="configFooter">
+          <button class="btn-primary-full" onclick="saveAndLoadList()">
+            <i class="fa-solid fa-check"></i> ذخیره و نمایش لیست کلاس
+          </button>
+        </div>
+        </form>
+      </div>
+
+      <div class="grading-section hidden" id="gradingSection">
+        <div class="student-list" id="studentListContainer"></div>
+      </div>
+    </div>
+    <div id="gradingModalOverlay" class="grading-modal-overlay">
+      <div class="grading-modal-content">
+        <div class="grading-modal-header">
+          <div class="header-left">
+            <button class="close-modal-btn" onclick="closeGradingModal()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="student-mini-profile">
+              <img src="" id="modalAvatar" class="mini-avatar" alt="Student" />
+              <div>
+                <h3 id="modalStName" class="mini-name">---</h3>
+                <span class="mini-status">در حال تصحیح...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <span class="score-label">نمره فعلی:</span>
+            <div class="live-score-box">
+              <span id="modalLiveScore">0</span>
+              <span class="score-divider">/</span>
+              <span id="modalMaxScore">20</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grading-modal-body" id="gradingQuestionsList"></div>
+
+        <div class="grading-modal-footer">
+          <button class="g-btn g-btn-outline" onclick="closeGradingModal()">
+            لغو
+          </button>
+          <button class="g-btn g-btn-primary" onsubmit="submitGrade()">
+            ثبت نمره و نفر بعدی <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+{% endblock %}

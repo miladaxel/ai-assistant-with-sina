@@ -1,10 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>success</title>
-</head>
-<body>
-<h1> the data uploaded succesfuly</h1>
-</body>
-</html>
+{% extends "Profile/base.html" %}
+{% load static %}
+
+{% block title %}عملیات موفق{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* متغیرهای رنگی */
+    :root {
+        --success-color: #10b981;
+        --success-bg: #ecfdf5;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+    }
+
+    .success-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh; /* وسط چین عمودی */
+        padding: 20px;
+    }
+
+    .success-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 50px 40px;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        border: 1px solid #f0f0f0;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    /* انیمیشن آیکون */
+    .icon-container {
+        width: 100px;
+        height: 100px;
+        background-color: var(--success-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        position: relative;
+    }
+
+    .icon-check {
+        font-size: 3.5rem;
+        color: var(--success-color);
+        opacity: 0;
+        animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s forwards;
+    }
+
+    .success-title {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin-bottom: 15px;
+        font-weight: 800;
+    }
+
+    .success-desc {
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 35px;
+    }
+
+    /* دکمه‌ها */
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background-color: var(--text-dark);
+        color: #fff;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        background-color: #000;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-outline {
+        background-color: #fff;
+        color: var(--text-dark);
+        border: 1px solid #e5e7eb;
+    }
+    .btn-outline:hover {
+        background-color: #f9fafb;
+        border-color: #d1d5db;
+    }
+
+    /* Keyframes */
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.5); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="success-wrapper">
+
+        <div class="success-card">
+            <div class="icon-container">
+                <i class="fa-solid fa-check icon-check"></i>
+            </div>
+
+            <h1 class="success-title">آپلود با موفقیت انجام شد!</h1>
+            <p class="success-desc">
+                فایل شما با موفقیت پردازش شد و اطلاعات دانش‌آموزان در پایگاه داده سیستم ذخیره گردید.
+            </p>
+
+            <div class="btn-group">
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-house"></i>
+                    بازگشت به داشبورد
+                </a>
+
+                <a href="{% url 'upload_exel' %}" class="btn btn-outline">
+                    <i class="fa-solid fa-upload"></i>
+                    آپلود فایل جدید
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>success</title>#}
+{#</head>#}
+{#<body>#}
+{#<h1> the data uploaded succesfuly</h1>#}
+{#</body>#}
+{#</html>#}

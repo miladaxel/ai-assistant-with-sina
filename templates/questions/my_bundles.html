@@ -1,26 +1,322 @@
-<h2>آزمون‌های تحلیل‌شده‌ی من</h2>
+{% extends "Profile/base.html" %}
+{% load static %}
 
-<ul>
-  {% for b in bundles %}
-    <li>
-      <a href="{% url 'bundle_detail' b.pk %}">
-        #{{ b.id }} - {{ b.title|default:"بدون عنوان" }} - {{ b.status }}
-      </a>
-      <small>({{ b.created_at }})</small>
-    </li>
-  {% empty %}
-    <li>هنوز آزمونی تحلیل نکردی.</li>
-  {% endfor %}
-</ul>
+{% block title %}لیست تحلیل‌های من{% endblock %}
 
-{% if is_paginated %}
-  <div>
-    {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}">قبلی</a>
-    {% endif %}
-    <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
-    {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}">بعدی</a>
-    {% endif %}
-  </div>
-{% endif %}
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-bg: #f3f4f6;
+        --border-color: #e5e7eb;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+
+        /* رنگ‌های وضعیت */
+        --status-success-bg: #d1fae5;
+        --status-success-text: #065f46;
+        --status-pending-bg: #fef3c7;
+        --status-pending-text: #92400e;
+        --status-failure-bg: #fee2e2;
+        --status-failure-text: #991b1b;
+    }
+
+    .bundles-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        padding: 24px;
+        margin-bottom: 30px;
+    }
+
+    /* هدر صفحه */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title h1 {
+        font-size: 1.5rem;
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    /* جدول */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 800px;
+    }
+
+    .custom-table th {
+        background: #f9fafb;
+        padding: 14px;
+        text-align: right;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.9rem;
+    }
+
+    .custom-table td {
+        padding: 16px 14px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .custom-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .custom-table tr:hover {
+        background-color: #f9fafb;
+    }
+
+    /* بج‌های وضعیت */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 99px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-SUCCESS { background: var(--status-success-bg); color: var(--status-success-text); }
+    .status-PENDING { background: var(--status-pending-bg); color: var(--status-pending-text); }
+    .status-FAILURE { background: var(--status-failure-bg); color: var(--status-failure-text); }
+
+    /* دکمه عملیات */
+    .btn-icon {
+        color: var(--text-muted);
+        transition: color 0.2s;
+        font-size: 1.1rem;
+        margin-left: 10px;
+    }
+    .btn-icon:hover { color: var(--primary-color); }
+
+    /* صفحه‌بندی (Pagination) */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 30px;
+        gap: 8px;
+    }
+
+    .page-link {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: all 0.2s;
+        background: #fff;
+    }
+
+    .page-link:hover {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+    }
+
+    .page-link.active {
+        background-color: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+
+    .page-link.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #f9fafb;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--text-muted);
+    }
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container-fluid">
+
+        <div class="bundles-container">
+
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>
+                        <i class="fa-solid fa-list-check"></i>
+                        تحلیل‌های من
+                    </h1>
+                    <div class="page-subtitle">لیست تمام درخواست‌های تحلیلی که ثبت کرده‌اید</div>
+                </div>
+                <a href="{% url 'bundle_create' %}" class="btn-ai" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; background:#4f46e5; color:white;">
+                    <i class="fa-solid fa-plus"></i>
+                    تحلیل جدید
+                </a>
+            </div>
+
+            {% if bundles %}
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="25%">عنوان</th>
+                            <th width="15%">آزمون</th>
+                            <th width="15%">مرحله (Stage)</th>
+                            <th width="15%">وضعیت</th>
+                            <th width="15%">تاریخ ثبت</th>
+                            <th width="10%">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bundle in bundles %}
+                        <tr>
+                            <td>{{ bundle.id }}</td>
+                            <td>
+                                <a href="{% url 'bundle_detail' bundle.pk %}">{{ bundle.title }}</a>
+                            </td>
+                            <td>
+                                <span style="background:#f3f4f6; padding:3px 8px; border-radius:6px; font-size:0.85rem;">
+                                    {{ bundle.exam.name|default:"-" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-stage">
+                                    {{ bundle.stage }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ bundle.status }}">
+                                    {% if bundle.status == 'SUCCESS' %}
+                                        <i class="fa-solid fa-check"></i> موفق
+                                    {% elif bundle.status == 'PENDING' %}
+                                        <i class="fa-solid fa-clock"></i> در حال پردازش
+                                    {% elif bundle.status == 'FAILURE' %}
+                                        <i class="fa-solid fa-triangle-exclamation"></i> خطا
+                                    {% else %}
+                                        {{ bundle.status }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td dir="ltr" style="text-align: right;">
+                                {{ bundle.created_at|date:"Y/m/d H:i" }}
+                            </td>
+                            <td>
+                                <a href="{% url 'bundle_detail' bundle.pk %}" class="btn-icon" title="مشاهده جزئیات">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <div class="pagination-wrapper">
+
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="page-link disabled"><i class="fa-solid fa-chevron-right"></i></span>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="page-link active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="page-link disabled"><i class="fa-solid fa-chevron-left"></i></span>
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <h3>هیچ تحلیلی یافت نشد</h3>
+                    <p>شما هنوز هیچ درخواست تحلیلی ثبت نکرده‌اید. برای شروع روی دکمه "تحلیل جدید" کلیک کنید.</p>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{#<h2>آزمون‌های تحلیل‌شده‌ی من</h2>#}
+{##}
+{#<ul>#}
+{#  {% for b in bundles %}#}
+{#    <li>#}
+{#      <a href="{% url 'bundle_detail' b.pk %}">#}
+{#        #{{ b.id }} - {{ b.title|default:"بدون عنوان" }} - {{ b.status }}#}
+{#      </a>#}
+{#      <small>({{ b.created_at }})</small>#}
+{#    </li>#}
+{#  {% empty %}#}
+{#    <li>هنوز آزمونی تحلیل نکردی.</li>#}
+{#  {% endfor %}#}
+{#</ul>#}
+{##}
+{#{% if is_paginated %}#}
+{#  <div>#}
+{#    {% if page_obj.has_previous %}#}
+{#      <a href="?page={{ page_obj.previous_page_number }}">قبلی</a>#}
+{#    {% endif %}#}
+{#    <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>#}
+{#    {% if page_obj.has_next %}#}
+{#      <a href="?page={{ page_obj.next_page_number }}">بعدی</a>#}
+{#    {% endif %}#}
+{#  </div>#}
+{#{% endif %}#}

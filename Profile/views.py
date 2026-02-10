@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from .forms import ExelUploadForm
 from .models import Student, Users
-from django.views.generic import TemplateView, View, DetailView
+from django.views.generic import TemplateView, View, DetailView, ListView
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -56,7 +56,6 @@ class ExcelUploadView(FormView):
                 birth_date=row.get('تاریخ تولد', ''),
                 birth_place=row.get('محل صدور', ''),
                 sex=row.get('جنسیت', ''),
-                clas=row.get('کلاس', ''),
                 address=row.get('آدرس', ''),
                 phone_number=row.get('همراه', ''),
                 home_phone_number=row.get('ثابت', ''),
@@ -145,6 +144,7 @@ class TeacherPanelView(LoginRequiredMixin, TemplateView):
         context['classes'] = classes
         return context
 
+
 class StudentPracticeView(TemplateView, LoginRequiredMixin):
     template_name = 'Profile/student_practice.html'
     login_url = 'login'
@@ -198,3 +198,9 @@ class SchoolClassStudentView(LoginRequiredMixin, UserPassesTestMixin, TemplateVi
         context['teacher'] = teacher
         context['classes'] = classes
         return context
+
+
+# class Techaerstudentlistview(LoginRequiredMixin ,ListView):
+#     model = TeacherUser
+#
+#     context_object_name = 'teacher'

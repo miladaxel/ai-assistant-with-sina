@@ -1,29 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>پنل معلم</title>
-</head>
+{% extends 'Profile/base.html' %}
+{% load static %}
+{% block extra_css %}
+    <title>داشبورد مدیریت</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css'  %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+{% block content %}
 <body>
-    <h1>سلام {{ teacher.first_name }} {{ teacher.last_name }} 👋</h1>
 
-    <h2>لیست دانش‌آموزان شما</h2>
-    <ul>
-        {% for student in teacher.students.all %}
-            <a href="{% url 'student_detail' student.id %}">
-            <li>{{ student.full_name }} - کلاس: {% for c in student.classes.all %}
-        {{ c.number }} - {{ c.subject }}
-    {% endfor %}</li>
-        {% empty %}
-            <li>هنوز هیچ دانش‌آموزی برای شما ثبت نشده است.</li>
-            </a>
-        {% endfor %}
-    </ul>
-    {% for c in classes %}
-        <a href="{% url 'teacher_classes' %}"> {{ c }}
-    {% endfor %}
-    <p>
-        <a href="{% url 'logout' %}">خروج از حساب</a>
-    </p>
+    <div class="main-content">
+        <header class="top-header">
+            <div>
+                <h1>پنل شخصی</h1>
+                <p class="date-display">امروز: یکشنبه، ۳۰ آذر ۱۴۰۴</p>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="badge-dot"></span></button>
+                <a href="settings.html" class="icon-btn"><i class="fa-solid fa-gear"></i></a>
+            </div>
+        </header>
+
+        <div class="dashboard-layout">
+
+            <main class="dashboard-main">
+                <div class="kpi-grid">
+                    <div class="kpi-card purple">
+                        <div class="kpi-icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="kpi-info">
+                            <h3>کلاس‌های فعال</h3>
+                            <span>{{ teacher.number_of_classes }}</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card blue">
+                        <div class="kpi-icon"><i class="fa-solid fa-user-graduate"></i></div>
+                        <div class="kpi-info">
+                            <h3>کل دانش‌آموزان</h3>
+                            <span>{{ teacher.number_of_students }}</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card green">
+                        <div class="kpi-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <div class="kpi-info">
+                            <h3>آزمون‌های تعریف شده</h3>
+                            <span>۶ آزمون</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <h3>دسترسی سریع</h3>
+                    </div>
+                    <div class="shortcuts-grid">
+                        <a href="{% url 'bundle_create' %}" class="shortcut-card">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            <span>تحلیل هوشمند</span>
+                        </a>
+                        <a href="{% url 'exam_create' %}" class="shortcut-card">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>طراحی آزمون شخصی سازی شده (AI)</span>
+                        </a>
+                        <a href="{% url 'exercise_generate:stage3_run' %}" class="shortcut-card">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>مدیریت هوشمند کلاسی</span>
+                        </a>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="dashboard-side">
+
+                <div class="profile-widget">
+
+                    <div class="pw-header">
+                        <div class="avatar-container">
+                            <img src="assets/images/teachers/sina_beri.jpg"
+                                 onerror="this.src='https://ui-avatars.com/api/?name=Mohammad+Sina+Beri&background=0ea5e9&color=fff'"
+                                 class="pw-avatar" alt="محمد سینا بری">
+
+                        </div>
+
+                        <div class="pw-info">
+                            <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
+                            <span class="pw-role">معلم زبان انگلیسی</span>
+                        </div>
+                    </div>
+
+                    <div class="current-school-box">
+
+                    </div>
+                    <div class="digital-id-card">
+                        <div class="id-row">
+                            <div class="id-icon bg-indigo"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div class="id-content">
+                                <span class="id-label">تحصیلات</span>
+                                <span class="id-value">کارشناس زبان انگلیسی</span>
+                            </div>
+                        </div>
+
+                        <div class="dashed-line"></div>
+
+                        <div class="id-row copy-row">
+                            <div class="id-icon bg-blue"><i class="fa-solid fa-id-badge"></i></div>
+                            <div class="id-content">
+                                <span class="id-label">کد پرسنلی</span>
+                                <span class="id-value font-num">{{ teacher.personal_code }}</span>
+                            </div>
+
+                        </div>
+
+                        <div class="id-row copy-row" >
+                            <div class="id-icon bg-emerald"><i class="fa-solid fa-fingerprint"></i></div>
+                            <div class="id-content">
+                                <span class="id-label">کد ملی</span>
+                                <span class="id-value font-num">{{ teacher.national_code }}</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="divider"></div>
+
+                    <div class="pw-stats">
+                        <div class="pws-item">
+                            <strong>{{ teacher.number_of_classes }}</strong>
+                            <span>کلاس‌ها</span>
+                        </div>
+                        <div class="pws-item border-right">
+                            <strong>{{ teacher.number_of_students }}</strong>
+                            <span>دانش‌آموز</span>
+                        </div>
+                    </div>
+
+                    <div class="pw-actions">
+                        <a href="schedule.html" class="pw-btn">
+                            <div class="btn-icon"><i class="fa-regular fa-calendar"></i></div>
+                            <div class="btn-text">
+                                <span>برنامه هفتگی</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-left arrow"></i>
+                        </a>
+
+                        <a href="{% url 'teacher_classes' %}" class="pw-btn">
+                            <div class="btn-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+                            <div class="btn-text">
+                                <span>لیست کلی دانش آموزان</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-left arrow"></i>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <script>
+        let dataDisplay=document.getElementsByClassName("date-display")[0]
+        let date=new Date()
+        dataDisplay.innerText=date.toLocaleDateString("fa-IR")
+    </script>
+    <script src="js/layout.js"></script>
 </body>
-</html>
+
+{% endblock %}

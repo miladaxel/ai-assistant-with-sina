@@ -1,19 +1,282 @@
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
+{% extends "Profile/base.html" %}
+{% load static %}
 
-  {{ form.stage2_bundle.label }}
-  {{ form.stage2_bundle }}
+{% block title %}اجرای مرحله ۳: تولید تمرین{% endblock %}
 
-  <br>
+{% block extra_css %}
+<style>
+    /* متغیرهای رنگی */
+    :root {
+        --primary-color: #4f46e5;
+        --primary-hover: #4338ca;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --bg-card: #ffffff;
+        --border-color: #e5e7eb;
+    }
 
-  {{ form.stage3_prompt.label }}
-  {{ form.stage3_prompt }}
+    .stage3-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: var(--bg-card);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        padding: 30px;
+        border: 1px solid var(--border-color);
+    }
 
-  <br>
+    .header-section {
+        margin-bottom: 30px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 20px;
+    }
 
-  <label>PDF بانک سوالات</label>
-  {{ form.question_bank_pdf }}
+    .header-section h1 {
+        font-size: 1.5rem;
+        color: var(--text-dark);
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-  <br>
-  <button type="submit">Run Stage 3</button>
-</form>
+    .header-section p {
+        color: var(--text-light);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+    }
+
+    /* استایل ورودی‌های Select */
+    select.form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: #fff;
+        font-size: 1rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    select.form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    /* استایل اختصاصی برای آپلود فایل */
+    .file-upload-wrapper {
+        position: relative;
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s;
+        background-color: #f9fafb;
+        cursor: pointer;
+    }
+
+    .file-upload-wrapper:hover {
+        border-color: var(--primary-color);
+        background-color: #eef2ff;
+    }
+
+    .file-upload-icon {
+        font-size: 2rem;
+        color: var(--text-light);
+        margin-bottom: 10px;
+    }
+
+    .file-name {
+        margin-top: 10px;
+        font-weight: 600;
+        color: var(--primary-color);
+        display: block;
+    }
+
+    /* مخفی کردن اینپوت اصلی فایل */
+    input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 14px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .btn-submit:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    .error-msg {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+
+    /* انیمیشن لودینگ */
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        display: none;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="stage3-container">
+        
+        <div class="header-section">
+            <h1>
+                <i class="fa-solid fa-layer-group"></i>
+                اجرای مرحله ۳ (تولید تمرین)
+            </h1>
+            <p>در این مرحله با استفاده از خروجی تحلیل مرحله ۲ و فایل بانک سوالات، تمرین‌های جدید تولید می‌شود.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="stage3Form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.stage2_bundle.id_for_label }}">
+                    انتخاب تحلیل مرحله ۲ (Stage 2 Bundle)
+                </label>
+                {{ form.stage2_bundle }} 
+                
+                {% if form.stage2_bundle.errors %}
+                    <div class="error-msg">{{ form.stage2_bundle.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.stage3_prompt.id_for_label }}">
+                    انتخاب پرامپت تولید تمرین (Prompt Template)
+                </label>
+                {{ form.stage3_prompt }}
+                
+                {% if form.stage3_prompt.errors %}
+                    <div class="error-msg">{{ form.stage3_prompt.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">آپلود بانک سوالات (PDF)</label>
+                
+                <div class="file-upload-wrapper">
+                    <i class="fa-solid fa-cloud-arrow-up file-upload-icon"></i>
+                    <div class="file-upload-text">برای انتخاب فایل کلیک کنید یا فایل را اینجا رها کنید</div>
+                    <span id="file-name-display" class="file-name"></span>
+                    
+                    {{ form.question_bank_pdf }}
+                </div>
+                
+                {% if form.question_bank_pdf.errors %}
+                    <div class="error-msg">{{ form.question_bank_pdf.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 40px;">
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text">شروع تولید تمرین</span>
+                    <div class="spinner"></div>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. اضافه کردن کلاس CSS به فیلدهای Select جنگو
+        const selectFields = document.querySelectorAll('select');
+        selectFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+
+        // 2. نمایش نام فایل انتخاب شده
+        const fileInput = document.querySelector('input[type="file"]');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const uploadText = document.querySelector('.file-upload-text');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    fileNameDisplay.textContent = e.target.files[0].name;
+                    uploadText.style.display = 'none'; // مخفی کردن متن راهنما
+                    // تغییر رنگ حاشیه برای فیدبک بصری
+                    document.querySelector('.file-upload-wrapper').style.borderColor = '#4f46e5';
+                    document.querySelector('.file-upload-wrapper').style.backgroundColor = '#eef2ff';
+                }
+            });
+        }
+
+        // 3. مدیریت وضعیت دکمه هنگام ارسال (Loading)
+        const form = document.getElementById('stage3Form');
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.querySelector('.btn-text');
+        const spinner = document.querySelector('.spinner');
+
+        form.addEventListener('submit', function() {
+            // جلوگیری از ارسال چندباره
+            if (!btn.disabled) {
+                btn.disabled = true;
+                btn.style.opacity = '0.8';
+                btnText.textContent = 'در حال پردازش و تولید تمرین...';
+                spinner.style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,76 +1,358 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <title>Stage2 - Run</title>
-  <style>
-    body { font-family:sans-serif; background:#f7f7f8; margin:0; }
-    .wrap { max-width:900px; margin:0 auto; padding:20px; }
-    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:16px; margin-bottom:16px; }
-    label { font-weight:bold; display:block; margin-top:12px; }
-    select, button { width:100%; padding:10px; margin-top:6px; }
-    .msg { margin-top:10px; padding:10px; border-radius:8px; }
-    .error { background:#ffecec; border:1px solid #ffb3b3; }
-    .success { background:#ecffef; border:1px solid #b3ffc4; }
-  </style>
-</head>
-<body>
-<div class="wrap">
+{% extends "Profile/base.html" %}
+{% load static %}
 
-  <div class="card">
-    <h2>Stage 2 – تحلیل پاسخ دانش‌آموزان</h2>
-    <p>
-      در این صفحه:
-      <br>1️⃣ خروجی تحلیل آزمون (Stage1)
-      <br>2️⃣ Prompt مرحله ۲
-      <br>3️⃣ Exam
-      <br>را انتخاب می‌کنی و اجرا می‌زنی.
-    </p>
-  </div>
+{% block title %}اجرای تحلیل مرحله ۲ (Stage 2){% endblock %}
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="msg {{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
+{% block extra_css %}
+<style>
+    /* متغیرهای رنگی برای هماهنگی با تم پنل */
+    :root {
+        --primary-color: #4f46e5;
+        --success-bg: #dcfce7;
+        --success-text: #166534;
+        --error-bg: #fee2e2;
+        --error-text: #991b1b;
+        --warning-bg: #fef3c7;
+        --warning-text: #92400e;
+    }
 
-  <div class="card">
-    <form method="post">
-      {% csrf_token %}
+    .analysis-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
 
-      <!-- Exam -->
-      <label>Exam</label>
-      {{ form.exam }}
-      {% for e in form.exam.errors %}
-        <div class="msg error">{{ e }}</div>
-      {% endfor %}
+    .page-header-simple {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
 
-      <!-- Stage1 bundle -->
-      <label>خروجی تحلیل آزمون (Stage1)</label>
-      <select name="stage1_bundle_id" required>
-        <option value="">— انتخاب کن —</option>
-        {% for b in stage1_bundles %}
-          <option value="{{ b.id }}"
-            {% if form.data.stage1_bundle_id == b.id|stringformat:"s" %}selected{% endif %}>
-            #{{ b.id }} | {{ b.title|default:"بدون عنوان" }} | {{ b.created_at|date:"Y-m-d H:i" }}
-          </option>
+    .page-header-simple h1 {
+        font-size: 1.5rem;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #374151;
+    }
+
+    /* استایل ورودی‌ها */
+    .form-control, .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    /* دکمه اصلی */
+    .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+        background-color: #4338ca;
+    }
+
+    .btn-submit:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    /* استایل وضعیت اسنپ‌شات */
+    .snapshot-status {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        border: 1px dashed;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .status-success { background: var(--success-bg); color: var(--success-text); border-color: #bbf7d0; }
+    .status-error { background: var(--error-bg); color: var(--error-text); border-color: #fecaca; }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+  <div class="container-narrow">
+
+    <div class="page-header-simple">
+      <a href="{% url 'home' %}" class="back-btn"> <i class="fa-solid fa-arrow-right"></i>
+      </a>
+      <h1>اجرای تحلیل مرحله ۲ (Stage 2)</h1>
+    </div>
+
+    <div class="analysis-card">
+        <h2 style="font-size: 1.2rem; margin-top:0;">ℹ️ راهنما</h2>
+        <p style="color: #4b5563; font-size: 0.95rem;">
+            در این مرحله، پاسخ‌های دانش‌آموزان (که در Snapshot ذخیره شده) با کلید سوالات (که در مرحله ۱ تحلیل شده) ترکیب شده و نمره‌دهی می‌شود.
+        </p>
+
+        {% if snapshot_info %}
+            <div class="snapshot-status {% if snapshot_info.exists %}status-success{% else %}status-error{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>وضعیت Snapshot آزمون:</strong>
+                    {% if snapshot_info.exists %}
+                        <span class="status-badge status-success">
+                            ✅ موجود ({{ snapshot_info.student_count }} دانش‌آموز)
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-error">
+                            ❌ یافت نشد
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% if not snapshot_info.exists %}
+                    <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #991b1b;">
+                        ⚠️ برای اجرای مرحله ۲، ابتدا باید از لیست شرکت‌کنندگان یک Snapshot تهیه کنید.
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert" style="margin-bottom: 20px;">
+                {{ message }}
+            </div>
         {% endfor %}
-      </select>
-      {% for e in form.stage1_bundle_id.errors %}
-        <div class="msg error">{{ e }}</div>
-      {% endfor %}
+    {% endif %}
 
-      <!-- Prompt stage 2 -->
-      <label>Prompt مرحله ۲</label>
-      {{ form.stage2_prompt }}
-      {% for e in form.stage2_prompt.errors %}
-        <div class="msg error">{{ e }}</div>
-      {% endfor %}
+    <div class="analysis-card">
+        <form method="post" id="stage2Form">
+            {% csrf_token %}
 
-      <button type="submit">اجرای Stage2</button>
-    </form>
+            <div class="form-group">
+                <label class="form-label">انتخاب آزمون (Exam)</label>
+                {{ form.exam }}
+
+                {% if form.exam.errors %}
+                    <div class="text-danger small">{{ form.exam.errors }}</div>
+                {% endif %}
+                <div class="help-text">با تغییر آزمون، لیست تحلیل‌های مرحله ۱ بروز می‌شود.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    خروجی تحلیل سوالات (Stage 1 Bundle)
+                </label>
+
+                <select name="stage1_bundle_id" id="id_stage1_bundle_id" class="form-select" required>
+                    <option value="" disabled {% if not form.data.stage1_bundle_id %}selected{% endif %}>
+                        -- یک تحلیل Stage 1 را انتخاب کنید --
+                    </option>
+
+                    {% for bundle in stage1_bundles %}
+                        <option value="{{ bundle.id }}"
+                            {% if form.data.stage1_bundle_id|stringformat:"s" == bundle.id|stringformat:"s" %}selected{% endif %}>
+                            #{{ bundle.id }} | {{ bundle.title|default:"بدون عنوان" }}
+                            | {{ bundle.created_at|date:"Y-m-d H:i" }}
+                        </option>
+                    {% empty %}
+                        <option disabled>هیچ تحلیل موفقی برای این آزمون یافت نشد.</option>
+                    {% endfor %}
+                </select>
+
+                {% if form.stage1_bundle_id.errors %}
+                    <div class="text-danger small">{{ form.stage1_bundle_id.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">انتخاب پرامپت (Prompt Template)</label>
+                {{ form.stage2_prompt }}
+
+                {% if form.stage2_prompt.errors %}
+                    <div class="text-danger small">{{ form.stage2_prompt.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn"
+                {% if snapshot_info and not snapshot_info.exists %}disabled title="اسنپ‌شات موجود نیست"{% endif %}>
+                <span>🚀 شروع تحلیل مرحله ۲</span>
+            </button>
+
+        </form>
+    </div>
+
   </div>
-
 </div>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // انتخاب فیلد آزمون (فرض بر این است که ID پیش‌فرض جنگو id_exam است)
+        const examSelect = document.getElementById('id_exam');
+
+        if (examSelect) {
+            // اضافه کردن کلاس CSS اگر جنگو اضافه نکرده باشد
+            examSelect.classList.add('form-select');
+
+            // رویداد تغییر آزمون برای فیلتر کردن لیست
+            examSelect.addEventListener('change', function() {
+                const selectedExamId = this.value;
+                if (selectedExamId) {
+                    // ریلود صفحه با پارامتر GET برای اعمال فیلتر در ویو
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('exam', selectedExamId);
+                    window.location.href = url.toString();
+                }
+            });
+
+            // اگر در URL پارامتر exam داریم، سلکت‌باکس را روی آن ست کن (برای UX بهتر)
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentExam = urlParams.get('exam');
+            if (currentExam) {
+                examSelect.value = currentExam;
+            }
+        }
+
+        // استایل‌دهی فیلد پرامپت
+        const promptSelect = document.getElementById('id_stage2_prompt');
+        if (promptSelect) promptSelect.classList.add('form-select');
+
+        // لودینگ دکمه
+        const form = document.getElementById('stage2Form');
+        form.addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            if (!btn.disabled) {
+                btn.style.opacity = '0.7';
+                btn.innerHTML = '⏳ در حال پردازش...';
+                btn.style.cursor = 'wait';
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+{##}
+{#<!doctype html>#}
+{#<html lang="fa" dir="rtl">#}
+{#<head>#}
+{#  <meta charset="utf-8" />#}
+{#  <title>Stage2 - Run</title>#}
+{#  <style>#}
+{#    body { font-family:sans-serif; background:#f7f7f8; margin:0; }#}
+{#    .wrap { max-width:900px; margin:0 auto; padding:20px; }#}
+{#    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:16px; margin-bottom:16px; }#}
+{#    label { font-weight:bold; display:block; margin-top:12px; }#}
+{#    select, button { width:100%; padding:10px; margin-top:6px; }#}
+{#    .msg { margin-top:10px; padding:10px; border-radius:8px; }#}
+{#    .error { background:#ffecec; border:1px solid #ffb3b3; }#}
+{#    .success { background:#ecffef; border:1px solid #b3ffc4; }#}
+{#  </style>#}
+{#</head>#}
+{#<body>#}
+{#<div class="wrap">#}
+{##}
+{#  <div class="card">#}
+{#    <h2>Stage 2 – تحلیل پاسخ دانش‌آموزان</h2>#}
+{#    <p>#}
+{#      در این صفحه:#}
+{#      <br>1️⃣ خروجی تحلیل آزمون (Stage1)#}
+{#      <br>2️⃣ Prompt مرحله ۲#}
+{#      <br>3️⃣ Exam#}
+{#      <br>را انتخاب می‌کنی و اجرا می‌زنی.#}
+{#    </p>#}
+{#  </div>#}
+{##}
+{#  {% if messages %}#}
+{#    {% for message in messages %}#}
+{#      <div class="msg {{ message.tags }}">{{ message }}</div>#}
+{#    {% endfor %}#}
+{#  {% endif %}#}
+{##}
+{#  <div class="card">#}
+{#    <form method="post">#}
+{#      {% csrf_token %}#}
+{##}
+{#      <!-- Exam -->#}
+{#      <label>Exam</label>#}
+{#      {{ form.exam }}#}
+{#      {% for e in form.exam.errors %}#}
+{#        <div class="msg error">{{ e }}</div>#}
+{#      {% endfor %}#}
+{##}
+{#      <!-- Stage1 bundle -->#}
+{#      <label>خروجی تحلیل آزمون (Stage1)</label>#}
+{#      <select name="stage1_bundle_id" required>#}
+{#        <option value="">— انتخاب کن —</option>#}
+{#        {% for b in stage1_bundles %}#}
+{#          <option value="{{ b.id }}"#}
+{#            {% if form.data.stage1_bundle_id == b.id|stringformat:"s" %}selected{% endif %}>#}
+{#            #{{ b.id }} | {{ b.title|default:"بدون عنوان" }} | {{ b.created_at|date:"Y-m-d H:i" }}#}
+{#          </option>#}
+{#        {% endfor %}#}
+{#      </select>#}
+{#      {% for e in form.stage1_bundle_id.errors %}#}
+{#        <div class="msg error">{{ e }}</div>#}
+{#      {% endfor %}#}
+{##}
+{#      <!-- Prompt stage 2 -->#}
+{#      <label>Prompt مرحله ۲</label>#}
+{#      {{ form.stage2_prompt }}#}
+{#      {% for e in form.stage2_prompt.errors %}#}
+{#        <div class="msg error">{{ e }}</div>#}
+{#      {% endfor %}#}
+{##}
+{#      <button type="submit">اجرای Stage2</button>#}
+{#    </form>#}
+{#  </div>#}
+{##}
+{#</div>#}
+{#</body>#}
+{#</html>#}

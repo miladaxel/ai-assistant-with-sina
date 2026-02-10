@@ -1,9 +1,9 @@
 from symtable import Class
 
-from django import forms
 from .models import AnalysisBundle, PromptTemplate, Exam, Question, StudentQuestionResult
+from django import forms
 from django.forms import modelformset_factory
-
+from .models import StudentQuestionResult
 
 
 class AnalysisBundleCreateForm(forms.ModelForm):
@@ -74,9 +74,7 @@ class ExamStudentForm(forms.Form):
 
 
 
-from django import forms
-from django.forms import modelformset_factory
-from .models import StudentQuestionResult
+
 
 class StudentQuestionResultForm(forms.ModelForm):
     # فقط یک Checkbox ساده

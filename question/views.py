@@ -177,7 +177,7 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
             bundle.save(update_fields=["openai_lesson_file_id", "openai_example_file_id"])
 
             out = analyzer.analyze(
-                model=bundle.model_name,
+                model='gpt-5.2',
                 instructions=selected_prompt.instruction_text,
                 json_schema=selected_prompt.schema_json,
                 textbook_file_id=textbook_file_id,
@@ -218,7 +218,7 @@ class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
 
     def get_queryset(self):
         return (
-            AnalysisBundle.objects.filter(teacher=self.request.user).order_by('-created_at')
+            AnalysisBundle.objects.filter(teacher=self.request.user, stage=AnalysisBundle.STAGE_ONE).order_by('-created_at')
         )
 
 
@@ -536,7 +536,7 @@ class ExamSnapShotCreateView(LoginRequiredMixin, TeacherRequiredMixin, View):
             snap_shot["students"].append(student_data)
         ExamSnapShot.objects.create(exam=exam, data=snap_shot)
 
-        return redirect('exam_snapshot_list', exam_id=exam_id)
+        return redirect('teacher panel')
 
 
 class ExamSnapShotListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):

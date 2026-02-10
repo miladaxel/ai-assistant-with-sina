@@ -1,42 +1,115 @@
+{% extends 'Profile/base.html' %}
+{% load static %}
+{% block extra_css %}
+    <title>ورود نمرات آزمون</title>
+    <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/exam.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+{% block content %}
+<div class="main-content">
+  <div id="matrix-area">
 
-<h2>گزارش نتایج آزمون: {{ exam.name }}</h2>
+    <a href="{% url 'home' %}"
+       style="display:inline-block;margin-bottom:15px;color:#64748b;text-decoration:none;">
+      <i class="fa-solid fa-arrow-right"></i> بازگشت به خانه
+    </a>
 
-{% for student, results in student_results.items %}
-    <hr>
-    <h3>دانش‌آموز: {{ student.full_name }}</h3>
+    <div class="matrix-container">
 
-    <table border="1" cellpadding="8" cellspacing="0" width="100%">
-        <tr>
-            <th>سؤال</th>
-            <th>وضعیت</th>
-        </tr>
+      {% for student, results in student_results.items %}
+        <h2 class="student-title-res">
+          {{ student.full_name }}
+        </h2>
 
-        {% for r in results %}
+        <table class="exam-table">
+          <thead>
             <tr>
-                <td>
-                    {% if r.subquestion %}
-                        سؤال {{ r.subquestion.question.number }}
-                        - زیرسؤال {{ r.subquestion.number }}
-                    {% else %}
-                        سؤال {{ r.question.number }}
-                    {% endif %}
-                </td>
-                <td style="text-align:center;">
-                    {% if r.is_correct %}
-                        <span style="color:green;">✔ درست</span>
-                    {% else %}
-                        <span style="color:red;">✘ غلط</span>
-                    {% endif %}
-                </td>
+              <td>سوال</td>
+              <td>وضعیت</td>
             </tr>
-        {% endfor %}
-    </table>
-{% empty %}
-    <p>هیچ نتیجه‌ای ثبت نشده است.</p>
-{% endfor %}
+          </thead>
+          <tbody>
 
-<br>
-<a href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a>
-<br>
-<a href="{% url 'exam_snapshot_create' exam.id %}">تبدیل به جیسون</a>
+            {% for r in results %}
+              <tr>
+                <td>
+                  {% if r.subquestion %}
+                    سؤال {{ r.subquestion.question.number }}
+                    - زیرسؤال {{ r.subquestion.number }}
+                  {% else %}
+                    سؤال {{ r.question.number }}
+                  {% endif %}
+                </td>
+
+                <td>
+                  {% if r.is_correct %}
+                    <span style="color:green;">✔ درست</span>
+                  {% else %}
+                    <span style="color:red;">✘ غلط</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+
+      {% empty %}
+        <p>هیچ نتیجه‌ای ثبت نشده است.</p>
+      {% endfor %}
+    <a class="btn-primary-full" href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a>
+    <a class="btn-primary-full" href="{% url 'exam_snapshot_create' exam.id %}">تبدیل به جیسون</a>
+
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{##}
+{#<h2>گزارش نتایج آزمون: {{ exam.name }}</h2>#}
+{##}
+{#{% for student, results in student_results.items %}#}
+{#    <hr>#}
+{#    <h3>دانش‌آموز: {{ student.full_name }}</h3>#}
+{##}
+{#    <table border="1" cellpadding="8" cellspacing="0" width="100%">#}
+{#        <tr>#}
+{#            <th>سؤال</th>#}
+{#            <th>وضعیت</th>#}
+{#        </tr>#}
+{##}
+{#        {% for r in results %}#}
+{#            <tr>#}
+{#                <td>#}
+{#                    {% if r.subquestion %}#}
+{#                        سؤال {{ r.subquestion.question.number }}#}
+{#                        - زیرسؤال {{ r.subquestion.number }}#}
+{#                    {% else %}#}
+{#                        سؤال {{ r.question.number }}#}
+{#                    {% endif %}#}
+{#                </td>#}
+{#                <td style="text-align:center;">#}
+{#                    {% if r.is_correct %}#}
+{#                        <span style="color:green;">✔ درست</span>#}
+{#                    {% else %}#}
+{#                        <span style="color:red;">✘ غلط</span>#}
+{#                    {% endif %}#}
+{#                </td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#    </table>#}
+{#{% empty %}#}
+{#    <p>هیچ نتیجه‌ای ثبت نشده است.</p>#}
+{#{% endfor %}#}
+{##}
+{#<br>#}
+{#<a href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a>#}
+{#<br>#}
+{#<a href="{% url 'exam_snapshot_create' exam.id %}">تبدیل به جیسون</a>#}
 
