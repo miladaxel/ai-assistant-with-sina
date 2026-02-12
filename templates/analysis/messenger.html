@@ -1,0 +1,66 @@
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link href="{% static 'css/messenger.css' %}" rel="stylesheet" />
+    <title>Document</title>
+{% endblock %}
+
+{% block content %}
+    <body>
+    <div class="main-content">
+      <div class="messenger-header">
+        <nav class="tab-nav">
+          <button class="tab-btn active" data-tab="parents">
+            والدین
+            <span class="badge">5</span>
+          </button>
+
+          <button class="tab-btn" data-tab="students">دانش‌آموزان</button>
+
+          <button class="tab-btn" data-tab="colleagues">
+            همکاران
+            <span class="badge">2</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="messenger-list">
+        <a href="/chat/101" class="chat-card">
+          <div class="card-section-right">
+            <h3 class="sender-name">خانم رضایی</h3>
+            <span class="sender-role"> علی احمدی نژاد</span>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="card-section-left">
+            <div class="msg-meta">
+              <span class="msg-time">10:30</span>
+            </div>
+            <p class="msg-preview">
+              سلام آقای معلم، علی امروز کمی کسالت داشت و نتوانست بیاید...
+            </p>
+          </div>
+        </a>
+        <a href="/chat/102" class="chat-card">
+          <div class="card-section-right">
+            <h3 class="sender-name">آقای کمالی</h3>
+            <span class="sender-role">محمد رضوی</span>
+          </div>
+          <div class="card-divider"></div>
+          <div class="card-section-left">
+            <div class="msg-meta">
+              <span class="msg-time">دیروز</span>
+            </div>
+            <p class="msg-preview">تکالیف ریاضی انجام شد.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </body>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/layout.js'%}"></script>
+{% endblock %}

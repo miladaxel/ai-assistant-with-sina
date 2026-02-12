@@ -63,8 +63,7 @@ class ExcelUploadView(FormView):
                 description=row.get('توضیحات', ''),
             )
 
-
-        return HttpResponse("داده‌ها با موفقیت وارد شدند!")
+        return redirect('upload_success')
 
 class SuccessView(TemplateView):
     template_name = 'Profile/success.html'

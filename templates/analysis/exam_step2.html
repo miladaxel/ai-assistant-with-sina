@@ -1,0 +1,64 @@
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <title>نوع آزمون</title>
+    <link rel="stylesheet" href="{% static 'css/exams.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+    <body>
+    <div class="main-content">
+        <div class="container-narrow">
+
+            <div class="page-header-simple">
+                <a href="exams-step1.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i></a>
+                <h1>نوع آزمون را مشخص کنید</h1>
+            </div>
+
+            <div class="exam-type-list">
+
+                <div class="type-card" onclick="selectType('start')">
+                    <div class="type-icon theme-green"><i class="fa-solid fa-flag"></i></div>
+                    <div class="type-content">
+                        <div class="type-text">آزمون مقدماتی</div>
+                        <div class="type-sub"> آزمون های جامع تایین سطح - دست ساز - هوش مصنوعی</div>
+                    </div>
+                </div>
+
+                <div class="type-card" onclick="selectType('mid')">
+                    <div class="type-icon theme-blue"><i class="fa-regular fa-flag"></i></div>
+                    <div class="type-content">
+                        <div class="type-text">آزمون میانی</div>
+                        <div class="type-sub">آزمون‌های شخصی سازی شده مبتنی بر هوش مصنوعی</div>
+                    </div>
+                </div>
+
+                <div class="type-card" onclick="selectType('final')">
+                    <div class="type-icon theme-purple"><i class="fa-solid fa-flag-checkered"></i></div>
+                    <div class="type-content">
+                        <div class="type-text">آزمون نهایی</div>
+                        <div class="type-sub">آزمون های جامع پایانی - دست ساز - هوش مصنوعی</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</body>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function selectType(type) {
+            // ذخیره نوع انتخاب شده
+            localStorage.setItem('selected_exam_type', type);
+            // رفتن به مرحله بعد (آپلود)
+            window.location.href = 'exams-step3.html';
+        }
+    </script>
+    <script src="{% static 'js/layout.js' %}"></script>
+{% endblock %}

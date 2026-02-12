@@ -45,6 +45,7 @@ class Stage3RunView(FormView):
         resp = analyzer.analyze_text(
             model='gpt-4o-mini',
             prompt_text=prompt_text,
+            temperature=0.2,
         )
         print('======================================')
         print(resp.raw_output_text)

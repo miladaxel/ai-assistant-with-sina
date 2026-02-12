@@ -134,7 +134,7 @@ class Stage2RunView(FormView):
                         student_answers=sp,
                     )
                     print('step1')
-                    resp = analyzer.analyze_text(model=bundle.model_name, prompt_text=prompt_text)
+                    resp = analyzer.analyze_text(model=bundle.model_name, prompt_text=prompt_text, temperature=0.2)
                     print("========= raw model output=========")
                     print(resp.raw_output_text)
                     print("====================================")
@@ -182,3 +182,36 @@ class Stage2StudentDetailView(DetailView):
 
     def get_queryset(self):
         return AnalysisBundle.objects.select_related("result", "prompt_template", "exam", "teacher")
+
+
+
+# class WeeklyPlan(TemplateView)
+
+
+class TeacherNote(TemplateView):
+    template_name = 'analysis/teacher_note.html'
+
+class WeeklyPlan(TemplateView):
+    template_name = 'analysis/weekly_plan.html'
+
+class Settings(TemplateView):
+    template_name = 'analysis/settings.html'
+
+
+class Messenger(TemplateView):
+    template_name = 'analysis/messenger.html'
+    
+class ExamStep1(TemplateView):
+    template_name = 'analysis/exam_step1.html'
+
+class ExamStep2(TemplateView):
+    template_name = 'analysis/exam_step2.html'
+
+class ChooseSchool(TemplateView):
+    template_name = 'analysis/choose_school.html'
+
+class ExamManagement(TemplateView):
+    template_name = 'analysis/exam_management.html'
+
+class ChooseClass(TemplateView):
+    template_name = 'analysis/choose_class.html'

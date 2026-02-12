@@ -1,0 +1,84 @@
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <title>تنظیمات</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}"> <link rel="stylesheet" href=" {% static 'css/settings.css' %}css/">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+body>
+
+    <div class="settings-container">
+
+        <div class="settings-header">
+            <a href="{% url 'teacher panel' %}" class="back-btn">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <h1>تنظیمات</h1>
+            <div style="width: 24px;"></div> </div>
+
+        <div class="section-title">مدیریت محیط کار</div>
+        <div class="settings-card neutral-card" onclick="openSchoolModal()">
+            <div class="card-content">
+                <div class="card-icon bg-blue-light">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+                <div class="card-text">
+                    <h3>تغییر مدرسه</h3>
+                    <p>جابجایی بین مدارس فعال</p>
+                </div>
+            </div>
+            <div class="card-arrow">
+                <i class="fa-solid fa-chevron-left"></i>
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="section-title">منطقه کاربری</div>
+        <a href="{% url 'login' %}" class="settings-card danger-outlined">
+            <div class="card-content">
+                <div class="card-icon bg-red-light">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </div>
+                <div class="card-text">
+                    <h3>تغییر نقش / خروج از حساب</h3>
+                    <p>بازگشت به صفحه ورود</p>
+                </div>
+            </div>
+            </a>
+
+    </div>
+
+    <div id="schoolModal" class="modal-overlay">
+        <div class="school-card">
+            <div class="modal-header">
+                <h3>تغییر مدرسه فعال</h3> <p>مدرسه مورد نظر جهت مدیریت را انتخاب کنید</p>
+            </div>
+
+            <div class="schools-grid">
+                <div class="school-item" onclick="changeSchool('beheshti')">
+                    <div class="school-icon bg-blue">
+                        <i class="fa-solid fa-school"></i>
+                    </div>
+                    <span>مدرسه شهید بهشتی</span>
+                </div>
+
+                <div class="school-item" onclick="changeSchool('nedaye_eslami')">
+                    <div class="school-icon bg-green">
+                        <i class="fa-solid fa-mosque"></i>
+                    </div>
+                    <span>مدرسه ندای اسلامی</span>
+                </div>
+            </div>
+
+            <button class="btn-close-modal" onclick="closeSchoolModal()">انصراف</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+     <script src="{% static 'js/settings.js' %}"></script>
+{% endblock %}

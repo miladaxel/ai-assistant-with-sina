@@ -1,0 +1,177 @@
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <title>انتخاب ماه آزمون</title>
+    <link rel="stylesheet" href="{% static 'css/exams.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="main-content">
+        <div class="container-narrow">
+            <div class="recent-exams-section">
+
+                <div class="section-header-row">
+                    <h3>آزمون‌های ثبت شده</h3>
+                </div>
+
+                <div class="exams-list">
+
+                    <div class="exam-item">
+                        <div class="exam-icon bg-green-light">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="exam-details">
+                            <span class="exam-name">آزمون زبان انگلیسی - تایین سطح - هفتم </span>
+                            <span class="exam-meta">۱۴۰۴/۰۹/۲۵ • تمام کلاس های هفتم</span>
+                        </div>
+                        <div class="exam-status">
+                            <span class="badge badge-success">برگزار شده</span>
+                            <a href="#" class="btn-icon-sm"><i class="fa-solid fa-chevron-left"></i></a>
+                        </div>
+                    </div>
+                    <div class="exam-item">
+                        <div class="exam-icon bg-green-light">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="exam-details">
+                            <span class="exam-name">آزمون زبان انگلیسی - تایین سطح - نهم </span>
+                            <span class="exam-meta">۱۴۰۴/۰۹/۲۵ • فقط نهم توکل</span>
+                        </div>
+                        <div class="exam-status">
+                            <span class="badge badge-success">برگزار شده</span>
+                            <a href="#" class="btn-icon-sm"><i class="fa-solid fa-chevron-left"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="exam-item">
+                        <div class="exam-icon bg-orange-light">
+                            <i class="fa-solid fa-pen-ruler"></i>
+                        </div>
+                        <div class="exam-details">
+                            <span class="exam-name">آزمون زبان انگلیسی- شخصی سازی شده میانی - هفتم</span>
+                            <span class="exam-meta">۱۴۰۴/۱۰/۰۲ • تمام کلاس های هفتم</span>
+                        </div>
+                        <div class="exam-status">
+                            <span class="badge badge-warning">پیش‌نویس</span>
+                            <a href="#" class="btn-icon-sm"><i class="fa-solid fa-chevron-left"></i></a>
+                        </div>
+                    </div>
+                    <div class="exam-item">
+                        <div class="exam-icon bg-orange-light">
+                            <i class="fa-solid fa-pen-ruler"></i>
+                        </div>
+                        <div class="exam-details">
+                            <span class="exam-name">آزمون زبان انگلیسی- شخصی سازی شده میانی - نهم</span>
+                            <span class="exam-meta">۱۴۰۴/۱۰/۰۲ • فقط نهم توکل</span>
+                        </div>
+                        <div class="exam-status">
+                            <span class="badge badge-warning">پیش‌نویس</span>
+                            <a href="#" class="btn-icon-sm"><i class="fa-solid fa-chevron-left"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="exam-item">
+                        <div class="exam-icon bg-blue-light">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="exam-details">
+                            <span class="exam-name">آزمون زبان انگلیسی - نهایی - هفتم</span>
+                            <span class="exam-meta">۱۴۰۴/۱۰/۰۹ • تمام کلاس های هفتم</span>
+                        </div>
+                        <div class="exam-status">
+                            <span class="badge badge-info">در انتظار برگزاری</span>
+                            <a href="#" class="btn-icon-sm"><i class="fa-solid fa-chevron-left"></i></a>
+                        </div>
+                    </div>
+                    <div class="exam-item">
+                        <div class="exam-icon bg-blue-light">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="exam-details">
+                            <span class="exam-name">آزمون زبان انگلیسی - نهایی - نهم</span>
+                            <span class="exam-meta">۱۴۰۴/۱۰/۰۹ • فقط نهم توکل</span>
+                        </div>
+                        <div class="exam-status">
+                            <span class="badge badge-info">در انتظار برگزاری</span>
+                            <a href="#" class="btn-icon-sm"><i class="fa-solid fa-chevron-left"></i></a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="page-header-simple">
+                <a href="{% url 'teacher panel' %}" class="back-btn"><i class="fa-solid fa-arrow-right"></i></a>
+                <h1>انتخاب ماه آزمون</h1>
+            </div>
+
+            <div class="months-grid">
+
+                <div class="month-card" onclick="selectMonth('مهر')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>مهر</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('آبان')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>آبان</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('آذر')">
+                    <i class="fa-regular fa-calendar"></i> <span>آذر</span>
+                </div>
+
+                <div class="month-card" onclick="selectMonth('دی')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>دی</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('بهمن')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>بهمن</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('اسفند')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>اسفند</span>
+                </div>
+
+                <div class="month-card" onclick="selectMonth('فروردین')">
+                    <i class="fa-regular fa-calendar"></i><span>فروردین</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('اردیبهشت')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>اردیبهشت</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('خرداد')">
+                    <i class="fa-regular fa-calendar"></i> <span>خرداد</span>
+                </div>
+
+                <div class="month-card" onclick="selectMonth('تیر')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>تیر</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('مرداد')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>مرداد</span>
+                </div>
+                <div class="month-card" onclick="selectMonth('شهریور')">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>شهریور</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</body>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function selectMonth(month) {
+            localStorage.setItem('selected_exam_month', month);
+            window.location.href = 'exams-step2.html';
+        }
+    </script>
+    <script src="{% static  'js/layout.js' %}"></script>
+{% endblock %}

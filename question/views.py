@@ -177,7 +177,8 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
             bundle.save(update_fields=["openai_lesson_file_id", "openai_example_file_id"])
 
             out = analyzer.analyze(
-                model='gpt-5.2',
+                model='gpt-4o-mini',
+                temperature=0,
                 instructions=selected_prompt.instruction_text,
                 json_schema=selected_prompt.schema_json,
                 textbook_file_id=textbook_file_id,

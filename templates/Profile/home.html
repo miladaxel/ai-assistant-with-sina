@@ -28,7 +28,11 @@
                     <li><a href="#features" class="nav-link">ویژگی‌ها</a></li>
 
                 </ul>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'teacher panel' %}" class="btn btn-primary nav-btn">ورود به پنل کاربری</a>
+                {% else %}
                     <a href="{% url 'login' %}" class="btn btn-primary nav-btn">ورود به پنل کاربری</a>
+                {% endif %}
             </div>
 
             <div class="nav-overlay" id="nav-overlay"></div>

@@ -30,7 +30,7 @@ class OpenAIAnalyzer:
     def upload_pdf(self, file_path: str) -> str:
         self._ensure_client()
         with open(file_path, "rb") as f:
-            uploaded = self.client.files.create(file=f, purpose="user_data")
+            uploaded = self.client.files.create(file=f, purpose="assistants")
         return uploaded.id
 
     def analyze(
@@ -41,9 +41,11 @@ class OpenAIAnalyzer:
         json_schema: Dict[str, Any],
         textbook_file_id: str,
         exam_file_id: str,
+        temperature: float,
     ) -> OpenAIAnalysisResponse:
         response = self.client.responses.create(
             model=model,
+            temperature=temperature,
             instructions=instructions,
             input=[
                 {
@@ -100,6 +102,7 @@ class OpenAIAnalyzer:
             *,
             model: str,
             prompt_text: str,
+            temperature: float,
     ) -> OpenAIAnalysisResponse:
         """
         Used for Stage 2 / Stage 3 where inputs are pure text (JSON injected in prompt).
@@ -110,6 +113,7 @@ class OpenAIAnalyzer:
         # مرحله 1: درخواست به مدل
         response = self.client.responses.create(
             model=model,
+            temperature=temperature,
             input=prompt_text,
         )
 

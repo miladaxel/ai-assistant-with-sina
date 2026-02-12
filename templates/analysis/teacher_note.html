@@ -1,0 +1,369 @@
+
+
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ثبت یادداشت جدید</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/notes.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <style>
+      /* استایل‌های اختصاصی تم شفق قطبی (Aurora) */
+      :root {
+        --bg-dark: #0f172a;
+        --card-white: #ffffff;
+        --text-dark: #1e293b;
+        --primary-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: radial-gradient(
+          circle at 0% 0%,
+          #1e1b4b 0%,
+          #0f172a 40%,
+          #083344 100%
+        );
+        color: white;
+      }
+      .aurora-bg {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 0 10px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .back-btn {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 20px;
+        transition: 0.3s;
+      }
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 20px;
+        height: calc(100% - 80px);
+      }
+      .controls-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .toggle-container {
+        display: flex;
+        gap: 10px;
+      }
+      .toggle-option {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.9);
+        color: #64748b;
+        padding: 15px;
+        border-radius: 50px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .toggle-option.active {
+        background: var(--card-white);
+        color: #2563eb;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        transform: translateY(-2px);
+      }
+      .selector-container {
+        background: transparent;
+      }
+      .custom-select,
+      .btn-select-student {
+        width: 100%;
+        padding: 18px;
+        border-radius: 50px;
+        border: none;
+        background: white;
+        font-size: 1rem;
+        font-family: inherit;
+        color: var(--text-dark);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-sizing: border-box;
+      }
+      .editor-panel {
+        height: 100%;
+      }
+      .big-textarea {
+        width: 100%;
+        height: 100%;
+        border-radius: 40px;
+        border: none;
+        padding: 30px;
+        font-size: 1.2rem;
+        font-family: inherit;
+        resize: none;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+        color: #334155;
+        line-height: 1.8;
+      }
+      .big-textarea:focus {
+        outline: none;
+        background: white;
+      }
+      .btn-submit-float {
+        margin-top: auto;
+        background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      .btn-submit-float:hover {
+        transform: scale(1.02);
+      }
+      .target-section {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+      .target-section.visible {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      /* Modal Styles */
+      .modal-wrapper {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5); z-index: 2000;
+        display: none; align-items: flex-end;
+      }
+      .modal-wrapper.open { display: flex; }
+      .modal-sheet {
+        background: white; width: 100%; max-height: 80vh;
+        border-radius: 20px 20px 0 0; padding: 20px;
+        animation: slideUp 0.3s ease; display: flex; flex-direction: column;
+      }
+      @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      .modal-header {
+        display: flex; justify-content: space-between; margin-bottom: 15px; color: #333;
+      }
+      .modal-search {
+        width: 100%; padding: 12px; border: 1px solid #e2e8f0;
+        border-radius: 10px; background: #f8fafc; margin-bottom: 15px;
+        box-sizing: border-box; color: #333;
+      }
+      .modal-list { overflow-y: auto; max-height: 300px; }
+      .modal-item {
+        display: flex; align-items: center; gap: 12px; padding: 12px;
+        border-bottom: 1px solid #f1f5f9; cursor: pointer; color: #333; transition: 0.2s;
+      }
+      .modal-item:hover { background: #f1f5f9; }
+      @media (max-width: 768px) {
+        body { overflow: auto; height: auto; }
+        .dashboard-grid { grid-template-columns: 1fr; height: auto; }
+        .big-textarea { min-height: 300px; }
+      }
+    </style>
+  </head>
+  <body>
+    <form id="noteForm" method="POST" action="">
+    {% csrf_token %}
+    
+    <div class="main-content" style="height: 100vh">
+      <div class="aurora-bg">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-pen-nib"></i> ثبت یادداشت</h1>
+          <a href="" class="back-btn"
+            ><i class="fa-solid fa-arrow-left"></i> بازگشت</a
+          >
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="controls-panel">
+            <input type="hidden" name="target_type" id="targetTypeInput" value="class">
+            <input type="hidden" name="selected_student_id" id="selectedStudentId">
+
+            <div class="toggle-container">
+              <label
+                class="toggle-option active"
+                onclick="setTargetType('class', this)"
+              >
+                <img
+                  class="icon-template icon-memo"
+                  src="{% static 'icon/دانش آموزان.svg' %}"
+                />
+                کل کلاس
+              </label>
+              <label
+                class="toggle-option"
+                onclick="setTargetType('student', this)"
+              >
+                <img class="icon-template icon-memo" src="{% static 'icon/دانش آموز.svg' %}" />
+                دانش‌آموز
+              </label>
+            </div>
+
+            <div class="selector-container">
+              <div id="section-class" class="target-section visible">
+                <select id="classSelect" name="selected_class_id" class="custom-select">
+                  <option value="" disabled selected>انتخاب کلاس...</option>
+                  {% for class in classes %}
+                    <option value="{{ class.id }}">{{ class.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div id="section-student" class="target-section">
+                <div
+                  id="student-empty-state"
+                  class="btn-select-student"
+                  onclick="openStudentModal()"
+                >
+                  <span
+                    style="display: flex; align-items: center; column-gap: 10px"
+                  >
+                    <img
+                      class="icon-template icon-memo"
+                      src="{% static 'icon/جست و جو.svg' %}"
+                    />
+                    جستجوی دانش‌آموز</span
+                  >
+                </div>
+
+                <div
+                  id="student-selected-state"
+                  class="btn-select-student"
+                  style="
+                    display: none;
+                    justify-content: space-between;
+                    background: #f0fdf4;
+                    border: 2px solid #bbf7d0;
+                    cursor: default;
+                  "
+                >
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <img
+                      id="sel-st-avatar"
+                      src=""
+                      style="width: 32px; height: 32px; border-radius: 50%"
+                    />
+                    <span
+                      id="sel-st-name"
+                      style="
+                        font-weight: bold;
+                        color: #14532d;
+                        font-size: 0.95rem;
+                      "
+                    ></span>
+                  </div>
+                  <i
+                    class="fa-solid fa-xmark"
+                    style="color: #ef4444; padding: 5px; cursor: pointer"
+                    onclick="clearStudentSelection(event)"
+                  ></i>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-submit-float" onclick="submitNote()">
+              ثبت نهایی <i class="fa-solid fa-check"></i>
+            </button>
+          </div>
+
+          <div class="editor-panel">
+            <textarea
+              id="noteText"
+              name="note_text"
+              class="big-textarea"
+              placeholder="یادداشت خود را اینجا بنویسید..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="studentModal" class="modal-wrapper">
+        <div class="modal-sheet">
+          <div class="modal-header">
+            <h3>انتخاب دانش‌آموز</h3>
+            <i
+              class="fa-solid fa-xmark close-modal"
+              onclick="closeStudentModal()"
+              style="font-size: 1.5rem; cursor: pointer"
+            ></i>
+          </div>
+          <input
+            type="text"
+            id="modalSearch"
+            class="modal-search"
+            placeholder="جستجو نام..."
+          />
+          <div id="modalList" class="modal-list">
+             </div>
+        </div>
+      </div>
+    </div>
+    </form>
+  </body>
+
+  {{ students_json|json_script:"students-data" }}
+
+  <script src="{% static 'js/layout.js' %}"></script>
+  <script src="{% static 'js/notes.js' %}"></script>
+  
+  <script>
+      // اسکریپت کمکی برای اتصال دیتای جنگو به لاجیک صفحه
+      const studentsData = JSON.parse(document.getElementById('students-data').textContent);
+      
+      // اگر JS شما نیاز به لیست دانش‌آموزان دارد، اینجا می‌توانید به متغیر گلوبال پاس دهید
+      // window.allStudents = studentsData; 
+  </script>
+</html>

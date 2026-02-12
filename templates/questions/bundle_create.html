@@ -1,48 +1,61 @@
-{% extends "Profile/base.html" %}
+{% extends 'Profile/base.html' %}
 {% load static %}
-
 {% block extra_css %}
-<style>
-    /* تنظیمات کلی کانتینر */
-    .analysis-container {
+<title>پنل تحلیل هوشمند</title>
+    <link rel="stylesheet" href="{% static 'css/exams.css' %}" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .analysis-container {
         max-width: 900px;
+        width: 100%;
         margin: 0 auto;
         padding: 40px 20px;
-        /* بک‌گراند را طبق خواسته شما طراحی نکردم و شفاف است تا بک‌گراند اصلی دیده شود */
-    }
+      }
 
-    /* === 1. استایل باکس‌های بالا (آپلود فایل) === */
-    .upload-grid {
+      /* === 1. استایل باکس‌های بالا (آپلود فایل) === */
+      .upload-grid {
         display: flex;
-        gap: 30px; /* فاصله بین دو باکس */
+        gap: 30px;
         margin-bottom: 40px;
         justify-content: center;
-    }
+      }
 
-    .upload-card {
-        background: #fff; /* رنگ سفید باکس‌ها */
-        border-radius: 30px; /* گوشه‌های خیلی گرد طبق عکس */
+      .upload-card {
+        background: #fff;
+        border-radius: 30px;
         width: 100%;
-        height: 220px; /* ارتفاع زیاد مثل عکس */
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* سایه نرم */
+        height: 220px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         position: relative;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        border: 2px solid transparent;
-    }
+        border: 3px solid transparent;
+      }
 
-    .upload-card:hover {
+      .upload-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        border-color: #4f46e5; /* رنگ حاشیه هنگام هاور */
-    }
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        border-color: #4f46e5;
+      }
 
-    /* لیبل که کل کارت را پر میکند تا قابل کلیک باشد */
-    .upload-card label {
+      .upload-card label {
         width: 100%;
         height: 100%;
         display: flex;
@@ -51,63 +64,71 @@
         justify-content: center;
         cursor: pointer;
         color: #555;
-    }
+      }
 
-    .upload-icon {
-        font-size: 3rem;
+      .upload-icon {
+        font-size: 3.5rem;
         margin-bottom: 15px;
         color: #cbd5e1;
-    }
+        transition: color 0.3s;
+      }
 
-    .file-name-display {
+      .upload-card:hover .upload-icon {
+        color: #4f46e5;
+      }
+
+      .file-name-display {
         margin-top: 10px;
         font-size: 0.9rem;
         color: #4f46e5;
         font-weight: bold;
         padding: 0 10px;
         text-align: center;
-        white-space: nowrap;
+        max-width: 90%;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 90%;
-    }
+      }
 
-    /* === 2. استایل ورودی‌های وسط (سه نوار سفید) === */
-    .inputs-stack {
+      /* مخفی کردن اینپوت اصلی فایل */
+      .upload-card input[type="file"] {
+        display: none;
+      }
+
+      /* === 2. استایل ورودی‌های وسط (نوارها) === */
+      .inputs-stack {
         display: flex;
         flex-direction: column;
-        gap: 20px; /* فاصله بین نوارها */
+        gap: 20px;
         max-width: 700px;
         margin: 0 auto 40px auto;
-    }
+      }
 
-    .input-pill {
+      .input-pill {
         background: #fff;
-        border-radius: 50px; /* کاملا گرد مثل کپسول */
+        border-radius: 50px;
         padding: 10px 25px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         display: flex;
         align-items: center;
-        transition: box-shadow 0.3s;
+        transition: all 0.3s;
         border: 1px solid transparent;
-    }
+      }
 
-    .input-pill:focus-within {
+      .input-pill:focus-within {
         box-shadow: 0 5px 20px rgba(79, 70, 229, 0.2);
         border-color: #4f46e5;
-    }
+      }
 
-    .input-pill label {
+      .input-pill label {
         white-space: nowrap;
         margin-left: 15px;
         font-weight: bold;
         color: #444;
         min-width: 100px;
-    }
+      }
 
-    /* حذف استایل‌های پیش‌فرض اینپوت جنگو برای هماهنگی با طرح */
-    .input-pill input,
-    .input-pill select {
+      .input-pill input,
+      .input-pill select {
         width: 100%;
         border: none;
         background: transparent;
@@ -116,152 +137,188 @@
         font-family: inherit;
         font-size: 1rem;
         color: #333;
-    }
+      }
 
-    /* === 3. دکمه پایین === */
-    .action-area {
+      /* استایل تگ‌ها */
+      .input-group {
+         background-color: #fff;
+         border-radius: 20px; /* کمی گردتر */
+         padding: 15px;
+         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .tags-container {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 10px;
+      }
+
+.tag-item {
+          padding: 8px 16px;
+          background: #f3f4f6;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: 0.2s;
+          border: 1px solid #e5e7eb;
+          user-select: none;
+      }
+
+      .tag-item.selected {
+          background: #4f46e5;
+          color: white;
+          border-color: #4f46e5;
+          box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      }
+
+      /* === 3. دکمه پایین === */
+      .action-area {
         display: flex;
         justify-content: center;
-    }
+      }
 
-    .btn-submit-custom {
-        background-color: #0000ff; /* آبی خالص طبق عکس */
+      .btn-submit-custom {
+        background-color: #4f46e5;
         color: white;
         border: none;
-        border-radius: 20px; /* گوشه‌های گرد دکمه */
-        padding: 15px 60px; /* دکمه عریض و کوتاه */
-        font-size: 1.1rem;
+        border-radius: 20px;
+        padding: 15px 60px;
+        font-size: 1.2rem;
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 10px 20px rgba(0, 0, 255, 0.3);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
         transition: all 0.3s;
         display: flex;
         align-items: center;
         gap: 10px;
-    }
+      }
 
-    .btn-submit-custom:hover {
-        background-color: #0000cc;
+      .btn-submit-custom:hover {
         transform: scale(1.05);
-    }
+        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+      }
 
-    .btn-submit-custom:disabled {
-        background-color: #888;
-        cursor: wait;
-    }
+      h1 {
+        text-align: center;
+        color: #1f2937; /* رنگ تیره برای متن روی زمینه روشن */
+        margin-bottom: 40px;
+        font-weight: 900;
+      }
 
-    /* مخفی کردن اینپوت اصلی فایل */
-    .hidden-input {
-        display: none !important;
-    }
+      .text-danger {
+          color: #dc2626;
+          font-size: 0.8rem;
+          margin-right: 15px;
+      }
 
-    /* استایل خطاها */
-    .error-msg {
-        color: #dc2626;
-        font-size: 0.8rem;
-        margin-right: 20px;
-        margin-top: 5px;
-    }
-
-    /* ریسپانسیو برای موبایل */
-    @media (max-width: 768px) {
+      @media (max-width: 768px) {
         .upload-grid {
-            flex-direction: column;
+          flex-direction: column;
         }
-    }
-</style>
+      }
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="main-content">
-  <div class="analysis-container">
-
-    <div style="text-align: center; margin-bottom: 40px; color: #fff;"> <h1 style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">پنل تحلیل هوشمند</h1>
-    </div>
+<body>
+<div class="main-content" style="width: 900px;">
+  <div>
+    <h1>پنل تحلیل هوشمند</h1>
 
     <form method="post" enctype="multipart/form-data" id="analysisForm">
       {% csrf_token %}
 
       {% if form.non_field_errors %}
-        <div class="alert alert-danger" style="margin-bottom: 20px; border-radius: 15px;">
-          {{ form.non_field_errors }}
+        <div style="background:#fee2e2; color:#991b1b; padding:10px; border-radius:10px; margin-bottom:20px; text-align:center;">
+            {{ form.non_field_errors }}
         </div>
       {% endif %}
 
-      {# ===== 1. دو باکس سفید بالا (آپلود فایل‌ها) ===== #}
       <div class="upload-grid">
-
         <div class="upload-card">
-          <label for="id_lesson_pdf">
-            <i class="fa-solid fa-book upload-icon"></i>
+          <label for="{{ form.lesson_pdf.id_for_label }}">
+            <i class="fa-solid fa-book-open-reader upload-icon"></i>
             <span>انتخاب فایل درس (PDF)</span>
-            <span id="lesson-file-name" class="file-name-display">فایلی انتخاب نشده</span>
+            <span id="lesson-file-name" class="file-name-display"
+              >فایلی انتخاب نشده</span
+            >
           </label>
           {{ form.lesson_pdf }}
-          {% if form.lesson_pdf.errors %}
-            <div class="error-msg">{{ form.lesson_pdf.errors }}</div>
-          {% endif %}
         </div>
 
         <div class="upload-card">
-          <label for="id_example_pdf">
-            <i class="fa-solid fa-file-signature upload-icon"></i>
+          <label for="{{ form.example_pdf.id_for_label }}">
+            <i class="fa-solid fa-file-pen upload-icon"></i>
             <span>انتخاب فایل آزمون (PDF)</span>
-            <span id="exam-file-name" class="file-name-display">فایلی انتخاب نشده</span>
+            <span id="exam-file-name" class="file-name-display"
+              >فایلی انتخاب نشده</span
+            >
           </label>
           {{ form.example_pdf }}
-          {% if form.example_pdf.errors %}
-            <div class="error-msg">{{ form.example_pdf.errors }}</div>
-          {% endif %}
         </div>
-
       </div>
 
-      {# ===== 2. سه نوار سفید وسط (اطلاعات متنی) ===== #}
+      <div style="display:flex; justify-content:space-around; margin-top:-30px; margin-bottom:20px;">
+          <div class="text-danger">{{ form.lesson_pdf.errors }}</div>
+          <div class="text-danger">{{ form.exam_pdf.errors }}</div>
+      </div>
+
       <div class="inputs-stack">
+        <div class="input-pill">
+          <label>عنوان تحلیل:</label>
+          {{ form.title }}
+        </div>
+        <div class="text-danger">{{ form.title.errors }}</div>
 
-        <div>
-            <div class="input-pill">
-            <label>{{ form.title.label }}:</label>
-            {{ form.title }}
-            </div>
-            <div class="error-msg">{{ form.title.errors }}</div>
+        <div class="input-pill">
+          <label>نوع آزمون:</label>
+          {{ form.exam }}
+        </div>
+        <div class="text-danger">{{ form.exam_type.errors }}</div>
+
+        <div class="input-pill">
+          <label>قالب تحلیل:</label>
+          {{ form.prompt_template }}
         </div>
 
-        <div>
-            <div class="input-pill">
-            <label>{{ form.exam.label }}:</label>
-            {{ form.exam }}
-            </div>
-            <div class="error-msg">{{ form.exam.errors }}</div>
-        </div>
+        <div class="input-group">
+            <label class="input-label" style="text-align: center; width: 100%; display:block; font-weight:bold; color:#444;">انواع سوالات</label>
 
-        <div>
-            <div class="input-pill">
-            <label>{{ form.prompt_template.label }}:</label>
-            {{ form.prompt_template }}
-            </div>
-            <div class="error-msg">{{ form.prompt_template.errors }}</div>
-        </div>
+<input type="hidden" name="question_types" id="questionTypesInput">
 
+            <div class="tags-container" id="questionTypes">
+                <div class="tag-item" data-value="testi" onclick="toggleTag(this)">تستی</div>
+                <div class="tag-item" data-value="tashrihi" onclick="toggleTag(this)">تشریحی</div>
+                <div class="tag-item" data-value="short" onclick="toggleTag(this)">کوتاه پاسخ</div>
+                <div class="tag-item" data-value="truefalse" onclick="toggleTag(this)">صحیح/غلط</div>
+            </div>
+        </div>
       </div>
 
-      {# ===== 3. دکمه آبی پایین ===== #}
-      <div class="action-area">
+      <div class="action-area" style="margin-bottom: 3rem;">
         <button type="submit" class="btn-submit-custom" id="submitBtn">
           <span class="btn-text">شروع پردازش</span>
-          <span class="loader" style="display:none;">⏳ در حال تحلیل...</span>
+          <span id="loader" style="display: none">⏳ در حال تحلیل...</span>
         </button>
       </div>
-
     </form>
-
   </div>
 </div>
-{% endblock %}
 
+{% endblock %}
 {% block extra_js %}
 <script>
+  // مدیریت تگ‌ها و پر کردن اینپوت مخفی
+  function toggleTag(element) {
+      element.classList.toggle('selected');
+      updateHiddenInput();
+  }
+
+  function updateHiddenInput() {
+      const selectedTags = document.querySelectorAll('.tag-item.selected');
+      const values = Array.from(selectedTags).map(tag => tag.getAttribute('data-value'));
+      document.getElementById('questionTypesInput').value = values.join(',');
+  }
     document.addEventListener('DOMContentLoaded', function() {
 
     // اضافه کردن کلاس مخفی به اینپوت‌های فایل تولید شده توسط جنگو
@@ -294,18 +351,341 @@
     }
 
     // کد لودینگ دکمه
+   // کد لودینگ دکمه
     const form = document.getElementById('analysisForm');
     if (form) {
-        form.addEventListener('submit', function() {
+        form.addEventListener('submit', function(e) {
+            // بررسی اعتبارسنجی فرم قبل از فعال کردن لودینگ
+            // اگر فرم نامعتبر باشد (مثلا فیلد اجباری پر نشده باشد)، نباید دکمه غیرفعال شود
+            if (!form.checkValidity()) {
+                return;
+            }
+
             const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.querySelector('.btn-text').style.display = 'none';
-            btn.querySelector('.loader').style.display = 'inline';
+            const loader = document.getElementById('loader'); // انتخاب با ID
+            const btnText = btn.querySelector('.btn-text');
+
+            btn.style.pointerEvents = 'none'; // جلوگیری از کلیک مجدد
             btn.style.opacity = '0.7';
             btn.style.cursor = 'wait';
+
+            if (btnText) btnText.style.display = 'none';
+            if (loader) loader.style.display = 'inline-block'; // نمایش لودینگ
         });
     }
 });
+
 </script>
+</body>
 {% endblock %}
 
+
+{##}
+{#{% extends "Profile/base.html" %}#}
+{#{% load static %}#}
+{##}
+{#{% block extra_css %}#}
+{#<style>#}
+{#    /* تنظیمات کلی کانتینر */#}
+{#    .analysis-container {#}
+{#        max-width: 900px;#}
+{#        margin: 0 auto;#}
+{#        padding: 40px 20px;#}
+{#        /* بک‌گراند را طبق خواسته شما طراحی نکردم و شفاف است تا بک‌گراند اصلی دیده شود */#}
+{#    }#}
+{##}
+{#    /* === 1. استایل باکس‌های بالا (آپلود فایل) === */#}
+{#    .upload-grid {#}
+{#        display: flex;#}
+{#        gap: 30px; /* فاصله بین دو باکس */#}
+{#        margin-bottom: 40px;#}
+{#        justify-content: center;#}
+{#    }#}
+{##}
+{#    .upload-card {#}
+{#        background: #fff; /* رنگ سفید باکس‌ها */#}
+{#        border-radius: 30px; /* گوشه‌های خیلی گرد طبق عکس */#}
+{#        width: 100%;#}
+{#        height: 220px; /* ارتفاع زیاد مثل عکس */#}
+{#        box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* سایه نرم */#}
+{#        position: relative;#}
+{#        transition: transform 0.3s ease, box-shadow 0.3s ease;#}
+{#        display: flex;#}
+{#        flex-direction: column;#}
+{#        align-items: center;#}
+{#        justify-content: center;#}
+{#        cursor: pointer;#}
+{#        border: 2px solid transparent;#}
+{#    }#}
+{##}
+{#    .upload-card:hover {#}
+{#        transform: translateY(-5px);#}
+{#        box-shadow: 0 15px 35px rgba(0,0,0,0.15);#}
+{#        border-color: #4f46e5; /* رنگ حاشیه هنگام هاور */#}
+{#    }#}
+{##}
+{#    /* لیبل که کل کارت را پر میکند تا قابل کلیک باشد */#}
+{#    .upload-card label {#}
+{#        width: 100%;#}
+{#        height: 100%;#}
+{#        display: flex;#}
+{#        flex-direction: column;#}
+{#        align-items: center;#}
+{#        justify-content: center;#}
+{#        cursor: pointer;#}
+{#        color: #555;#}
+{#    }#}
+{##}
+{#    .upload-icon {#}
+{#        font-size: 3rem;#}
+{#        margin-bottom: 15px;#}
+{#        color: #cbd5e1;#}
+{#    }#}
+{##}
+{#    .file-name-display {#}
+{#        margin-top: 10px;#}
+{#        font-size: 0.9rem;#}
+{#        color: #4f46e5;#}
+{#        font-weight: bold;#}
+{#        padding: 0 10px;#}
+{#        text-align: center;#}
+{#        white-space: nowrap;#}
+{#        overflow: hidden;#}
+{#        text-overflow: ellipsis;#}
+{#        max-width: 90%;#}
+{#    }#}
+{##}
+{#    /* === 2. استایل ورودی‌های وسط (سه نوار سفید) === */#}
+{#    .inputs-stack {#}
+{#        display: flex;#}
+{#        flex-direction: column;#}
+{#        gap: 20px; /* فاصله بین نوارها */#}
+{#        max-width: 700px;#}
+{#        margin: 0 auto 40px auto;#}
+{#    }#}
+{##}
+{#    .input-pill {#}
+{#        background: #fff;#}
+{#        border-radius: 50px; /* کاملا گرد مثل کپسول */#}
+{#        padding: 10px 25px;#}
+{#        box-shadow: 0 5px 20px rgba(0,0,0,0.05);#}
+{#        display: flex;#}
+{#        align-items: center;#}
+{#        transition: box-shadow 0.3s;#}
+{#        border: 1px solid transparent;#}
+{#    }#}
+{##}
+{#    .input-pill:focus-within {#}
+{#        box-shadow: 0 5px 20px rgba(79, 70, 229, 0.2);#}
+{#        border-color: #4f46e5;#}
+{#    }#}
+{##}
+{#    .input-pill label {#}
+{#        white-space: nowrap;#}
+{#        margin-left: 15px;#}
+{#        font-weight: bold;#}
+{#        color: #444;#}
+{#        min-width: 100px;#}
+{#    }#}
+{##}
+{#    /* حذف استایل‌های پیش‌فرض اینپوت جنگو برای هماهنگی با طرح */#}
+{#    .input-pill input,#}
+{#    .input-pill select {#}
+{#        width: 100%;#}
+{#        border: none;#}
+{#        background: transparent;#}
+{#        outline: none;#}
+{#        padding: 10px;#}
+{#        font-family: inherit;#}
+{#        font-size: 1rem;#}
+{#        color: #333;#}
+{#    }#}
+{##}
+{#    /* === 3. دکمه پایین === */#}
+{#    .action-area {#}
+{#        display: flex;#}
+{#        justify-content: center;#}
+{#    }#}
+{##}
+{#    .btn-submit-custom {#}
+{#        background-color: #0000ff; /* آبی خالص طبق عکس */#}
+{#        color: white;#}
+{#        border: none;#}
+{#        border-radius: 20px; /* گوشه‌های گرد دکمه */#}
+{#        padding: 15px 60px; /* دکمه عریض و کوتاه */#}
+{#        font-size: 1.1rem;#}
+{#        font-weight: bold;#}
+{#        cursor: pointer;#}
+{#        box-shadow: 0 10px 20px rgba(0, 0, 255, 0.3);#}
+{#        transition: all 0.3s;#}
+{#        display: flex;#}
+{#        align-items: center;#}
+{#        gap: 10px;#}
+{#    }#}
+{##}
+{#    .btn-submit-custom:hover {#}
+{#        background-color: #0000cc;#}
+{#        transform: scale(1.05);#}
+{#    }#}
+{##}
+{#    .btn-submit-custom:disabled {#}
+{#        background-color: #888;#}
+{#        cursor: wait;#}
+{#    }#}
+{##}
+{#    /* مخفی کردن اینپوت اصلی فایل */#}
+{#    .hidden-input {#}
+{#        display: none !important;#}
+{#    }#}
+{##}
+{#    /* استایل خطاها */#}
+{#    .error-msg {#}
+{#        color: #dc2626;#}
+{#        font-size: 0.8rem;#}
+{#        margin-right: 20px;#}
+{#        margin-top: 5px;#}
+{#    }#}
+{##}
+{#    /* ریسپانسیو برای موبایل */#}
+{#    @media (max-width: 768px) {#}
+{#        .upload-grid {#}
+{#            flex-direction: column;#}
+{#        }#}
+{#    }#}
+{#</style>#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<div class="main-content">#}
+{#  <div class="analysis-container">#}
+{##}
+{#    <div style="text-align: center; margin-bottom: 40px; color: #fff;"> <h1 style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">پنل تحلیل هوشمند</h1>#}
+{#    </div>#}
+{##}
+{#    <form method="post" enctype="multipart/form-data" id="analysisForm">#}
+{#      {% csrf_token %}#}
+{##}
+{#      {% if form.non_field_errors %}#}
+{#        <div class="alert alert-danger" style="margin-bottom: 20px; border-radius: 15px;">#}
+{#          {{ form.non_field_errors }}#}
+{#        </div>#}
+{#      {% endif %}#}
+{##}
+{#      <div class="upload-grid">#}
+{##}
+{#        <div class="upload-card">#}
+{#          <label for="id_lesson_pdf">#}
+{#            <i class="fa-solid fa-book upload-icon"></i>#}
+{#            <span>انتخاب فایل درس (PDF)</span>#}
+{#            <span id="lesson-file-name" class="file-name-display">فایلی انتخاب نشده</span>#}
+{#          </label>#}
+{#          {{ form.lesson_pdf }}#}
+{#          {% if form.lesson_pdf.errors %}#}
+{#            <div class="error-msg">{{ form.lesson_pdf.errors }}</div>#}
+{#          {% endif %}#}
+{#        </div>#}
+{##}
+{#        <div class="upload-card">#}
+{#          <label for="id_example_pdf">#}
+{#            <i class="fa-solid fa-file-signature upload-icon"></i>#}
+{#            <span>انتخاب فایل آزمون (PDF)</span>#}
+{#            <span id="exam-file-name" class="file-name-display">فایلی انتخاب نشده</span>#}
+{#          </label>#}
+{#          {{ form.example_pdf }}#}
+{#          {% if form.example_pdf.errors %}#}
+{#            <div class="error-msg">{{ form.example_pdf.errors }}</div>#}
+{#          {% endif %}#}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#      <div class="inputs-stack">#}
+{##}
+{#        <div>#}
+{#            <div class="input-pill">#}
+{#            <label>{{ form.title.label }}:</label>#}
+{#            {{ form.title }}#}
+{#            </div>#}
+{#            <div class="error-msg">{{ form.title.errors }}</div>#}
+{#        </div>#}
+{##}
+{#        <div>#}
+{#            <div class="input-pill">#}
+{#            <label>{{ form.exam.label }}:</label>#}
+{#            {{ form.exam }}#}
+{#            </div>#}
+{#            <div class="error-msg">{{ form.exam.errors }}</div>#}
+{#        </div>#}
+{##}
+{#        <div>#}
+{#            <div class="input-pill">#}
+{#            <label>{{ form.prompt_template.label }}:</label>#}
+{#            {{ form.prompt_template }}#}
+{#            </div>#}
+{#            <div class="error-msg">{{ form.prompt_template.errors }}</div>#}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#      <div class="action-area">#}
+{#        <button type="submit" class="btn-submit-custom" id="submitBtn">#}
+{#          <span class="btn-text">شروع پردازش</span>#}
+{#          <span class="loader" style="display:none;">⏳ در حال تحلیل...</span>#}
+{#        </button>#}
+{#      </div>#}
+{##}
+{#    </form>#}
+{##}
+{#  </div>#}
+{#</div>#}
+{#{% endblock %}#}
+{##}
+{#{% block extra_js %}#}
+{#<script>#}
+{#    document.addEventListener('DOMContentLoaded', function() {#}
+{##}
+{#    // اضافه کردن کلاس مخفی به اینپوت‌های فایل تولید شده توسط جنگو#}
+{#    const fileInputs = document.querySelectorAll('input[type="file"]');#}
+{#    fileInputs.forEach(input => input.classList.add('hidden-input'));#}
+{##}
+{#    // انتخاب فایل درس با استفاده از Name (مطمئن‌تر)#}
+{#    const lessonInput = document.querySelector('input[name="lesson_pdf"]');#}
+{#    if (lessonInput) {#}
+{#        lessonInput.addEventListener('change', function(e) {#}
+{#            if(e.target.files.length > 0) {#}
+{#                const fileName = e.target.files[0].name;#}
+{#                document.getElementById('lesson-file-name').innerText = fileName;#}
+{#                // تغییر آیکون یا رنگ برای فیدبک بصری#}
+{#                e.target.closest('.upload-card').style.borderColor = '#4f46e5';#}
+{#            }#}
+{#        });#}
+{#    }#}
+{##}
+{#    // انتخاب فایل آزمون با استفاده از Name#}
+{#    const examInput = document.querySelector('input[name="example_pdf"]');#}
+{#    if (examInput) {#}
+{#        examInput.addEventListener('change', function(e) {#}
+{#            if(e.target.files.length > 0) {#}
+{#                const fileName = e.target.files[0].name;#}
+{#                document.getElementById('exam-file-name').innerText = fileName;#}
+{#                e.target.closest('.upload-card').style.borderColor = '#4f46e5';#}
+{#            }#}
+{#        });#}
+{#    }#}
+{##}
+{#    // کد لودینگ دکمه#}
+{#    const form = document.getElementById('analysisForm');#}
+{#    if (form) {#}
+{#        form.addEventListener('submit', function() {#}
+{#            const btn = document.getElementById('submitBtn');#}
+{#            btn.disabled = true;#}
+{#            btn.querySelector('.btn-text').style.display = 'none';#}
+{#            btn.querySelector('.loader').style.display = 'inline';#}
+{#            btn.style.opacity = '0.7';#}
+{#            btn.style.cursor = 'wait';#}
+{#        });#}
+{#    }#}
+{#});#}
+{#</script>#}
+{#{% endblock %}#}
+{##}

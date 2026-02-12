@@ -1,75 +1,313 @@
 {% extends 'Profile/base.html' %}
 {% load static %}
+
+{% block title %}نتایج آزمون{% endblock %}
+
 {% block extra_css %}
-    <title>ورود نمرات آزمون</title>
-    <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link rel="stylesheet" href="{% static 'css/exam.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  .page-wrap{
+    direction: rtl;
+    padding: 20px;
+    display:flex;
+    justify-content:center; /* وسط صفحه */
+  }
+  .content-col{ width: min(920px, 100%); }
+
+  /* کارت هر دانش آموز مثل عکس اولیه */
+  .student-card{
+    background:#fff;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:18px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+  }
+
+  .name-header{
+    font-weight:900;
+    font-size:18px;
+    margin-bottom:14px;
+    color:#0f172a;
+    text-align:center;
+  }
+
+  /* لیست سوال‌ها */
+  .questions-col{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  /* بلاک سوال شبیه کارت/ردیف عکس اولیه */
+  .question-block{
+    border:1px solid rgba(15,23,42,0.10);
+    border-radius:16px;
+    padding:12px 14px;
+    background:#fbfbfd;
+  }
+
+  /* تیتر سوال + وضعیت داخل همون ردیف */
+  .question-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .q-title{
+    font-size:16px;
+    font-weight:900;
+    color:#111827;
+    line-height:1.6;
+    white-space:normal;
+    word-break:break-word;
+    text-align:right;
+  }
+
+  /* وضعیت داخل خود آیتم (مثل عکس اولیه: داخلش سبز/قرمز) */
+  .q-status{
+    padding:6px 12px;
+    border-radius:999px;
+    font-weight:900;
+    font-size:12px;
+    color:#fff;
+    white-space:nowrap;
+  }
+  .q-status.ok{ background:#22c55e; }
+  .q-status.bad{ background:#ef4444; }
+
+  /* زیرسوال‌ها افقی زیر سوال */
+  .subq-strip{
+    margin-top:10px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:flex-start; /* افقی زیر تیتر */
+  }
+
+  .subq-pill{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:14px;
+    border:1px solid rgba(0,0,0,0.08);
+    background:#fff;
+    min-width: 160px;
+  }
+
+  .subq-text{
+    font-size:13px;
+    font-weight:800;
+    color:#334155;
+    white-space:nowrap;
+  }
+
+  .page-actions{
+    margin-top:18px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .btn-primary-full{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:12px;
+    background:#1f2937;
+    color:#fff;
+    text-decoration:none;
+    font-weight:800;
+    border:0;
+  }
+  .btn-primary-full:hover{ opacity:0.92; }
+
+  .empty-state{
+    text-align:center;
+    color:#64748b;
+    padding:20px 10px;
+  }
+</style>
 {% endblock %}
+
 {% block content %}
-<div class="main-content">
-  <div id="matrix-area">
+<div class="page-wrap">
+  <div class="content-col">
 
-    <a href="{% url 'home' %}"
-       style="display:inline-block;margin-bottom:15px;color:#64748b;text-decoration:none;">
-      <i class="fa-solid fa-arrow-right"></i> بازگشت به خانه
-    </a>
+    {% for student, results in student_results.items %}
+      <div class="student-card">
+        <div class="name-header">{{ student.full_name }}</div>
 
-    <div class="matrix-container">
+        <div class="questions-col">
 
-      {% for student, results in student_results.items %}
-        <h2 class="student-title-res">
-          {{ student.full_name }}
-        </h2>
+          {% for r in results %}
 
-        <table class="exam-table">
-          <thead>
-            <tr>
-              <td>سوال</td>
-              <td>وضعیت</td>
-            </tr>
-          </thead>
-          <tbody>
+            {# ---------- سوال دارای زیرسوال ---------- #}
+            {% if r.subquestion %}
+              {% with qid=r.subquestion.question.id qn=r.subquestion.question.number|default:r.subquestion.question.id %}
+                {% ifchanged qid %}
 
-            {% for r in results %}
-              <tr>
-                <td>
-                  {% if r.subquestion %}
-                    سؤال {{ r.subquestion.question.number }}
-                    - زیرسؤال {{ r.subquestion.number }}
-                  {% else %}
-                    سؤال {{ r.question.number }}
-                  {% endif %}
-                </td>
-
-                <td>
-                  {% if r.is_correct %}
-                    <span style="color:green;">✔ درست</span>
-                  {% else %}
-                    <span style="color:red;">✘ غلط</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-
-          </tbody>
-        </table>
-
-      {% empty %}
-        <p>هیچ نتیجه‌ای ثبت نشده است.</p>
-      {% endfor %}
-    <a class="btn-primary-full" href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a>
-    <a class="btn-primary-full" href="{% url 'exam_snapshot_create' exam.id %}">تبدیل به جیسون</a>
+                  {# محاسبه وضعیت کلی سوال از روی زیرسوال‌ها (بدون ویو) #}
+                  {% with any_wrong=0 %}
+                    {# ترفند: اگر هر زیرسوالی غلط بود، any_wrong را 1 در نظر می‌گیریم با چاپ یک متغیر پنهان #}
+                    <span style="display:none">
+                      {% for rr in results %}
+                        {% if rr.subquestion and rr.subquestion.question.id == qid and not rr.is_correct %}
+                          {% with any_wrong=1 %}{% endwith %}
+                        {% endif %}
+                      {% endfor %}
+                    </span>
 
 
+<div class="question-block">
+                      <div class="question-head">
+                        <div class="q-title">سوال {{ qn }}</div>
+
+                        {# اگر حداقل یکی غلط بود => غلط، وگرنه درست #}
+                        {% if any_wrong %}
+                          <div class="q-status bad">غلط</div>
+                        {% else %}
+                          <div class="q-status ok">درست</div>
+                        {% endif %}
+                      </div>
+
+                      <div class="subq-strip">
+                        {% for rr in results %}
+                          {% if rr.subquestion and rr.subquestion.question.id == qid %}
+                            {% with sqn=rr.subquestion.number|default:rr.subquestion.id %}
+                              <div class="subq-pill">
+                                <span class="subq-text">زیرسوال {{ sqn }}</span>
+                                <div class="q-status {% if rr.is_correct %}ok{% else %}bad{% endif %}">
+                                  {% if rr.is_correct %}درست{% else %}غلط{% endif %}
+                                </div>
+                              </div>
+                            {% endwith %}
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+
+                  {% endwith %}
+                {% endifchanged %}
+              {% endwith %}
+
+            {# ---------- سوال ساده (بدون زیرسوال) ---------- #}
+            {% elif r.question %}
+              {% with qn=r.question.number|default:r.question.id %}
+                <div class="question-block">
+                  <div class="question-head">
+                    <div class="q-title">سوال {{ qn }}</div>
+                    <div class="q-status {% if r.is_correct %}ok{% else %}bad{% endif %}">
+                      {% if r.is_correct %}درست{% else %}غلط{% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endwith %}
+            {% endif %}
+
+          {% endfor %}
+
+        </div>
+      </div>
+
+    {% empty %}
+      <div class="empty-state">هیچ نتیجه‌ای یافت نشد.</div>
+    {% endfor %}
+
+    <div class="page-actions">
+      <a class="btn-primary-full" href="{% url 'exam_summary' exam.id %}">
+        <i class="fa-solid fa-arrow-right"></i>
+        بازگشت به خلاصه آزمون
+      </a>
+      <a class="btn-primary-full" href="{% url 'exam_snapshot_create' exam.id %}">
+        <i class="fa-solid fa-code"></i>
+        تبدیل به جیسون
+      </a>
     </div>
+
   </div>
 </div>
 {% endblock %}
 
+
+
+
+{#{% extends 'Profile/base.html' %}#}
+{#{% load static %}#}
+{#{% block extra_css %}#}
+{#    <title>ورود نمرات آزمون</title>#}
+{#    <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}" />#}
+{#    <link#}
+{#      rel="stylesheet"#}
+{#      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"#}
+{#    />#}
+{#    <link rel="stylesheet" href="{% static 'css/exam.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">#}
+{#{% endblock %}#}
+{#{% block content %}#}
+{#<div class="main-content">#}
+{#  <div id="matrix-area">#}
+{##}
+{#    <a href="{% url 'home' %}"#}
+{#       style="display:inline-block;margin-bottom:15px;color:#64748b;text-decoration:none;">#}
+{#      <i class="fa-solid fa-arrow-right"></i> بازگشت به خانه#}
+{#    </a>#}
+{##}
+{#    <div class="matrix-container">#}
+{##}
+{#      {% for student, results in student_results.items %}#}
+{#        <h2 class="student-title-res">#}
+{#          {{ student.full_name }}#}
+{#        </h2>#}
+{##}
+{#        <table class="exam-table">#}
+{#          <thead>#}
+{#            <tr>#}
+{#              <td>سوال</td>#}
+{#              <td>وضعیت</td>#}
+{#            </tr>#}
+{#          </thead>#}
+{#          <tbody>#}
+{##}
+{#            {% for r in results %}#}
+{#              <tr>#}
+{#                <td>#}
+{#                  {% if r.subquestion %}#}
+{#                    سؤال {{ r.subquestion.question.number }}#}
+{#                    - زیرسؤال {{ r.subquestion.number }}#}
+{#                  {% else %}#}
+{#                    سؤال {{ r.question.number }}#}
+{#                  {% endif %}#}
+{#                </td>#}
+{##}
+{#                <td>#}
+{#                  {% if r.is_correct %}#}
+{#                    <span style="color:green;">✔ درست</span>#}
+{#                  {% else %}#}
+{#                    <span style="color:red;">✘ غلط</span>#}
+{#                  {% endif %}#}
+{#                </td>#}
+{#              </tr>#}
+{#            {% endfor %}#}
+{##}
+{#          </tbody>#}
+{#        </table>#}
+{##}
+{#      {% empty %}#}
+{#        <p>هیچ نتیجه‌ای ثبت نشده است.</p>#}
+{#      {% endfor %}#}
+{#    <a class="btn-primary-full" href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a>#}
+{#    <a class="btn-primary-full" href="{% url 'exam_snapshot_create' exam.id %}">تبدیل به جیسون</a>#}
+{##}
+{##}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
+{#{% endblock %}#}
+{##}
 
 {##}
 {#<h2>گزارش نتایج آزمون: {{ exam.name }}</h2>#}

@@ -1,27 +1,165 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <title>انتخاب دانش‌آموزها</title>
-  <style>
-    body { font-family:sans-serif; background:#f6f6f6; margin:0; }
-    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }
-    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; background:#111; color:#fff; }
-    ul { list-style:none; padding:0; margin:0; }
-    li { padding:8px 0; border-bottom:1px solid #eee; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h2>دانش‌آموزهای شرکت‌کننده در آزمون: {{ exam.name }}</h2>
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/selectStudent.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="main-content" style="display:flex; justify-content:center; direction:rtl;">
+  <div class="selection-card">
+    <div class="header-pill">تعیین شرکت‌کنندگان</div>
+
+    {# اگر می‌خوای عنوان آزمون هم مثل فایل دوم نمایش داده بشه #}
+    {# <div class="exam-title">دانش‌آموزهای شرکت‌کننده در آزمون: {{ exam.name }}</div> #}
 
     <form method="post">
       {% csrf_token %}
-      {{ form.students }}
-      <div style="margin-top:16px;">
-        <button class="btn" type="submit">ذخیره</button>
+
+      <div class="student-list">
+        {# اینجا فیلد MultipleChoice/ModelMultipleChoice رو داینامیک می‌سازیم #}
+        {% for checkbox in form.students %}
+          <label>
+            {{ checkbox.tag }}
+            <div class="student-item">
+              <div class="student-info">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+
+                {# checkbox.choice_label معمولاً اسم دانش‌آموزه #}
+                <span class="student-name">{{ checkbox.choice_label }}</span>
+              </div>
+
+              <div class="custom-checkbox">
+                <i class="fas fa-check fa-xs"></i>
+              </div>
+            </div>
+          </label>
+        {% endfor %}
       </div>
+
+      {# نمایش ارورهای فیلد (اگر چیزی لازم بود) #}
+      {% if form.students.errors %}
+        <div class="form-errors">
+          {{ form.students.errors }}
+        </div>
+      {% endif %}
+
+      <button type="submit" class="action-button">
+        ثبت و تایید نهایی
+        <img class="icon-template" style="width:20px;" src="{% static 'icon/فلش به چپ.svg' %}" />
+      </button>
     </form>
+
   </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+
+
+{#{% extends 'Profile/base.html' %}#}
+{#{% load static %}#}
+{##}
+{#{% block extra_css %}#}
+{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">#}
+{#    <link rel="stylesheet" href="{% static 'css/selectStudent.css' %}"/>#}
+{#    <style>#}
+{#        /* اگر استایل خاصی در تگ style داشتید اینجا قرار می‌گیرد */#}
+{#    </style>#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<div class="main-content" style="display: flex; justify-content: center; direction: rtl;">#}
+{#    <div class="selection-card">#}
+{#        <div class="header-pill">تعیین شرکت‌کنندگان</div>#}
+{##}
+{#        <div class="student-list">#}
+{#            <label>#}
+{#                <input type="checkbox" checked>#}
+{#                <div class="student-item">#}
+{#                    <div class="student-info">#}
+{#                        <div class="avatar"><i class="fas fa-user"></i></div>#}
+{#                        <span class="student-name">علیرضا محمدی</span>#}
+{#                    </div>#}
+{#                    <div class="custom-checkbox"><i class="fas fa-check fa-xs"></i></div>#}
+{#                </div>#}
+{#            </label>#}
+{##}
+{#            <label>#}
+{#                <input type="checkbox">#}
+{#                <div class="student-item">#}
+{#                    <div class="student-info">#}
+{#                        <div class="avatar"><i class="fas fa-user"></i></div>#}
+{#                        <span class="student-name">سارا احمدی</span>#}
+{#                    </div>#}
+{#                    <div class="custom-checkbox"><i class="fas fa-check fa-xs"></i></div>#}
+{#                </div>#}
+{#            </label>#}
+{##}
+{#            <label>#}
+{#                <input type="checkbox" checked>#}
+{#                <div class="student-item">#}
+{#                    <div class="student-info">#}
+{#                        <div class="avatar"><i class="fas fa-user"></i></div>#}
+{#                        <span class="student-name">رضا حسینی</span>#}
+{#                    </div>#}
+{#                    <div class="custom-checkbox"><i class="fas fa-check fa-xs"></i></div>#}
+{#                </div>#}
+{#            </label>#}
+{##}
+{#            <label>#}
+{#                <input type="checkbox">#}
+{#                <div class="student-item">#}
+{#                    <div class="student-info">#}
+{#                        <div class="avatar"><i class="fas fa-user"></i></div>#}
+{#                        <span class="student-name">مریم قاسمی</span>#}
+{#                    </div>#}
+{#                    <div class="custom-checkbox"><i class="fas fa-check fa-xs"></i></div>#}
+{#                </div>#}
+{#            </label>#}
+{#        </div>#}
+{#        <form method="post">#}
+{#        <button type="submit" class="action-button">#}
+{#            ثبت و تایید نهایی#}
+{#            <img class="icon-template" style="width: 20px;" src="{% static 'icon/فلش به چپ.svg' %}" />#}
+{#        </button>#}
+{#        </form>#}
+{#    </div>#}
+{#</div>#}
+{#{% endblock %}#}
+
+
+
+
+
+
+
+
+
+{#<!doctype html>#}
+{#<html lang="fa" dir="rtl">#}
+{#<head>#}
+{#  <meta charset="utf-8">#}
+{#  <title>انتخاب دانش‌آموزها</title>#}
+{#  <style>#}
+{#    body { font-family:sans-serif; background:#f6f6f6; margin:0; }#}
+{#    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }#}
+{#    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; background:#111; color:#fff; }#}
+{#    ul { list-style:none; padding:0; margin:0; }#}
+{#    li { padding:8px 0; border-bottom:1px solid #eee; }#}
+{#  </style>#}
+{#</head>#}
+{#<body>#}
+{#  <div class="wrap">#}
+{#    <h2>دانش‌آموزهای شرکت‌کننده در آزمون: {{ exam.name }}</h2>#}
+{##}
+{#    <form method="post">#}
+{#      {% csrf_token %}#}
+{#      {{ form.students }}#}
+{#      <div style="margin-top:16px;">#}
+{#        <button class="btn" type="submit">ذخیره</button>#}
+{#      </div>#}
+{#    </form>#}
+{#  </div>#}
+{#</body>#}
+{#</html>#}
