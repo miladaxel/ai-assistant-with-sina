@@ -8,8 +8,9 @@
 
 {% block content %}
     <body>
-    <div class="main-content">
-      <div class="messenger-header">
+
+    <div class="main-content"  >
+      <div class="messenger-header" style="border-radius: 5px 5px 0 0;">
         <nav class="tab-nav">
           <button class="tab-btn active" data-tab="parents">
             والدین
@@ -25,7 +26,7 @@
         </nav>
       </div>
 
-      <div class="messenger-list">
+      <div class="messenger-list" style="border-radius: 0 0 5px 5px;">
         <a href="/chat/101" class="chat-card">
           <div class="card-section-right">
             <h3 class="sender-name">خانم رضایی</h3>
@@ -62,5 +63,67 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/layout.js'%}"></script>
+    <script>
+
+    // ۱. دیتای نمونه برای هر بخش (این بخش بعداً می‌تواند از API بیاید)
+const chatData = {
+    parents: [
+        { id: 101, name: "خانم رضایی", role: "والد علی احمدی", time: "10:30", text: "سلام آقای معلم، علی امروز کمی کسالت داشت..." },
+        { id: 102, name: "آقای کمالی", role: "والد محمد رضوی", time: "دیروز", text: "تکالیف ریاضی انجام شد." }
+    ],
+    students: [
+        { id: 201, name: "رضا اکبری", role: "کلاس ۱۰۲", time: "09:15", text: "آقا سوال ۳ رو متوجه نشدم." },
+        { id: 202, name: "سارا حسینی", role: "کلاس ۱۰۴", time: "11:00", text: "تمرینات رو کجا باید بفرستیم؟" }
+    ],
+    colleagues: [
+        { id: 301, name: "دکتر حسنی", role: "مدیر مدرسه", time: "08:00", text: "جلسه شورای دبیران فردا ساعت ۱۰." }
+    ]
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const container = document.querySelector('.messenger-list');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const category = tab.getAttribute('data-tab');
+
+            // تغییر کلاس Active
+            tabs.forEach(btn => btn.classList.remove('active'));
+            tab.classList.add('active');
+
+            // رندر کردن داده‌های جدید
+            renderChats(category, container);
+        });
+    });
+});
+
+// ۲. تابع ساخت کارت‌های چت
+function renderChats(category, container) {
+    const data = chatData[category];
+
+    setTimeout(() => {
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p class="empty-msg">پیامی در این بخش وجود ندارد.</p>';
+        } else {
+            container.innerHTML = data.map(chat => `
+                <a href="/chat/${chat.id}" class="chat-card">
+                  <div class="card-section-right">
+                    <h3 class="sender-name">${chat.name}</h3>
+                    <span class="sender-role">${chat.role}</span>
+                  </div>
+                  <div class="card-divider"></div>
+                  <div class="card-section-left">
+                    <div class="msg-meta">
+                      <span class="msg-time">${chat.time}</span>
+                    </div>
+                    <p class="msg-preview">${chat.text}</p>
+                  </div>
+                </a>
+            `).join('');
+        }
+
+    }, 150);
+}
+  </script>
 {% endblock %}

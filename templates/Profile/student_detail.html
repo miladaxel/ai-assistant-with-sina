@@ -1,32 +1,371 @@
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <title>مشخصات {{ student.full_name }}</title>
-</head>
-<body>
-    <h1>مشخصات دانش‌آموز: {{ student.full_name }}</h1>
+{% extends 'Profile/base.html' %}
+{% load static %}
 
-    <ul>
-        <li>نام پدر: {{ student.fathers_name }}</li>
-        <li>کد ملی: {{ student.national_code }}</li>
-        <li>شماره شناسنامه: {{ student.id_card_number }}</li>
-        <li>تاریخ تولد: {{ student.birth_date }}</li>
-        <li>محل تولد: {{ student.birth_place }}</li>
-        <li>جنسیت: {{ student.get_sex_display }}</li>
-        <li>کلاس: {% for c in student.classes.all %}
-        {{ c.number }} - {{ c.subject }}
+{% block extra_css %}
+  <title>مشخصات {{ student.full_name }}</title>
+  <style>
+    /* فقط استایل همین صفحه — به بیس و پس‌زمینه دست نمی‌زنیم */
+    .page-wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .subtitle{
+      color:#64748b;
+      font-size:.92rem;
+      margin-top:6px;
+      line-height:1.8;
+    }
+
+    .card{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 10px 30px rgba(15,23,42,.06);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin: 6px 0 12px;
+    }
+
+    .section-title h2{
+      margin:0;
+      font-size:1.05rem;
+    }
+
+    .pill{
+      font-size:.78rem;
+      color:#64748b;
+      border:1px solid #e5e7eb;
+      border-radius:999px;
+      padding:4px 10px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    .meta{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 650px){
+      .meta{ grid-template-columns: 1fr; }
+    }
+
+    .kv{
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fbfdff;
+    }
+
+    .k{
+      color:#64748b;
+      font-size:.82rem;
+      margin-bottom:4px;
+    }
+
+    .v{
+      font-weight:850;
+      font-size:.98rem;
+      overflow-wrap:anywhere;
+      line-height:1.9;
+    }
+
+    .muted{
+      color:#64748b;
+      font-weight:650;
+    }
+
+    .divider{
+      height:1px;
+      background:#e5e7eb;
+      margin:14px 0;
+      border-radius:999px;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid #e5e7eb;
+      background:#f8fafc;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:850;
+      color:#0f172a;
+      white-space:nowrap;
+    }
+
+    .tag.blue{
+      border-color:rgba(37,99,235,.25);
+      background:rgba(37,99,235,.06);
+      color:#1e40af;
+    }
+
+    .tag.green{
+      border-color:rgba(22,163,74,.25);
+      background:rgba(22,163,74,.06);
+      color:#166534;
+    }
+
+    .tag.yellow{
+      border-color:rgba(245,158,11,.30);
+      background:rgba(245,158,11,.08);
+      color:#7c2d12;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#0f172a;
+      box-shadow: 0 2px 10px rgba(15,23,42,.06);
+      transition: transform .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+
+    .small-note{
+      color:#64748b;
+      font-size:.92rem;
+      line-height:1.9;
+      white-space:pre-line;
+    }
+
+    .list{
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+
+    .row .label{
+      color:#64748b;
+      font-size:.85rem;
+      font-weight:750;
+      flex: 0 0 auto;
+      min-width: 140px;
+    }
+
+    .row .value{
+      text-align:left;
+      direction:ltr;
+      font-weight:850;
+      color:#0f172a;
+      flex: 1 1 auto;
+      overflow-wrap:anywhere;
+    }
+
+    /* برای مقادیر فارسی مثل آدرس/توضیحات */
+    .row .value.fa{
+      text-align:right;
+      direction:rtl;
+    }
+
+.empty{
+      color:#64748b;
+      font-weight:650;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="main-content">
+    <div class="page-wrap">
+
+      <div class="topbar">
+        <div>
+          <h1 class="main-title">مشخصات دانش‌آموز</h1>
+          <div class="subtitle">
+            {% if student.full_name %}{{ student.full_name }}{% else %}<span class="muted">نام ثبت نشده</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="actions">
+          <a class="btn" href="javascript:history.back()">برگشت</a>
+          <a class="btn" href="{% url 'teacher panel' %}">بازگشت به پنل معلم</a>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- کارت خلاصه -->
+        <div class="card">
+          <div class="section-title">
+            <h2>خلاصه</h2>
+            <span class="pill">Student</span>
+          </div>
+
+          <div class="meta">
+            <div class="kv">
+              <div class="k">نام و نام خانوادگی</div>
+              <div class="v">
+                {% if student.full_name %}{{ student.full_name }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="k">جنسیت</div>
+              <div class="v">
+                {% if student.get_sex_display %}{{ student.get_sex_display }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="k">تاریخ تولد</div>
+              <div class="v">
+                {% if student.birth_date %}{{ student.birth_date }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="k">شماره موبایل</div>
+              <div class="v numeric-value">
+                {% if student.phone_number %}{{ student.phone_number }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="section-title" style="margin-top:0;">
+            <h2>کلاس‌ها</h2>
+            <span class="pill">
+              {% if student.classes.all %}{{ student.classes.all|length }} مورد{% else %}0{% endif %}
+            </span>
+          </div>
+
+          <div class="chips">
+            {% for c in student.classes.all %}
+              <span class="tag blue">{{ c.number }} — {{ c.subject }}</span>
+            {% empty %}
+              <span class="tag">کلاسی ثبت نشده</span>
             {% endfor %}
-        </li>
-        <li>آدرس: {{ student.address }}</li>
-        <li>شماره موبایل: {{ student.phone_number }}</li>
-        <li>تلفن ثابت: {{ student.home_phone_number }}</li>
-        <li>وضعیت انتقال: {{ student.transition }}</li>
-        <li>توضیحات: {{ student.description }}</li>
-    </ul>
+          </div>
 
-    <p>
-        <a href="{% url 'teacher panel' %}">بازگشت به پنل معلم</a>
-    </p>
-</body>
-</html>
+          {% if student.description %}
+            <div class="divider"></div>
+            <div class="section-title" style="margin-top:0;">
+              <h2>توضیحات</h2>
+              <span class="pill">Note</span>
+            </div>
+            <div class="small-note">{{ student.description }}</div>
+          {% endif %}
+        </div>
+
+        <!-- کارت اطلاعات کامل -->
+        <div class="card">
+          <div class="section-title">
+            <h2>اطلاعات تکمیلی</h2>
+            <span class="pill">Details</span>
+          </div>
+
+          <ul class="list">
+            <li class="row">
+              <div class="label">نام پدر</div>
+              <div class="value fa">
+                {% if student.fathers_name %}{{ student.fathers_name }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+
+            <li class="row">
+              <div class="label">کد ملی</div>
+              <div class="value">
+                {% if student.national_code %}{{ student.national_code }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+
+            <li class="row">
+              <div class="label">شماره شناسنامه</div>
+              <div class="value">
+                {% if student.id_card_number %}{{ student.id_card_number }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+
+<li class="row">
+              <div class="label">محل تولد</div>
+              <div class="value fa">
+                {% if student.birth_place %}{{ student.birth_place }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+
+            <li class="row">
+              <div class="label">تلفن ثابت</div>
+              <div class="value">
+                {% if student.home_phone_number %}{{ student.home_phone_number }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+
+            <li class="row">
+              <div class="label">وضعیت انتقال</div>
+              <div class="value fa">
+                {% if student.transition %}{{ student.transition }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+
+            <li class="row">
+              <div class="label">آدرس</div>
+              <div class="value fa">
+                {% if student.address %}{{ student.address }}{% else %}<span class="empty">ذکر نشده</span>{% endif %}
+              </div>
+            </li>
+          </ul>
+
+
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

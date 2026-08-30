@@ -2,13 +2,54 @@
 {% load static %}
 
 {% block extra_css %}
-
+    title>نوع تمرین</title>
+    <link rel="stylesheet" href="{% static 'css/exercises.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
+    <body>
+    <div class="main-content">
+         <div class="page-header-simple">
+                <a href="dashboard.html" style="display: flex;align-items: center;column-gap: 10px;" class="back-btn">
+                    <i style="font-size: 24px;line-height: 24px;display: flex;align-items: flex-start;" class="fa-solid fa-arrow-right"></i>
+                    <h1 class="main-title">تولید محتوا و تمرین</h1>
+                </a>
+            </div>
+        <div class="container-narrow" style="height: 87vh; display: flex;flex-direction: column; justify-content: center;">
 
+            <div class="hero-cards-container">
+
+                <div class="hero-card theme-blue-gradient" onclick="window.location.href='exercises-students.html'">
+                    <div class="hero-icon-box">
+                        <i class="fa-solid fa-house-user"></i>
+                    </div>
+                    <div class="hero-text">
+                        <h3>تمرین‌های انفرادی در خانه</h3>
+                        <p>ارسال تمرین های شخصی سازی شده برای هر دانش‌آموز بر اساس نقاط قوت و ضعف </p>
+                    </div>
+
+                </div>
+
+                <div class="hero-card theme-purple-gradient" onclick="alert('به زودی...')">
+                    <div class="hero-icon-box">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                    <div class="hero-text">
+                        <h3>تمرین‌های گروهی در کلاس</h3>
+                        <p> ایجاد تمرین ها و فعالیت های گروهی انطباقی برای کلاس درس </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</body>
 {% endblock %}
 
 {% block extra_js %}
-
+    <script src="{% url 'js/layout.js' %}"></script>
 {% endblock %}

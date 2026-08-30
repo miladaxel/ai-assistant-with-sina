@@ -66,6 +66,9 @@ class Stage2RunView(FormView):
         exam = form.cleaned_data["exam"]
         stage1_bundle_id = form.cleaned_data["stage1_bundle_id"]
         stage2_prompt = form.cleaned_data["stage2_prompt"]
+        print('================template raw text ==========================')
+        print(stage2_prompt.instruction_text)
+        print('==================end template==============================')
 
         stage1_bundle = (
             AnalysisBundle.objects
@@ -86,6 +89,15 @@ class Stage2RunView(FormView):
             return redirect(f"{reverse('analysis:stage2_run')}?exam={exam.id}")
 
         exam_map_json = stage1_bundle.result.result_json
+
+        print("===== EXAM_MAP_JSON (type) =====")
+        print(type(exam_map_json))
+        print("===== EXAM_MAP_JSON (keys) =====")
+        if isinstance(exam_map_json, dict):
+            print(list(exam_map_json.keys())[:50])  # 50 کلید اول
+        print("===== EXAM_MAP_JSON (pretty) =====")
+        print(json.dumps(exam_map_json, ensure_ascii=False, indent=2)[:20000])  # 20k کاراکتر اول
+        print("===== END EXAM_MAP_JSON =====")
 
         snapshot_obj = ExamSnapShot.objects.filter(exam=exam).order_by("-created_at").first()
         if not snapshot_obj:
@@ -215,3 +227,9 @@ class ExamManagement(TemplateView):
 
 class ChooseClass(TemplateView):
     template_name = 'analysis/choose_class.html'
+
+class PreAnalysisResult(TemplateView):
+    template_name = 'analysis/pre_analysis.html'
+
+class PreAnalysisResultList(TemplateView):
+    template_name = 'analysis/pre_analysis_list.html'

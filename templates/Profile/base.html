@@ -15,18 +15,33 @@
         img:"{% static 'background_removed_image.png' %}",
         home: "{% url 'home' %}",
         classes: "{% url 'teacher_classes' %}",
-        exams: "{% url 'bundle_create'  %}",
-        analysis:"{% url 'my_bundles' %}",
-        exercise: "{% url 'exercise_generate:stage3_run' %}" ,
-        memo:"",
-        setting:"",
-        profile:"{% url 'teacher panel' %}"
+        exams: "{% url 'analysis:pre_analyze'  %}",
+        analysis:"{% url 'analysis:pre_analyze_list' %}",
+        exercise: "{% url 'exercise_generate:stage3_list' %}" ,
+        memo:"{% url 'analysis:teacher_note' %}",
+        setting:"{% url 'analysis:settings' %}",
+        profile:"{% url 'teacher panel' %}",
+        robot:"{% url 'chat' %}"
 
+
+    };
+
+    const SIDEBAR_ICONS = {
+    profile: "{% static 'icon/بازگشت به خانه.svg' %}",
+    classes: "{% static 'icon/مدیریت کلاس.svg' %}",
+    exams: "{% static 'icon/آزمون ها.svg' %}",
+    analysis: "{% static 'icon/تحلیل ها.svg' %}",
+    exercise: "{% static 'icon/تمرین ها.svg' %}",
+    memo: "{% static 'icon/یادداشت ها.svg' %}",
+    settings: "{% static 'icon/تنظیمات.svg' %}",
+    logo: "{% static 'background_removed_image.png' %}",
+    robot: "{% static 'icon/ربات.svg' %}"
     };
     </script>
     {% block extra_js %}
     {% endblock %}
     <script src="{% static 'js/layout.js' %}"></script>
+    <script src="{% static 'js/robot.js' %}"></script>
 </header>
 {% block content %}
 {% endblock %}

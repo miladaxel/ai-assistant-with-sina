@@ -47,6 +47,7 @@ class OpenAIAnalyzer:
             model=model,
             temperature=temperature,
             instructions=instructions,
+            max_output_tokens=24000,
             input=[
                 {
                     "role": "user",
@@ -115,6 +116,7 @@ class OpenAIAnalyzer:
             model=model,
             temperature=temperature,
             input=prompt_text,
+            max_output_tokens=24000,
         )
 
         # مرحله 2: چاپ کامل پاسخ مدل برای debug

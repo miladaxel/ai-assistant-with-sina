@@ -51,7 +51,7 @@
         border-radius: 50%;
         display: inline-block;
     }
-
+    .chat-messages{background-image: url("{% static 'images/بک چت بات.svg' %}");background-size: contain; background-repeat: no-repeat;}
     /* ناحیه نمایش پیام‌ها */
     .chat-messages {
         flex: 1;
@@ -256,7 +256,7 @@
             >
 
             <button type="submit" class="btn-send" id="sendBtn">
-                <i class="fa-solid fa-paper-plane"></i>
+                <img src="{% static 'icon/فلش به چپ.svg' %}" class="icon-template"></img>
             </button>
         </form>
 

@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>نمایش تحلیل آزمون - Bundle #{{ bundle.id }}</title>
+{% extends 'Profile/base.html' %}
+{% load static %}
 
-  <style>
+{% block extra_css %}
+    <title>نمایش تحلیل آزمون - Bundle #{{ bundle.id }}</title>
+    <style>
     :root{
       --bg:#f5f7fb;
       --card:#ffffff;
@@ -17,7 +15,7 @@
       --green:#16a34a;
       --yellow:#f59e0b;
       --red:#ef4444;
-      --blue:#2563eb;
+      --blue:var(--primary);
       --purple:#7c3aed;
       --radius:18px;
     }
@@ -25,9 +23,8 @@
     *{box-sizing:border-box}
     body{
       margin:0;
-      background:var(--bg);
+
       color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Arabic", "Noto Sans", sans-serif;
       line-height:1.9;
       padding:24px;
     }
@@ -204,18 +201,20 @@ background:#f8fafc;
       color:#0f172a;
     }
   </style>
-</head>
+{% endblock %}
+
+{% block content %}
 
 <body>
-<div class="container">
+<div class="main-content">
 
   <div class="topbar">
     <div>
-      <h1>نمایش تحلیل آزمون</h1>
-      <div class="subtitle">Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}</div>
+      <h1 class="main-title">نمایش تحلیل آزمون</h1>
+      <div class="subtitle part-title">Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}</div>
     </div>
     <div class="actions">
-      <a class="btn" href="javascript:history.back()">⬅️ برگشت</a>
+      <a class="btn" href="javascript:history.back()"> برگشت</a>
     </div>
   </div>
 
@@ -602,4 +601,1781 @@ background:#f8fafc;
 
 </div>
 </body>
-</html>
+{% endblock %}
+
+
+
+
+{#{% extends "Profile/base.html" %}#}
+{#{% load static %}#}
+{##}
+{#{% block extra_css %}#}
+{#<title>نمایش تحلیل آزمون - Bundle #{{ bundle.id }}</title>#}
+{##}
+{#<style>#}
+{#  /* فقط مکمل سبک‌های خودت؛ پس‌زمینه و layout.js و sidebar دست نمی‌خورد */#}
+{##}
+{#  .topbar{#}
+{#    display:flex; gap:12px; align-items:flex-start; justify-content:space-between;#}
+{#    flex-wrap:wrap; margin-bottom:14px;#}
+{#  }#}
+{#  .subtitle{color:#64748b;font-size:.92rem;margin-top:6px}#}
+{##}
+{#  .grid{#}
+{#    display:grid;#}
+{#    grid-template-columns:1.2fr .8fr;#}
+{#    gap:14px;#}
+{#    align-items:start;#}
+{#    margin-top: 10px;#}
+{#  }#}
+{#  @media (max-width: 900px){ .grid{grid-template-columns:1fr} }#}
+{##}
+{#  .section-title{#}
+{#    display:flex; align-items:center; justify-content:space-between;#}
+{#    gap:10px; margin: 10px 0 12px;#}
+{#  }#}
+{#  .section-title h2,.section-title h3{margin:0}#}
+{#  .section-title h2{font-size:1.05rem}#}
+{#  .section-title h3{font-size:1.02rem}#}
+{##}
+{#  .pill{#}
+{#    font-size:.78rem; color:#64748b;#}
+{#    border:1px solid #e5e7eb;#}
+{#    border-radius:999px; padding:4px 10px;#}
+{#    background:#fff; white-space:nowrap;#}
+{#  }#}
+{##}
+{#  .badge{#}
+{#    display:inline-flex; align-items:center; gap:6px;#}
+{#    padding:5px 10px; border-radius:999px;#}
+{#    font-size:.78rem; border:1px solid #e5e7eb;#}
+{#    background:#fff; color:#0f172a; white-space:nowrap;#}
+{#  }#}
+{#  .dot{width:8px;height:8px;border-radius:50%;background:#64748b;display:inline-block}#}
+{#  .badge.success .dot{background: #16a34a}#}
+{#  .badge.pending .dot{background: #f59e0b}#}
+{#  .badge.failure .dot{background: #ef4444}#}
+{##}
+{#  .meta{#}
+{#    display:grid;#}
+{#    grid-template-columns: 1fr 1fr;#}
+{#    gap:10px;#}
+{#    margin-top:10px;#}
+{#  }#}
+{#  @media (max-width: 650px){ .meta{grid-template-columns:1fr} }#}
+{##}
+{#  .kv{#}
+{#    border:1px solid #e5e7eb;#}
+{#    border-radius:14px;#}
+{#    padding:10px 12px;#}
+{#    background: #fbfdff;#}
+{#  }#}
+{#  .k{color:#64748b;font-size:.82rem;margin-bottom:4px}#}
+{#  .v{font-weight:850;font-size:.98rem;overflow-wrap:anywhere}#}
+{#  .muted{color:#64748b;font-weight:650}#}
+{##}
+{#  .alert{#}
+{#    border-radius:16px;#}
+{#    padding:12px 14px;#}
+{#    border:1px solid rgba(239,68,68,.25);#}
+{#    background: rgba(239,68,68,.06);#}
+{#    color:#7f1d1d;#}
+{#    margin-top:12px;#}
+{#    white-space:pre-wrap;#}
+{#    overflow:auto;#}
+{#  }#}
+{##}
+{#  .divider{height:1px;background:#e5e7eb;margin:14px 0;border-radius:999px}#}
+{##}
+{#  .tag{#}
+{#    display:inline-flex; align-items:center; gap:8px;#}
+{#    border:1px solid #e5e7eb;#}
+{#    background:#f8fafc;#}
+{#    padding:4px 10px;#}
+{#    border-radius:999px;#}
+{#    font-size:.78rem;#}
+{#    font-weight:850;#}
+{#    color:#0f172a;#}
+{#    white-space:nowrap;#}
+{#  }#}
+{#  .tag.blue{border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.06); color:#1e40af}#}
+{#  .tag.purple{border-color:rgba(124,58,237,.25); background:rgba(124,58,237,.06); color:#5b21b6}#}
+{#  .tag.green{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.06); color:#166534}#}
+{#  .tag.yellow{border-color:rgba(245,158,11,.30); background:rgba(245,158,11,.08); color:#7c2d12}#}
+{#  .tag.red{border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.08); color:#7f1d1d}#}
+{##}
+{#  .exam-name{margin:0;font-size:1.2rem;font-weight:950;letter-spacing:-.2px}#}
+{#  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#}
+{##}
+{#  .questions-wrap{margin-top:14px}#}
+{#  .question{#}
+{#    border:1px solid #e5e7eb;#}
+{#    border-radius:16px;#}
+{#    padding:14px;#}
+{#    background:#fff;#}
+{#    margin-top:12px;#}
+{#  }#}
+{#  .qhead{#}
+{#    display:flex; justify-content:space-between; gap:10px;#}
+{#    align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;#}
+{#  }#}
+{#  .qnum{font-weight:950;font-size:1rem}#}
+{#  .qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:#64748b;font-size:.85rem}#}
+{#  .qtext{white-space:pre-line;margin-top:8px;font-weight:750}#}
+{##}
+{#  .block{#}
+{#    margin-top:12px;#}
+{#    border-top:1px dashed #e5e7eb;#}
+{#    padding-top:10px;#}
+{#  }#}
+{#  .block h4{margin:0 0 6px 0;font-size:.92rem;color:#0f172a}#}
+{#  ul{margin:8px 0 0;padding-right:18px}#}
+{#  li{margin:4px 0}#}
+{#  .small-note{color:#64748b;font-size:.9rem}#}
+{##}
+{#.subparts{#}
+{#    display:grid;#}
+{#    grid-template-columns: 1fr 1fr;#}
+{#    gap:10px;#}
+{#    margin-top:10px;#}
+{#  }#}
+{#  @media (max-width: 850px){ .subparts{grid-template-columns:1fr} }#}
+{#  .subcard{#}
+{#    border:1px solid #e5e7eb;#}
+{#    border-radius:14px;#}
+{#    padding:12px;#}
+{#    background:#fbfdff;#}
+{#  }#}
+{#  .subhead{#}
+{#    display:flex; align-items:flex-start; justify-content:space-between;#}
+{#    gap:8px; flex-wrap:wrap; margin-bottom:6px;#}
+{#  }#}
+{#  .subid{font-weight:950;font-size:.92rem}#}
+{#  .subtext{white-space:pre-line;margin-top:6px}#}
+{##}
+{#  details.raw{#}
+{#    margin-top:14px;#}
+{#    border:1px solid #e5e7eb;#}
+{#    border-radius:14px;#}
+{#    padding:10px 12px;#}
+{#    background:#fbfdff;#}
+{#  }#}
+{#  details.raw summary{cursor:pointer;color:var(--primary);font-weight:950;list-style:none}#}
+{#  details.raw summary::-webkit-details-marker{display:none}#}
+{#  .code{#}
+{#    margin-top:10px;#}
+{#    white-space:pre-wrap;#}
+{#    overflow:auto;#}
+{#    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;#}
+{#    font-size: .86rem;#}
+{#    color:#0f172a;#}
+{#  }#}
+{#</style>#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<div class="main-content">#}
+{##}
+{#  <div class="topbar">#}
+{#    <div>#}
+{#      <h1 class="main-title">نمایش تحلیل آزمون</h1>#}
+{#      <div class="subtitle part-title">#}
+{#        Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="actions">#}
+{#      <a class="btn" href="javascript:history.back()"> برگشت</a>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="grid">#}
+{#    <div class="card">#}
+{#      <div class="section-title">#}
+{#        <h2>وضعیت پردازش</h2>#}
+{#        {% if bundle.status == "success" %}#}
+{#          <span class="badge success"><span class="dot"></span> موفق</span>#}
+{#        {% elif bundle.status == "pending" %}#}
+{#          <span class="badge pending"><span class="dot"></span> در حال پردازش</span>#}
+{#        {% else %}#}
+{#          <span class="badge failure"><span class="dot"></span> ناموفق</span>#}
+{#        {% endif %}#}
+{#      </div>#}
+{##}
+{#      <div class="meta">#}
+{#        <div class="kv">#}
+{#          <div class="k">عنوان</div>#}
+{#          <div class="v">{{ bundle.title|default:"—" }}</div>#}
+{#        </div>#}
+{##}
+{#        <div class="kv">#}
+{#          <div class="k">مدل</div>#}
+{#          <div class="v">{{ bundle.model_name|default:"—" }}</div>#}
+{#        </div>#}
+{##}
+{#        <div class="kv">#}
+{#          <div class="k">Template</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.prompt_template %}#}
+{#              {{ bundle.prompt_template.name }} (v{{ bundle.prompt_template.version }})#}
+{#            {% else %}—{% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="kv">#}
+{#          <div class="k">File IDs</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.openai_lesson_file_id %}درس: {{ bundle.openai_lesson_file_id }}{% else %}درس: <span class="muted">ذکر نشده</span>{% endif %}#}
+{#            <br/>#}
+{#            {% if bundle.openai_example_file_id %}آزمون: {{ bundle.openai_example_file_id }}{% else %}آزمون: <span class="muted">ذکر نشده</span>{% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      {% if bundle.error_message %}#}
+{#        <div class="alert">خطا: {{ bundle.error_message }}</div>#}
+{#      {% endif %}#}
+{#    </div>#}
+{##}
+{#    <div class="card">#}
+{#      <div class="section-title">#}
+{#        <h2>راهنما</h2>#}
+{#        <span class="pill">exam_map_v9_stage01</span>#}
+{#      </div>#}
+{#      <div class="small-note">#}
+{#        هر جا مقدار <b>unknown</b> یا <b>null</b> باشد، این صفحه آن را «ذکر نشده» نمایش می‌دهد.#}
+{#      </div>#}
+{#      <div class="divider"></div>#}
+{#      <div class="small-note">#}
+{#        اگر نگاشت به کتاب مبهم باشد، هشدارها پایین نمایش داده می‌شوند.#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  {% if bundle.result %}#}
+{#    {% with data=bundle.result.result_json %}#}
+{##}
+{#      <!-- Exam Info -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>مشخصات آزمون</h2>#}
+{#          <span class="pill">نسخه: {{ data.schema_version|default:"—" }}</span>#}
+{#        </div>#}
+{##}
+{#        <h3 class="exam-name">#}
+{#          {% if data.exam_info.exam_name %}{{ data.exam_info.exam_name }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}#}
+{#        </h3>#}
+{##}
+{#<div class="chips">#}
+{#          <span class="tag blue">پایه:#}
+{#            {% if data.exam_info.target_grade_level %}{{ data.exam_info.target_grade_level }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#          <span class="tag purple">مدت:#}
+{#            {% if data.exam_info.exam_duration %}{{ data.exam_info.exam_duration }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#          <span class="tag green">تاریخ:#}
+{#            {% if data.exam_info.exam_date and data.exam_info.exam_date != "unknown" %}{{ data.exam_info.exam_date }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta" style="margin-top:12px;">#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد سوالات اصلی</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.main_questions_count != None %}#}
+{#                {{ data.exam_info.main_questions_count }}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد کل آیتم‌ها</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.total_items_count != None %}#}
+{#                {{ data.exam_info.total_items_count }}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="divider"></div>#}
+{##}
+{#        <div class="section-title">#}
+{#          <h3>بودجه‌بندی نسبت به کتاب</h3>#}
+{#          <span class="pill">Book Mapping</span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta">#}
+{#          <div class="kv">#}
+{#            <div class="k">محدوده صفحات</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.page_range %}{{ data.exam_info.budgeting.page_range }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv">#}
+{#            <div class="k">فصل‌ها/درس‌ها</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.chapters_or_units and data.exam_info.budgeting.chapters_or_units|length %}#}
+{#                {% for c in data.exam_info.budgeting.chapters_or_units %}#}
+{#                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv" style="grid-column:1/-1;">#}
+{#            <div class="k">مفاهیم/مهارت‌های کلی</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.general_concepts_or_skills and data.exam_info.budgeting.general_concepts_or_skills|length %}#}
+{#                {% for c in data.exam_info.budgeting.general_concepts_or_skills %}#}
+{#                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Overview -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>نمای کلی آزمون</h2>#}
+{#          <span class="pill">Overview</span>#}
+{#        </div>#}
+{#        <div class="small-note" style="white-space:pre-line;">#}
+{#          {% if data.exam_overview.analysis_paragraph_fa %}#}
+{#            {{ data.exam_overview.analysis_paragraph_fa }}#}
+{#          {% else %}#}
+{#            ذکر نشده#}
+{#          {% endif %}#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Summary -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>جمع‌بندی آماری</h2>#}
+{#          <span class="pill">Summary</span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta">#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد سطح سختی</div>#}
+{##}
+{#<div class="v">#}
+{#              آسان: {{ data.summary.difficulty_counts.easy|default:"0" }} |#}
+{#              متوسط: {{ data.summary.difficulty_counts.medium|default:"0" }} |#}
+{#              سخت: {{ data.summary.difficulty_counts.hard|default:"0" }} |#}
+{#              نامشخص: {{ data.summary.difficulty_counts.unknown|default:"0" }}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد نوع سوال</div>#}
+{#            <div class="v">#}
+{#              {% if data.summary.question_type_counts %}#}
+{#                {% for k,v in data.summary.question_type_counts.items %}#}
+{#                  {{ k }}: {{ v }}{% if not forloop.last %} | {% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="block">#}
+{#          <h4>راهنمای سریع</h4>#}
+{#          <div class="small-note">easy=آسان، medium=متوسط، hard=سخت، unknown=نامشخص</div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Questions -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>سوال‌ها</h2>#}
+{#          <span class="pill">تعداد: {{ data.questions|length }}</span>#}
+{#        </div>#}
+{##}
+{#        <div class="questions-wrap">#}
+{#          {% for q in data.questions %}#}
+{#            <div class="question">#}
+{#              <div class="qhead">#}
+{#                <div class="qnum">#}
+{#                  سؤال {{ q.question_number|default:"—" }}#}
+{#                  <span class="muted">({{ q.question_id|default:"—" }})</span>#}
+{#                </div>#}
+{##}
+{#                <div class="qmeta">#}
+{#                  <span class="tag blue">نوع: {{ q.prompt.type|default:"—" }}</span>#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              <div class="qtext">#}
+{#                {% if q.prompt.text %}{{ q.prompt.text }}{% else %}<span class="muted">متن سوال ذکر نشده</span>{% endif %}#}
+{#              </div>#}
+{##}
+{#              {% if q.subparts and q.subparts|length %}#}
+{#                <div class="block">#}
+{#                  <h4>زیرسؤال‌ها</h4>#}
+{#                  <div class="subparts">#}
+{#                    {% for sp in q.subparts %}#}
+{#                      <div class="subcard">#}
+{#                        <div class="subhead">#}
+{#                          <div class="subid">#}
+{#                            {{ sp.item_key|default:"زیرسؤال" }}#}
+{#                            {% if sp.subquestion_number != None %} — شماره {{ sp.subquestion_number }}{% endif %}#}
+{#                          </div>#}
+{#                          <div class="qmeta">#}
+{#                            {% if sp.difficulty == "easy" %}#}
+{#                              <span class="tag green">آسان</span>#}
+{#                            {% elif sp.difficulty == "medium" %}#}
+{#                              <span class="tag yellow">متوسط</span>#}
+{#                            {% elif sp.difficulty == "hard" %}#}
+{#                              <span class="tag red">سخت</span>#}
+{#                            {% else %}#}
+{#                              <span class="tag">نامشخص</span>#}
+{#                            {% endif %}#}
+{#                            <span class="tag purple">سطح شناختی: {{ sp.cognitive_level|default:"—" }}</span>#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="subtext">#}
+{#                          {% if sp.text %}{{ sp.text }}{% else %}<span class="muted">متن زیرسؤال ذکر نشده</span>{% endif %}#}
+{#                        </div>#}
+{##}
+{#                        <div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>مفهوم / ارزش سنجش</h4>#}
+{#                          <div class="small-note">#}
+{#                            مفهوم: {% if sp.concept_tested %}{{ sp.concept_tested }}{% else %}ذکر نشده{% endif %}#}
+{#                            <br/>#}
+{#                            ارزش: {% if sp.assessment_value %}{{ sp.assessment_value }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#<div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>ارجاع به کتاب</h4>#}
+{#                          <div class="small-note">#}
+{#                            صفحه: {% if sp.book_ref.page %}{{ sp.book_ref.page }}{% else %}ذکر نشده{% endif %}#}
+{#                            — بخش: {% if sp.book_ref.section_title %}{{ sp.book_ref.section_title }}{% else %}ذکر نشده{% endif %}#}
+{#                            <br/>#}
+{#                            درس/یونیت: {% if sp.book_ref.lesson_or_unit %}{{ sp.book_ref.lesson_or_unit }}{% else %}ذکر نشده{% endif %}#}
+{#                            — مهارت: {% if sp.book_ref.skill %}{{ sp.book_ref.skill }}{% else %}ذکر نشده{% endif %}#}
+{#                            <br/>#}
+{#                            شاهد: {% if sp.book_ref.anchor_quote %}{{ sp.book_ref.anchor_quote }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>ارجاع به برگه آزمون</h4>#}
+{#                          <div class="small-note">#}
+{#                            صفحه: {% if sp.exam_ref.page %}{{ sp.exam_ref.page }}{% else %}ذکر نشده{% endif %}#}
+{#                            <br/>#}
+{#                            شاهد: {% if sp.exam_ref.anchor_quote %}{{ sp.exam_ref.anchor_quote }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        {% if sp.answer_key and sp.answer_key != "unknown" %}#}
+{#                          <div class="block" style="border-top:0;padding-top:0;">#}
+{#                            <h4>کلید/پاسخ</h4>#}
+{#                            <div class="small-note">{{ sp.answer_key }}</div>#}
+{#                          </div>#}
+{#                        {% endif %}#}
+{##}
+{#                      </div>#}
+{#                    {% endfor %}#}
+{#                  </div>#}
+{#                </div>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          {% endfor %}#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Parse Warnings -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>هشدارهای پردازش</h2>#}
+{#          <span class="pill">Parse Warnings</span>#}
+{#        </div>#}
+{##}
+{#        {% if data.parse_warnings and data.parse_warnings|length %}#}
+{#          <ul>#}
+{#            {% for w in data.parse_warnings %}#}
+{#              <li>#}
+{#                <b>{{ w.code }}</b> —#}
+{#                {{ w.message }}#}
+{#                <span class="muted">(location: {{ w.location }})</span>#}
+{#              </li>#}
+{#            {% endfor %}#}
+{#          </ul>#}
+{#        {% else %}#}
+{#          <div class="small-note">هشداری ثبت نشده.</div>#}
+{#        {% endif %}#}
+{#      </div>#}
+{##}
+{#      <!-- Raw JSON (optional) -->#}
+{#      <details class="raw">#}
+{#        <summary>نمایش خروجی خام (برای دیباگ)</summary>#}
+{#        <div class="code">{{ data }}</div>#}
+{#      </details>#}
+{##}
+{#    {% endwith %}#}
+{#  {% else %}#}
+{#    <div class="card" style="margin-top:14px;">#}
+{#      <div class="alert" style="border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.08); color:#7c2d12;">#}
+{#        هنوز نتیجه‌ای برای این Bundle ذخیره نشده.#}
+{#      </div>#}
+{#    </div>#}
+{#  {% endif %}#}
+{##}
+{#</div>#}
+{#{% endblock %}#}
+{##}
+
+
+
+
+
+{#{% extends 'Profile/base.html' %}#}
+{#{% load static %}#}
+{##}
+{#{% block extra_css %}#}
+{#    <title>نمایش تحلیل آزمون - Bundle #{{ bundle.id }}</title>#}
+{##}
+{#    <style>#}
+{#    :root{#}
+{#      --bg:#f5f7fb;#}
+{#      --card:#ffffff;#}
+{#      --text:#0f172a;#}
+{#      --muted:#64748b;#}
+{#      --border:#e5e7eb;#}
+{#      --shadow: 0 10px 30px rgba(15,23,42,.06);#}
+{#      --shadow2: 0 2px 10px rgba(15,23,42,.06);#}
+{#      --green:#16a34a;#}
+{#      --yellow:#f59e0b;#}
+{#      --red:#ef4444;#}
+{#      --blue:var(--primary);#}
+{#      --purple:#7c3aed;#}
+{#      --radius:18px;#}
+{#    }#}
+{##}
+{#    *{box-sizing:border-box}#}
+{#    body{#}
+{#      margin:0;#}
+{##}
+{#      color:var(--text);#}
+{#      line-height:1.9;#}
+{#      padding:24px;#}
+{#    }#}
+{#    .container{max-width:1150px;margin:0 auto}#}
+{##}
+{#    .topbar{#}
+{#      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;#}
+{#      flex-wrap:wrap; margin-bottom:14px;#}
+{#    }#}
+{#    h1{margin:0;font-size:1.35rem;letter-spacing:-.2px}#}
+{#    .subtitle{color:var(--muted);font-size:.92rem;margin-top:6px}#}
+{##}
+{#    .actions{display:flex;gap:10px;flex-wrap:wrap}#}
+{#    .btn{#}
+{#      display:inline-flex; align-items:center; gap:8px;#}
+{#      padding:10px 12px; border-radius:12px;#}
+{#      border:1px solid var(--border); background:var(--card);#}
+{#      text-decoration:none; color:var(--text);#}
+{#      box-shadow: var(--shadow2); font-size:.92rem;#}
+{#      transition: transform .12s ease;#}
+{#    }#}
+{#    .btn:hover{transform: translateY(-1px)}#}
+{#    .btn:active{transform: translateY(0)}#}
+{##}
+{#    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:start}#}
+{#    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }#}
+{##}
+{#    .card{#}
+{#      background:var(--card);#}
+{#      border:1px solid var(--border);#}
+{#      border-radius: var(--radius);#}
+{#      box-shadow: var(--shadow);#}
+{#      padding:16px;#}
+{#    }#}
+{##}
+{#    .section-title{#}
+{#      display:flex; align-items:center; justify-content:space-between;#}
+{#      gap:10px; margin: 10px 0 12px;#}
+{#    }#}
+{#    .section-title h2,.section-title h3{margin:0}#}
+{#    .section-title h2{font-size:1.05rem}#}
+{#    .section-title h3{font-size:1.02rem}#}
+{##}
+{#    .pill{#}
+{#      font-size:.78rem; color:var(--muted);#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:999px; padding:4px 10px;#}
+{#      background:#fff; white-space:nowrap;#}
+{#    }#}
+{##}
+{#    .badge{#}
+{#      display:inline-flex; align-items:center; gap:6px;#}
+{#      padding:5px 10px; border-radius:999px;#}
+{#      font-size:.78rem; border:1px solid var(--border);#}
+{#      background:#fff; color:var(--text); white-space:nowrap;#}
+{#    }#}
+{#    .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}#}
+{#    .badge.success .dot{background: var(--green)}#}
+{#    .badge.pending .dot{background: var(--yellow)}#}
+{#    .badge.failure .dot{background: var(--red)}#}
+{##}
+{#    .meta{#}
+{#      display:grid;#}
+{#      grid-template-columns: 1fr 1fr;#}
+{#      gap:10px;#}
+{#      margin-top:10px;#}
+{#    }#}
+{#    @media (max-width: 650px){ .meta{grid-template-columns:1fr} }#}
+{#    .kv{#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:14px;#}
+{#      padding:10px 12px;#}
+{#      background: #fbfdff;#}
+{#    }#}
+{#    .k{color:var(--muted);font-size:.82rem;margin-bottom:4px}#}
+{#    .v{font-weight:850;font-size:.98rem;overflow-wrap:anywhere}#}
+{#    .muted{color:var(--muted);font-weight:650}#}
+{##}
+{#    .alert{#}
+{#      border-radius:16px;#}
+{#      padding:12px 14px;#}
+{#      border:1px solid rgba(239,68,68,.25);#}
+{#      background: rgba(239,68,68,.06);#}
+{#      color:#7f1d1d;#}
+{#      margin-top:12px;#}
+{#      white-space:pre-wrap;#}
+{#      overflow:auto;#}
+{#    }#}
+{##}
+{#    .divider{height:1px;background:var(--border);margin:14px 0;border-radius:999px}#}
+{##}
+{#    .tag{#}
+{#      display:inline-flex; align-items:center; gap:8px;#}
+{#      border:1px solid var(--border);#}
+{##}
+{#background:#f8fafc;#}
+{#      padding:4px 10px;#}
+{#      border-radius:999px;#}
+{#      font-size:.78rem;#}
+{#      font-weight:850;#}
+{#      color:#0f172a;#}
+{#      white-space:nowrap;#}
+{#    }#}
+{#    .tag.blue{border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.06); color:#1e40af}#}
+{#    .tag.purple{border-color:rgba(124,58,237,.25); background:rgba(124,58,237,.06); color:#5b21b6}#}
+{#    .tag.green{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.06); color:#166534}#}
+{#    .tag.yellow{border-color:rgba(245,158,11,.30); background:rgba(245,158,11,.08); color:#7c2d12}#}
+{#    .tag.red{border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.08); color:#7f1d1d}#}
+{##}
+{#    .exam-name{margin:0;font-size:1.2rem;font-weight:950;letter-spacing:-.2px}#}
+{#    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#}
+{##}
+{#    .questions-wrap{margin-top:14px}#}
+{#    .question{#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:16px;#}
+{#      padding:14px;#}
+{#      background:#fff;#}
+{#      margin-top:12px;#}
+{#    }#}
+{#    .qhead{#}
+{#      display:flex; justify-content:space-between; gap:10px;#}
+{#      align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;#}
+{#    }#}
+{#    .qnum{font-weight:950;font-size:1rem}#}
+{#    .qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}#}
+{#    .qtext{white-space:pre-line;margin-top:8px;font-weight:750}#}
+{##}
+{#    .block{#}
+{#      margin-top:12px;#}
+{#      border-top:1px dashed var(--border);#}
+{#      padding-top:10px;#}
+{#    }#}
+{#    .block h4{margin:0 0 6px 0;font-size:.92rem;color:#0f172a}#}
+{#    ul{margin:8px 0 0;padding-right:18px}#}
+{#    li{margin:4px 0}#}
+{#    .small-note{color:var(--muted);font-size:.9rem}#}
+{##}
+{#    .subparts{#}
+{#      display:grid;#}
+{#      grid-template-columns: 1fr 1fr;#}
+{#      gap:10px;#}
+{#      margin-top:10px;#}
+{#    }#}
+{#    @media (max-width: 850px){ .subparts{grid-template-columns:1fr} }#}
+{#    .subcard{#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:14px;#}
+{#      padding:12px;#}
+{#      background:#fbfdff;#}
+{#    }#}
+{#    .subhead{#}
+{#      display:flex; align-items:flex-start; justify-content:space-between;#}
+{#      gap:8px; flex-wrap:wrap; margin-bottom:6px;#}
+{#    }#}
+{#    .subid{font-weight:950;font-size:.92rem}#}
+{#    .subtext{white-space:pre-line;margin-top:6px}#}
+{##}
+{#    details{#}
+{#      margin-top:12px;#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:14px;#}
+{#      padding:10px 12px;#}
+{#      background:#fbfdff;#}
+{#    }#}
+{#    summary{cursor:pointer;color:var(--blue);font-weight:950;list-style:none}#}
+{#    summary::-webkit-details-marker{display:none}#}
+{#    .code{#}
+{#      margin-top:10px;#}
+{#      white-space:pre-wrap;#}
+{#      overflow:auto;#}
+{#      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;#}
+{#      font-size: .86rem;#}
+{#      color:#0f172a;#}
+{#    }#}
+{#  </style>#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<body>#}
+{#<div class="main-content">#}
+{##}
+{#  <div class="topbar">#}
+{#    <div>#}
+{#      <h1 class="main-title">نمایش تحلیل آزمون</h1>#}
+{#      <div class="subtitle part-title">Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}</div>#}
+{#    </div>#}
+{#    <div class="actions">#}
+{#      <a class="btn" href="javascript:history.back()"> برگشت</a>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="grid">#}
+{#    <div class="card">#}
+{#      <div class="section-title">#}
+{#        <h2>وضعیت پردازش</h2>#}
+{#        {% if bundle.status == "success" %}#}
+{#          <span class="badge success"><span class="dot"></span> موفق</span>#}
+{#        {% elif bundle.status == "pending" %}#}
+{#          <span class="badge pending"><span class="dot"></span> در حال پردازش</span>#}
+{#        {% else %}#}
+{#          <span class="badge failure"><span class="dot"></span> ناموفق</span>#}
+{#        {% endif %}#}
+{#      </div>#}
+{##}
+{#      <div class="meta">#}
+{#        <div class="kv">#}
+{#          <div class="k">عنوان</div>#}
+{#          <div class="v">{{ bundle.title|default:"—" }}</div>#}
+{#        </div>#}
+{#        <div class="kv">#}
+{#          <div class="k">مدل</div>#}
+{#          <div class="v">{{ bundle.model_name|default:"—" }}</div>#}
+{##}
+{#</div>#}
+{#        <div class="kv">#}
+{#          <div class="k">Template</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.prompt_template %}#}
+{#              {{ bundle.prompt_template.name }} (v{{ bundle.prompt_template.version }})#}
+{#            {% else %}—{% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{#        <div class="kv">#}
+{#          <div class="k">File IDs</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.openai_lesson_file_id %}درس: {{ bundle.openai_lesson_file_id }}{% else %}درس: <span class="muted">ذکر نشده</span>{% endif %}#}
+{#            <br/>#}
+{#            {% if bundle.openai_example_file_id_ %}آزمون: {{ bundle.openai_example_file_id }}{% else %}آزمون: <span class="muted">ذکر نشده</span>{% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      {% if bundle.error_message %}#}
+{#        <div class="alert">خطا: {{ bundle.error_message }}</div>#}
+{#      {% endif %}#}
+{#    </div>#}
+{##}
+{#    <div class="card">#}
+{#      <div class="section-title">#}
+{#        <h2>راهنما</h2>#}
+{#        <span class="pill">exam_map_v2</span>#}
+{#      </div>#}
+{#      <div class="small-note">#}
+{#        هرجایی مقدار <b>null</b> باشد، این صفحه آن را «ذکر نشده» نمایش می‌دهد.#}
+{#        کلیدهای خروجی انگلیسی هستند تا در Django template راحت و بدون دردسر استفاده شوند.#}
+{#      </div>#}
+{#      <div class="divider"></div>#}
+{#      <div class="small-note">#}
+{#        اگر نگاشت به کتاب مبهم باشد، هشدارها در پایین صفحه نمایش داده می‌شوند.#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  {% if bundle.result %}#}
+{#    {% with data=bundle.result.result_json %}#}
+{##}
+{#      <!-- Exam Info -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>مشخصات آزمون</h2>#}
+{#          <span class="pill">نسخه: {{ data.schema_version|default:"—" }}</span>#}
+{#        </div>#}
+{##}
+{#        <h3 class="exam-name">#}
+{#          {% if data.exam_info.exam_name %}{{ data.exam_info.exam_name }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}#}
+{#        </h3>#}
+{##}
+{#        <div class="chips">#}
+{#          <span class="tag blue">پایه:#}
+{#            {% if data.exam_info.target_grade_level %}{{ data.exam_info.target_grade_level }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#          <span class="tag purple">مدت:#}
+{#            {% if data.exam_info.exam_duration %}{{ data.exam_info.exam_duration }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#          <span class="tag green">تاریخ:#}
+{#            {% if data.exam_info.exam_date %}{{ data.exam_info.exam_date }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta" style="margin-top:12px;">#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد سوالات اصلی</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.main_questions_count != None %}#}
+{#                {{ data.exam_info.main_questions_count }}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد کل زیرسوال‌ها</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.total_items_count != None %}#}
+{#                {{ data.exam_info.total_items_count }}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="divider"></div>#}
+{##}
+{#        <div class="section-title">#}
+{#          <h3>بودجه‌بندی نسبت به کتاب</h3>#}
+{#          <span class="pill">Book Mapping</span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta">#}
+{#          <div class="kv">#}
+{#            <div class="k">محدوده صفحات</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.page_range %}{{ data.exam_info.budgeting.page_range }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv">#}
+{##}
+{#<div class="k">فصل‌ها/درس‌ها</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.chapters_or_units and data.exam_info.budgeting.chapters_or_units|length %}#}
+{#                {% for c in data.exam_info.budgeting.chapters_or_units %}#}
+{#                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv" style="grid-column:1/-1;">#}
+{#            <div class="k">مفاهیم/مهارت‌های کلی</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.general_concepts_or_skills and data.exam_info.budgeting.general_concepts_or_skills|length %}#}
+{#                {% for c in data.exam_info.budgeting.general_concepts_or_skills %}#}
+{#                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Summary -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>جمع‌بندی آماری</h2>#}
+{#          <span class="pill">Overall: {{ data.summary.overall_level }}</span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta">#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد سطح سختی</div>#}
+{#            <div class="v">#}
+{#              آسان: {{ data.summary.difficulty_counts.easy }} |#}
+{#              متوسط: {{ data.summary.difficulty_counts.medium }} |#}
+{#              سخت: {{ data.summary.difficulty_counts.hard }} |#}
+{#              نامشخص: {{ data.summary.difficulty_counts.unknown }}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد نوع سوال</div>#}
+{#            <div class="v">#}
+{#              تستی: {{ data.summary.question_type_counts.multiple_choice }} |#}
+{#              تشریحی: {{ data.summary.question_type_counts.descriptive }} |#}
+{#              جای‌خالی: {{ data.summary.question_type_counts.fill_blank }} |#}
+{#              وصل‌کردنی: {{ data.summary.question_type_counts.matching }}#}
+{#              <br/>#}
+{#              صحیح/غلط: {{ data.summary.question_type_counts.true_false }} |#}
+{#              سایر: {{ data.summary.question_type_counts.other }} |#}
+{#              نامشخص: {{ data.summary.question_type_counts.unknown }}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="block">#}
+{#          <h4>راهنمای سریع برچسب‌ها</h4>#}
+{#          <div class="small-note">#}
+{#            easy=آسان، medium=متوسط، hard=سخت، unknown=نامشخص#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Questions -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>سوال‌ها</h2>#}
+{#          <span class="pill">تعداد: {{ data.questions|length }}</span>#}
+{#        </div>#}
+{##}
+{#        <div class="questions-wrap">#}
+{#          {% for q in data.questions %}#}
+{#            <div class="question">#}
+{##}
+{#              <div class="qhead">#}
+{#                <div class="qnum">سؤال {{ q.question_number }} <span class="muted">({{ q.question_id }})</span></div>#}
+{##}
+{#                <div class="qmeta">#}
+{#                  <span class="tag blue">نوع: {{ q.prompt.type }}</span>#}
+{##}
+{#                  {% if q.question_level_difficulty == "easy" %}#}
+{#                    <span class="tag green">سختی: آسان</span>#}
+{#                  {% elif q.question_level_difficulty == "medium" %}#}
+{#                    <span class="tag yellow">سختی: متوسط</span>#}
+{#                  {% elif q.question_level_difficulty == "hard" %}#}
+{#                    <span class="tag red">سختی: سخت</span>#}
+{#                  {% else %}#}
+{#                    <span class="tag">سختی: نامشخص</span>#}
+{#                  {% endif %}#}
+{##}
+{#{% if q.confidence == "high" %}#}
+{#                    <span class="tag green">اعتماد: بالا</span>#}
+{#                  {% elif q.confidence == "medium" %}#}
+{#                    <span class="tag yellow">اعتماد: متوسط</span>#}
+{#                  {% else %}#}
+{#                    <span class="tag red">اعتماد: پایین</span>#}
+{#                  {% endif %}#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              <div class="qtext">#}
+{#                {% if q.prompt.text %}{{ q.prompt.text }}{% else %}<span class="muted">متن سوال ذکر نشده</span>{% endif %}#}
+{#              </div>#}
+{##}
+{#              <div class="block">#}
+{#                <h4>مفهوم کلی سوال</h4>#}
+{#                <div class="small-note">#}
+{#                  {% if q.question_level_concept %}{{ q.question_level_concept }}{% else %}ذکر نشده{% endif %}#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              <div class="block">#}
+{#                <h4>ارجاع به کتاب (سطح سوال)</h4>#}
+{#                <div class="meta">#}
+{#                  <div class="kv">#}
+{#                    <div class="k">صفحه</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.page %}{{ q.question_level_book_ref.page }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                  <div class="kv">#}
+{#                    <div class="k">عنوان بخش</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.section_title %}{{ q.question_level_book_ref.section_title }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                  <div class="kv">#}
+{#                    <div class="k">درس/یونیت</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.lesson_or_unit %}{{ q.question_level_book_ref.lesson_or_unit }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                  <div class="kv">#}
+{#                    <div class="k">مهارت</div>#}
+{#                    <div class="v">{{ q.question_level_book_ref.skill }}</div>#}
+{#                  </div>#}
+{#                  <div class="kv" style="grid-column:1/-1;">#}
+{#                    <div class="k">عبارت شاهد (anchor_quote)</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.anchor_quote %}{{ q.question_level_book_ref.anchor_quote }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              {% if q.subparts and q.subparts|length %}#}
+{#                <div class="block">#}
+{#                  <h4>زیرسوال‌ها</h4>#}
+{#                  <div class="subparts">#}
+{#                    {% for sp in q.subparts %}#}
+{#                      <div class="subcard">#}
+{#                        <div class="subhead">#}
+{#                          <div class="subid">زیرسوال {{ sp.sub_id }}</div>#}
+{#                          <div class="qmeta">#}
+{#                            {% if sp.difficulty == "easy" %}#}
+{#                              <span class="tag green">آسان</span>#}
+{#                            {% elif sp.difficulty == "medium" %}#}
+{#                              <span class="tag yellow">متوسط</span>#}
+{#                            {% elif sp.difficulty == "hard" %}#}
+{#                              <span class="tag red">سخت</span>#}
+{#                            {% else %}#}
+{#                              <span class="tag">نامشخص</span>#}
+{#                            {% endif %}#}
+{##}
+{#                            {% if sp.confidence == "high" %}#}
+{#                              <span class="tag green">اعتماد بالا</span>#}
+{#                            {% elif sp.confidence == "medium" %}#}
+{#                              <span class="tag yellow">اعتماد متوسط</span>#}
+{#                            {% else %}#}
+{#                              <span class="tag red">اعتماد پایین</span>#}
+{#                            {% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="subtext">#}
+{#                          {% if sp.text %}{{ sp.text }}{% else %}<span class="muted">متن زیرسوال ذکر نشده</span>{% endif %}#}
+{#                        </div>#}
+{##}
+{#<div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>کلید/پاسخ</h4>#}
+{#                          <div class="small-note">#}
+{#                            {% if sp.answer_key %}{{ sp.answer_key }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>مفهوم</h4>#}
+{#                          <div class="small-note">#}
+{#                            {% if sp.concept_tested %}{{ sp.concept_tested }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>ارجاع به کتاب (سطح زیرسوال)</h4>#}
+{#                          <div class="small-note">#}
+{#                            صفحه:#}
+{#                            {% if sp.book_ref.page %}{{ sp.book_ref.page }}{% else %}ذکر نشده{% endif %}#}
+{#                            — بخش:#}
+{#                            {% if sp.book_ref.section_title %}{{ sp.book_ref.section_title }}{% else %}ذکر نشده{% endif %}#}
+{#                            <br/>#}
+{#                            درس/یونیت:#}
+{#                            {% if sp.book_ref.lesson_or_unit %}{{ sp.book_ref.lesson_or_unit }}{% else %}ذکر نشده{% endif %}#}
+{#                            — مهارت: {{ sp.book_ref.skill }}#}
+{#                            <br/>#}
+{#                            شاهد:#}
+{#                            {% if sp.book_ref.anchor_quote %}{{ sp.book_ref.anchor_quote }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    {% endfor %}#}
+{#                  </div>#}
+{#                </div>#}
+{#              {% endif %}#}
+{##}
+{#            </div>#}
+{#          {% endfor %}#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Parse Warnings -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>هشدارهای پردازش</h2>#}
+{#          <span class="pill">Parse Warnings</span>#}
+{#        </div>#}
+{##}
+{#        {% if data.parse_warnings and data.parse_warnings|length %}#}
+{#          <ul>#}
+{#            {% for w in data.parse_warnings %}#}
+{#              <li>#}
+{#                <b>{{ w.code }}</b> —#}
+{#                {{ w.message }}#}
+{#                <span class="muted">(location: {{ w.location }})</span>#}
+{#              </li>#}
+{#            {% endfor %}#}
+{#          </ul>#}
+{#        {% else %}#}
+{#          <div class="small-note">هشداری ثبت نشده.</div>#}
+{#        {% endif %}#}
+{#      </div>#}
+{##}
+{#      <!-- Raw JSON -->#}
+{#      <details class="card" style="margin-top:14px;">#}
+{#        <summary>نمایش خروجی خام (برای دیباگ)</summary>#}
+{#        <div class="code">{{ data }}</div>#}
+{#      </details>#}
+{##}
+{#    {% endwith %}#}
+{#  {% else %}#}
+{#    <div class="card" style="margin-top:14px;">#}
+{#      <div class="alert" style="border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.08); color:#7c2d12;">#}
+{#        هنوز نتیجه‌ای برای این Bundle ذخیره نشده.#}
+{#      </div>#}
+{#    </div>#}
+{#  {% endif %}#}
+{##}
+{#</div>#}
+{#</body>#}
+{#{% endblock %}#}
+{#{% block extra_js %}#}
+{#<script src="{% static 'js/layout.js' %}"></script>#}
+{#{% endblock %}#}
+{##}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="fa" dir="rtl">#}
+{#<head>#}
+{#  <meta charset="UTF-8" />#}
+{#  <meta name="viewport" content="width=device-width, initial-scale=1" />#}
+{#  <title>نمایش تحلیل آزمون - Bundle #{{ bundle.id }}</title>#}
+{##}
+{#  <style>#}
+{#    :root{#}
+{#      --bg:#f5f7fb;#}
+{#      --card:#ffffff;#}
+{#      --text:#0f172a;#}
+{#      --muted:#64748b;#}
+{#      --border:#e5e7eb;#}
+{#      --shadow: 0 10px 30px rgba(15,23,42,.06);#}
+{#      --shadow2: 0 2px 10px rgba(15,23,42,.06);#}
+{#      --green:#16a34a;#}
+{#      --yellow:#f59e0b;#}
+{#      --red:#ef4444;#}
+{#      --blue:#2563eb;#}
+{#      --purple:#7c3aed;#}
+{#      --radius:18px;#}
+{#    }#}
+{##}
+{#    *{box-sizing:border-box}#}
+{#    body{#}
+{#      margin:0;#}
+{#      background:var(--bg);#}
+{#      color:var(--text);#}
+{#      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Arabic", "Noto Sans", sans-serif;#}
+{#      line-height:1.9;#}
+{#      padding:24px;#}
+{#    }#}
+{#    .container{max-width:1150px;margin:0 auto}#}
+{##}
+{#    .topbar{#}
+{#      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;#}
+{#      flex-wrap:wrap; margin-bottom:14px;#}
+{#    }#}
+{#    h1{margin:0;font-size:1.35rem;letter-spacing:-.2px}#}
+{#    .subtitle{color:var(--muted);font-size:.92rem;margin-top:6px}#}
+{##}
+{#    .actions{display:flex;gap:10px;flex-wrap:wrap}#}
+{#    .btn{#}
+{#      display:inline-flex; align-items:center; gap:8px;#}
+{#      padding:10px 12px; border-radius:12px;#}
+{#      border:1px solid var(--border); background:var(--card);#}
+{#      text-decoration:none; color:var(--text);#}
+{#      box-shadow: var(--shadow2); font-size:.92rem;#}
+{#      transition: transform .12s ease;#}
+{#    }#}
+{#    .btn:hover{transform: translateY(-1px)}#}
+{#    .btn:active{transform: translateY(0)}#}
+{##}
+{#    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:start}#}
+{#    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }#}
+{##}
+{#    .card{#}
+{#      background:var(--card);#}
+{#      border:1px solid var(--border);#}
+{#      border-radius: var(--radius);#}
+{#      box-shadow: var(--shadow);#}
+{#      padding:16px;#}
+{#    }#}
+{##}
+{#    .section-title{#}
+{#      display:flex; align-items:center; justify-content:space-between;#}
+{#      gap:10px; margin: 10px 0 12px;#}
+{#    }#}
+{#    .section-title h2,.section-title h3{margin:0}#}
+{#    .section-title h2{font-size:1.05rem}#}
+{#    .section-title h3{font-size:1.02rem}#}
+{##}
+{#    .pill{#}
+{#      font-size:.78rem; color:var(--muted);#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:999px; padding:4px 10px;#}
+{#      background:#fff; white-space:nowrap;#}
+{#    }#}
+{##}
+{#    .badge{#}
+{#      display:inline-flex; align-items:center; gap:6px;#}
+{#      padding:5px 10px; border-radius:999px;#}
+{#      font-size:.78rem; border:1px solid var(--border);#}
+{#      background:#fff; color:var(--text); white-space:nowrap;#}
+{#    }#}
+{#    .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}#}
+{#    .badge.success .dot{background: var(--green)}#}
+{#    .badge.pending .dot{background: var(--yellow)}#}
+{#    .badge.failure .dot{background: var(--red)}#}
+{##}
+{#    .meta{#}
+{#      display:grid;#}
+{#      grid-template-columns: 1fr 1fr;#}
+{#      gap:10px;#}
+{#      margin-top:10px;#}
+{#    }#}
+{#    @media (max-width: 650px){ .meta{grid-template-columns:1fr} }#}
+{#    .kv{#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:14px;#}
+{#      padding:10px 12px;#}
+{#      background: #fbfdff;#}
+{#    }#}
+{#    .k{color:var(--muted);font-size:.82rem;margin-bottom:4px}#}
+{#    .v{font-weight:850;font-size:.98rem;overflow-wrap:anywhere}#}
+{#    .muted{color:var(--muted);font-weight:650}#}
+{##}
+{#    .alert{#}
+{#      border-radius:16px;#}
+{#      padding:12px 14px;#}
+{#      border:1px solid rgba(239,68,68,.25);#}
+{#      background: rgba(239,68,68,.06);#}
+{#      color:#7f1d1d;#}
+{#      margin-top:12px;#}
+{#      white-space:pre-wrap;#}
+{#      overflow:auto;#}
+{#    }#}
+{##}
+{#    .divider{height:1px;background:var(--border);margin:14px 0;border-radius:999px}#}
+{##}
+{#    .tag{#}
+{#      display:inline-flex; align-items:center; gap:8px;#}
+{#      border:1px solid var(--border);#}
+{##}
+{#background:#f8fafc;#}
+{#      padding:4px 10px;#}
+{#      border-radius:999px;#}
+{#      font-size:.78rem;#}
+{#      font-weight:850;#}
+{#      color:#0f172a;#}
+{#      white-space:nowrap;#}
+{#    }#}
+{#    .tag.blue{border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.06); color:#1e40af}#}
+{#    .tag.purple{border-color:rgba(124,58,237,.25); background:rgba(124,58,237,.06); color:#5b21b6}#}
+{#    .tag.green{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.06); color:#166534}#}
+{#    .tag.yellow{border-color:rgba(245,158,11,.30); background:rgba(245,158,11,.08); color:#7c2d12}#}
+{#    .tag.red{border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.08); color:#7f1d1d}#}
+{##}
+{#    .exam-name{margin:0;font-size:1.2rem;font-weight:950;letter-spacing:-.2px}#}
+{#    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#}
+{##}
+{#    .questions-wrap{margin-top:14px}#}
+{#    .question{#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:16px;#}
+{#      padding:14px;#}
+{#      background:#fff;#}
+{#      margin-top:12px;#}
+{#    }#}
+{#    .qhead{#}
+{#      display:flex; justify-content:space-between; gap:10px;#}
+{#      align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;#}
+{#    }#}
+{#    .qnum{font-weight:950;font-size:1rem}#}
+{#    .qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}#}
+{#    .qtext{white-space:pre-line;margin-top:8px;font-weight:750}#}
+{##}
+{#    .block{#}
+{#      margin-top:12px;#}
+{#      border-top:1px dashed var(--border);#}
+{#      padding-top:10px;#}
+{#    }#}
+{#    .block h4{margin:0 0 6px 0;font-size:.92rem;color:#0f172a}#}
+{#    ul{margin:8px 0 0;padding-right:18px}#}
+{#    li{margin:4px 0}#}
+{#    .small-note{color:var(--muted);font-size:.9rem}#}
+{##}
+{#    .subparts{#}
+{#      display:grid;#}
+{#      grid-template-columns: 1fr 1fr;#}
+{#      gap:10px;#}
+{#      margin-top:10px;#}
+{#    }#}
+{#    @media (max-width: 850px){ .subparts{grid-template-columns:1fr} }#}
+{#    .subcard{#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:14px;#}
+{#      padding:12px;#}
+{#      background:#fbfdff;#}
+{#    }#}
+{#    .subhead{#}
+{#      display:flex; align-items:flex-start; justify-content:space-between;#}
+{#      gap:8px; flex-wrap:wrap; margin-bottom:6px;#}
+{#    }#}
+{#    .subid{font-weight:950;font-size:.92rem}#}
+{#    .subtext{white-space:pre-line;margin-top:6px}#}
+{##}
+{#    details{#}
+{#      margin-top:12px;#}
+{#      border:1px solid var(--border);#}
+{#      border-radius:14px;#}
+{#      padding:10px 12px;#}
+{#      background:#fbfdff;#}
+{#    }#}
+{#    summary{cursor:pointer;color:var(--blue);font-weight:950;list-style:none}#}
+{#    summary::-webkit-details-marker{display:none}#}
+{#    .code{#}
+{#      margin-top:10px;#}
+{#      white-space:pre-wrap;#}
+{#      overflow:auto;#}
+{#      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;#}
+{#      font-size: .86rem;#}
+{#      color:#0f172a;#}
+{#    }#}
+{#  </style>#}
+{#</head>#}
+{##}
+{#<body>#}
+{#<div class="container">#}
+{##}
+{#  <div class="topbar">#}
+{#    <div>#}
+{#      <h1>نمایش تحلیل آزمون</h1>#}
+{#      <div class="subtitle">Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}</div>#}
+{#    </div>#}
+{#    <div class="actions">#}
+{#      <a class="btn" href="javascript:history.back()">⬅️ برگشت</a>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="grid">#}
+{#    <div class="card">#}
+{#      <div class="section-title">#}
+{#        <h2>وضعیت پردازش</h2>#}
+{#        {% if bundle.status == "success" %}#}
+{#          <span class="badge success"><span class="dot"></span> موفق</span>#}
+{#        {% elif bundle.status == "pending" %}#}
+{#          <span class="badge pending"><span class="dot"></span> در حال پردازش</span>#}
+{#        {% else %}#}
+{#          <span class="badge failure"><span class="dot"></span> ناموفق</span>#}
+{#        {% endif %}#}
+{#      </div>#}
+{##}
+{#      <div class="meta">#}
+{#        <div class="kv">#}
+{#          <div class="k">عنوان</div>#}
+{#          <div class="v">{{ bundle.title|default:"—" }}</div>#}
+{#        </div>#}
+{#        <div class="kv">#}
+{#          <div class="k">مدل</div>#}
+{#          <div class="v">{{ bundle.model_name|default:"—" }}</div>#}
+{##}
+{#</div>#}
+{#        <div class="kv">#}
+{#          <div class="k">Template</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.prompt_template %}#}
+{#              {{ bundle.prompt_template.name }} (v{{ bundle.prompt_template.version }})#}
+{#            {% else %}—{% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{#        <div class="kv">#}
+{#          <div class="k">File IDs</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.openai_lesson_file_id %}درس: {{ bundle.openai_lesson_file_id }}{% else %}درس: <span class="muted">ذکر نشده</span>{% endif %}#}
+{#            <br/>#}
+{#            {% if bundle.openai_example_file_id_ %}آزمون: {{ bundle.openai_example_file_id }}{% else %}آزمون: <span class="muted">ذکر نشده</span>{% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      {% if bundle.error_message %}#}
+{#        <div class="alert">خطا: {{ bundle.error_message }}</div>#}
+{#      {% endif %}#}
+{#    </div>#}
+{##}
+{#    <div class="card">#}
+{#      <div class="section-title">#}
+{#        <h2>راهنما</h2>#}
+{#        <span class="pill">exam_map_v2</span>#}
+{#      </div>#}
+{#      <div class="small-note">#}
+{#        هرجایی مقدار <b>null</b> باشد، این صفحه آن را «ذکر نشده» نمایش می‌دهد.#}
+{#        کلیدهای خروجی انگلیسی هستند تا در Django template راحت و بدون دردسر استفاده شوند.#}
+{#      </div>#}
+{#      <div class="divider"></div>#}
+{#      <div class="small-note">#}
+{#        اگر نگاشت به کتاب مبهم باشد، هشدارها در پایین صفحه نمایش داده می‌شوند.#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  {% if bundle.result %}#}
+{#    {% with data=bundle.result.result_json %}#}
+{##}
+{#      <!-- Exam Info -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>مشخصات آزمون</h2>#}
+{#          <span class="pill">نسخه: {{ data.schema_version|default:"—" }}</span>#}
+{#        </div>#}
+{##}
+{#        <h3 class="exam-name">#}
+{#          {% if data.exam_info.exam_name %}{{ data.exam_info.exam_name }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}#}
+{#        </h3>#}
+{##}
+{#        <div class="chips">#}
+{#          <span class="tag blue">پایه:#}
+{#            {% if data.exam_info.target_grade_level %}{{ data.exam_info.target_grade_level }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#          <span class="tag purple">مدت:#}
+{#            {% if data.exam_info.exam_duration %}{{ data.exam_info.exam_duration }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#          <span class="tag green">تاریخ:#}
+{#            {% if data.exam_info.exam_date %}{{ data.exam_info.exam_date }}{% else %}ذکر نشده{% endif %}#}
+{#          </span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta" style="margin-top:12px;">#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد سوالات اصلی</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.main_questions_count != None %}#}
+{#                {{ data.exam_info.main_questions_count }}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد کل زیرسوال‌ها</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.total_subparts_count != None %}#}
+{#                {{ data.exam_info.total_subparts_count }}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="divider"></div>#}
+{##}
+{#        <div class="section-title">#}
+{#          <h3>بودجه‌بندی نسبت به کتاب</h3>#}
+{#          <span class="pill">Book Mapping</span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta">#}
+{#          <div class="kv">#}
+{#            <div class="k">محدوده صفحات</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.page_range %}{{ data.exam_info.budgeting.page_range }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv">#}
+{##}
+{#<div class="k">فصل‌ها/درس‌ها</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.chapters_or_units and data.exam_info.budgeting.chapters_or_units|length %}#}
+{#                {% for c in data.exam_info.budgeting.chapters_or_units %}#}
+{#                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv" style="grid-column:1/-1;">#}
+{#            <div class="k">مفاهیم/مهارت‌های کلی</div>#}
+{#            <div class="v">#}
+{#              {% if data.exam_info.budgeting.general_concepts_or_skills and data.exam_info.budgeting.general_concepts_or_skills|length %}#}
+{#                {% for c in data.exam_info.budgeting.general_concepts_or_skills %}#}
+{#                  • {{ c }}{% if not forloop.last %}<br/>{% endif %}#}
+{#                {% endfor %}#}
+{#              {% else %}#}
+{#                <span class="muted">ذکر نشده</span>#}
+{#              {% endif %}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Summary -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>جمع‌بندی آماری</h2>#}
+{#          <span class="pill">Overall: {{ data.summary.overall_level }}</span>#}
+{#        </div>#}
+{##}
+{#        <div class="meta">#}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد سطح سختی</div>#}
+{#            <div class="v">#}
+{#              آسان: {{ data.summary.difficulty_counts.easy }} |#}
+{#              متوسط: {{ data.summary.difficulty_counts.medium }} |#}
+{#              سخت: {{ data.summary.difficulty_counts.hard }} |#}
+{#              نامشخص: {{ data.summary.difficulty_counts.unknown }}#}
+{#            </div>#}
+{#          </div>#}
+{##}
+{#          <div class="kv">#}
+{#            <div class="k">تعداد نوع سوال</div>#}
+{#            <div class="v">#}
+{#              تستی: {{ data.summary.question_type_counts.multiple_choice }} |#}
+{#              تشریحی: {{ data.summary.question_type_counts.descriptive }} |#}
+{#              جای‌خالی: {{ data.summary.question_type_counts.fill_blank }} |#}
+{#              وصل‌کردنی: {{ data.summary.question_type_counts.matching }}#}
+{#              <br/>#}
+{#              صحیح/غلط: {{ data.summary.question_type_counts.true_false }} |#}
+{#              سایر: {{ data.summary.question_type_counts.other }} |#}
+{#              نامشخص: {{ data.summary.question_type_counts.unknown }}#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <div class="block">#}
+{#          <h4>راهنمای سریع برچسب‌ها</h4>#}
+{#          <div class="small-note">#}
+{#            easy=آسان، medium=متوسط، hard=سخت، unknown=نامشخص#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Questions -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>سوال‌ها</h2>#}
+{#          <span class="pill">تعداد: {{ data.questions|length }}</span>#}
+{#        </div>#}
+{##}
+{#        <div class="questions-wrap">#}
+{#          {% for q in data.questions %}#}
+{#            <div class="question">#}
+{##}
+{#              <div class="qhead">#}
+{#                <div class="qnum">سؤال {{ q.question_number }} <span class="muted">({{ q.question_id }})</span></div>#}
+{##}
+{#                <div class="qmeta">#}
+{#                  <span class="tag blue">نوع: {{ q.prompt.type }}</span>#}
+{##}
+{#                  {% if q.question_level_difficulty == "easy" %}#}
+{#                    <span class="tag green">سختی: آسان</span>#}
+{#                  {% elif q.question_level_difficulty == "medium" %}#}
+{#                    <span class="tag yellow">سختی: متوسط</span>#}
+{#                  {% elif q.question_level_difficulty == "hard" %}#}
+{#                    <span class="tag red">سختی: سخت</span>#}
+{#                  {% else %}#}
+{#                    <span class="tag">سختی: نامشخص</span>#}
+{#                  {% endif %}#}
+{##}
+{#{% if q.confidence == "high" %}#}
+{#                    <span class="tag green">اعتماد: بالا</span>#}
+{#                  {% elif q.confidence == "medium" %}#}
+{#                    <span class="tag yellow">اعتماد: متوسط</span>#}
+{#                  {% else %}#}
+{#                    <span class="tag red">اعتماد: پایین</span>#}
+{#                  {% endif %}#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              <div class="qtext">#}
+{#                {% if q.prompt.text %}{{ q.prompt.text }}{% else %}<span class="muted">متن سوال ذکر نشده</span>{% endif %}#}
+{#              </div>#}
+{##}
+{#              <div class="block">#}
+{#                <h4>مفهوم کلی سوال</h4>#}
+{#                <div class="small-note">#}
+{#                  {% if q.question_level_concept %}{{ q.question_level_concept }}{% else %}ذکر نشده{% endif %}#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              <div class="block">#}
+{#                <h4>ارجاع به کتاب (سطح سوال)</h4>#}
+{#                <div class="meta">#}
+{#                  <div class="kv">#}
+{#                    <div class="k">صفحه</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.page %}{{ q.question_level_book_ref.page }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                  <div class="kv">#}
+{#                    <div class="k">عنوان بخش</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.section_title %}{{ q.question_level_book_ref.section_title }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                  <div class="kv">#}
+{#                    <div class="k">درس/یونیت</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.lesson_or_unit %}{{ q.question_level_book_ref.lesson_or_unit }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                  <div class="kv">#}
+{#                    <div class="k">مهارت</div>#}
+{#                    <div class="v">{{ q.question_level_book_ref.skill }}</div>#}
+{#                  </div>#}
+{#                  <div class="kv" style="grid-column:1/-1;">#}
+{#                    <div class="k">عبارت شاهد (anchor_quote)</div>#}
+{#                    <div class="v">{% if q.question_level_book_ref.anchor_quote %}{{ q.question_level_book_ref.anchor_quote }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}</div>#}
+{#                  </div>#}
+{#                </div>#}
+{#              </div>#}
+{##}
+{#              {% if q.subparts and q.subparts|length %}#}
+{#                <div class="block">#}
+{#                  <h4>زیرسوال‌ها</h4>#}
+{#                  <div class="subparts">#}
+{#                    {% for sp in q.subparts %}#}
+{#                      <div class="subcard">#}
+{#                        <div class="subhead">#}
+{#                          <div class="subid">زیرسوال {{ sp.sub_id }}</div>#}
+{#                          <div class="qmeta">#}
+{#                            {% if sp.difficulty == "easy" %}#}
+{#                              <span class="tag green">آسان</span>#}
+{#                            {% elif sp.difficulty == "medium" %}#}
+{#                              <span class="tag yellow">متوسط</span>#}
+{#                            {% elif sp.difficulty == "hard" %}#}
+{#                              <span class="tag red">سخت</span>#}
+{#                            {% else %}#}
+{#                              <span class="tag">نامشخص</span>#}
+{#                            {% endif %}#}
+{##}
+{#                            {% if sp.confidence == "high" %}#}
+{#                              <span class="tag green">اعتماد بالا</span>#}
+{#                            {% elif sp.confidence == "medium" %}#}
+{#                              <span class="tag yellow">اعتماد متوسط</span>#}
+{#                            {% else %}#}
+{#                              <span class="tag red">اعتماد پایین</span>#}
+{#                            {% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="subtext">#}
+{#                          {% if sp.text %}{{ sp.text }}{% else %}<span class="muted">متن زیرسوال ذکر نشده</span>{% endif %}#}
+{#                        </div>#}
+{##}
+{#<div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>کلید/پاسخ</h4>#}
+{#                          <div class="small-note">#}
+{#                            {% if sp.answer_key %}{{ sp.answer_key }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>مفهوم</h4>#}
+{#                          <div class="small-note">#}
+{#                            {% if sp.concept_tested %}{{ sp.concept_tested }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="block" style="border-top:0;padding-top:0;">#}
+{#                          <h4>ارجاع به کتاب (سطح زیرسوال)</h4>#}
+{#                          <div class="small-note">#}
+{#                            صفحه:#}
+{#                            {% if sp.book_ref.page %}{{ sp.book_ref.page }}{% else %}ذکر نشده{% endif %}#}
+{#                            — بخش:#}
+{#                            {% if sp.book_ref.section_title %}{{ sp.book_ref.section_title }}{% else %}ذکر نشده{% endif %}#}
+{#                            <br/>#}
+{#                            درس/یونیت:#}
+{#                            {% if sp.book_ref.lesson_or_unit %}{{ sp.book_ref.lesson_or_unit }}{% else %}ذکر نشده{% endif %}#}
+{#                            — مهارت: {{ sp.book_ref.skill }}#}
+{#                            <br/>#}
+{#                            شاهد:#}
+{#                            {% if sp.book_ref.anchor_quote %}{{ sp.book_ref.anchor_quote }}{% else %}ذکر نشده{% endif %}#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    {% endfor %}#}
+{#                  </div>#}
+{#                </div>#}
+{#              {% endif %}#}
+{##}
+{#            </div>#}
+{#          {% endfor %}#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <!-- Parse Warnings -->#}
+{#      <div class="card" style="margin-top:14px;">#}
+{#        <div class="section-title">#}
+{#          <h2>هشدارهای پردازش</h2>#}
+{#          <span class="pill">Parse Warnings</span>#}
+{#        </div>#}
+{##}
+{#        {% if data.parse_warnings and data.parse_warnings|length %}#}
+{#          <ul>#}
+{#            {% for w in data.parse_warnings %}#}
+{#              <li>#}
+{#                <b>{{ w.code }}</b> —#}
+{#                {{ w.message }}#}
+{#                <span class="muted">(location: {{ w.location }})</span>#}
+{#              </li>#}
+{#            {% endfor %}#}
+{#          </ul>#}
+{#        {% else %}#}
+{#          <div class="small-note">هشداری ثبت نشده.</div>#}
+{#        {% endif %}#}
+{#      </div>#}
+{##}
+{#      <!-- Raw JSON -->#}
+{#      <details class="card" style="margin-top:14px;">#}
+{#        <summary>نمایش خروجی خام (برای دیباگ)</summary>#}
+{#        <div class="code">{{ data }}</div>#}
+{#      </details>#}
+{##}
+{#    {% endwith %}#}
+{#  {% else %}#}
+{#    <div class="card" style="margin-top:14px;">#}
+{#      <div class="alert" style="border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.08); color:#7c2d12;">#}
+{#        هنوز نتیجه‌ای برای این Bundle ذخیره نشده.#}
+{#      </div>#}
+{#    </div>#}
+{#  {% endif %}#}
+{##}
+{#</div>#}
+{#</body>#}
+{#</html>#}

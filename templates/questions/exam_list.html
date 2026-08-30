@@ -1,0 +1,293 @@
+milad, [2/14/2026 1:38 AM]
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <title>آزمون‌های من</title>
+  <style>
+    /* فقط استایل همین صفحه — به بیس و پس‌زمینه دست نمی‌زنیم */
+    .page-wrap{ max-width:1100px; margin:0 auto; }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .subtitle{
+      color:#64748b;
+      font-size:.92rem;
+      margin-top:6px;
+      line-height:1.9;
+    }
+
+    .pill{
+      font-size:.78rem;
+      color:#64748b;
+      border:1px solid #e5e7eb;
+      border-radius:999px;
+      padding:4px 10px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#0f172a;
+      box-shadow: 0 2px 10px rgba(15,23,42,.06);
+      transition: transform .12s ease;
+      text-decoration:none;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+
+    .btn-primary{
+      background: var(--primary-blue);
+      color:#fff;
+      border-color: transparent;
+      box-shadow: 0 10px 20px rgba(33,150,243,.18);
+    }
+    .btn-primary:hover{ filter: brightness(.95); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .cardx{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 10px 30px rgba(15,23,42,.06);
+      transition: transform .18s ease, box-shadow .18s ease;
+      display:flex;
+      flex-direction:column;
+      min-height: 190px;
+    }
+    .cardx:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 14px 40px rgba(15,23,42,.10);
+    }
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .exam-title{
+      font-weight:950;
+      font-size:1.05rem;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+    }
+
+    .meta{
+      color:#64748b;
+      font-size:.85rem;
+      line-height:1.7;
+      margin-top:4px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid #e5e7eb;
+      background:#f8fafc;
+      color:#0f172a;
+      font-size:.78rem;
+      font-weight:850;
+      white-space:nowrap;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .stat{
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fbfdff;
+      text-align:center;
+    }
+
+    .stat-num{
+      font-weight:950;
+      font-size:1.05rem;
+      line-height:1.4;
+    }
+
+    .stat-label{
+      color:#64748b;
+      font-size:.78rem;
+      margin-top:4px;
+      font-weight:750;
+    }
+
+    .actions{
+      margin-top:auto;
+      display:flex;
+      gap:10px;
+      padding-top:12px;
+    }
+
+    .actions a{ width:100%; justify-content:center; }
+
+    .alert{
+      background: rgba(245,158,11,.10);
+      border: 1px solid rgba(245,158,11,.35);
+      color:#7c2d12;
+      border-radius:16px;
+      padding:12px 14px;
+      box-shadow: 0 10px 30px rgba(15,23,42,.06);
+    }
+
+    .pagination{
+      margin-top:16px;
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .page-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:12px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#0f172a;
+      text-decoration:none;
+      box-shadow: 0 2px 10px rgba(15,23,42,.06);
+      font-size:.9rem;
+      font-weight:850;
+    }
+    .page-pill.disabled{
+      opacity:.55;
+      pointer-events:none;
+    }
+  </style>
+{% endblock %}
+
+milad, [2/14/2026 1:38 AM]
+{% block content %}
+  <div class="main-content">
+    <div class="page-wrap">
+
+      <div class="topbar">
+        <div>
+          <h1 class="main-title">آزمون‌های من</h1>
+          <div class="subtitle">لیست آزمون‌هایی که ساخته‌اید + دسترسی سریع به صفحه خلاصه هر آزمون</div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="pill">
+            تعداد کل:
+            <b class="numeric-value">
+              {% if page_obj and page_obj.paginator %}
+                {{ page_obj.paginator.count }}
+              {% else %}
+                {{ exams|length }}
+              {% endif %}
+            </b>
+          </span>
+          <a class="btn" href="{% url 'teacher panel' %}">بازگشت به پنل معلم</a>
+        </div>
+      </div>
+
+      {% if exams %}
+        <div class="grid">
+          {% for exam in exams %}
+            <div class="cardx">
+              <div class="card-head">
+                <div>
+                  <div class="exam-title">
+                    {{ exam.name|default:"(بدون نام)" }}
+                  </div>
+                  <div class="meta">
+                    ایجاد شده:
+                    {% if exam.created_at %}{{ exam.created_at|date:"Y/m/d - H:i" }}{% else %}—{% endif %}
+                  </div>
+                </div>
+                <span class="badge">#{{ exam.id }}</span>
+              </div>
+
+              <div class="stats">
+                <div class="stat">
+                  <div class="stat-num numeric-value">
+                    {% if exam.total_question != None %}{{ exam.total_question }}{% else %}0{% endif %}
+                  </div>
+                  <div class="stat-label">تعداد سؤال</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-num numeric-value">
+                    {{ exam.participants_count|default:0 }}
+                  </div>
+                  <div class="stat-label">شرکت‌کننده</div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <a class="btn" href="{% url 'exam_summary' exam.id %}">
+                  مشاهده اطلاعات
+                </a>
+                <a class="btn btn-primary" href="{% url 'exam_summary' exam.id %}">
+                  ورود به خلاصه آزمون
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+          <div class="pagination">
+            {% if page_obj.has_previous %}
+              <a class="page-pill" href="?page={{ page_obj.previous_page_number }}">قبلی</a>
+            {% else %}
+              <span class="page-pill disabled">قبلی</span>
+            {% endif %}
+
+            <span class="page-pill disabled">
+              صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+              <a class="page-pill" href="?page={{ page_obj.next_page_number }}">بعدی</a>
+            {% else %}
+              <span class="page-pill disabled">بعدی</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+      {% else %}
+        <div class="alert">
+          هنوز هیچ آزمونی برای شما ثبت نشده است.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}

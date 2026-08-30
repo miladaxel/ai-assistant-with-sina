@@ -1,217 +1,836 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stage2 - جزئیات نتیجه</title>
-  <style>
-    body { font-family: sans-serif; margin: 0; background:#f7f7f8; color:#111; }
-    .wrap { max-width: 1050px; margin: 0 auto; padding: 18px; }
-    .card { background:#fff; border:1px solid #e6e6e6; border-radius: 14px; padding:16px; margin: 12px 0; }
-    h1 { font-size: 20px; margin: 0 0 8px; }
-    h2 { font-size: 16px; margin: 0 0 10px; }
-    h3 { font-size: 14px; margin: 14px 0 8px; }
-    .muted { color:#666; font-size: 13px; }
-    .msg { border-radius: 12px; padding: 10px 12px; margin: 10px 0; border: 1px solid #ddd; background:#fff; }
-    .msg.error { border-color:#ffb4b4; background:#fff5f5; }
-    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border:1px solid #ddd; font-size: 12px; background:#fafafa; }
-    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .k { color:#555; font-size: 12px; margin-bottom: 4px; }
-    .v { font-weight: 700; }
-    pre { white-space: pre-wrap; background:#f7f7f7; border:1px solid #eee; padding: 12px; border-radius: 12px; overflow:auto; }
-    a { color:#111; text-decoration:none; border-bottom: 1px dashed #aaa; }
-    a:hover { border-bottom-color:#111; }
-    .btn { display:inline-block; padding: 9px 12px; border-radius: 12px; border:1px solid #111; background:#111; color:#fff; text-decoration:none; font-weight:600; }
-    .btn.secondary { background:#fff; color:#111; }
-    ul { margin: 8px 0; padding: 0 18px 0 0; }
-    li { margin: 6px 0; line-height: 1.9; }
-    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body>
-  <div class="wrap">
 
-    <div class="card">
-      <h1>جزئیات Stage 2 — Bundle #{{ bundle.id }}</h1>
+{% extends "Profile/base.html" %}
+{% load static %}
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-        {% if bundle.exam_id %}
-          <a class="btn secondary" href="{% url 'analysis:stage2_result' bundle.exam_id %}">بازگشت به نتایج Exam</a>
-        {% endif %}
-        <a class="btn secondary" href="{% url 'analysis:stage2_run' %}">اجرای جدید</a>
+{% block extra_css %}
+<title>Stage 2 - برنامه دانش‌آموز | Bundle #{{ bundle.id }}</title>
+
+<style>
+  .topbar{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px;}
+  .subtitle{color:#64748b;font-size:.92rem;margin-top:6px}
+
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:start;margin-top:10px;}
+  @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+  .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px;}
+  .section-title h2,.section-title h3{margin:0}
+  .section-title h2{font-size:1.05rem}
+  .section-title h3{font-size:1.02rem}
+
+  .pill{font-size:.78rem;color:#64748b;border:1px solid #e5e7eb;border-radius:999px;padding:4px 10px;background:#fff;white-space:nowrap;}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:.78rem;border:1px solid #e5e7eb;background:#fff;color:#0f172a;white-space:nowrap;}
+  .dot{width:8px;height:8px;border-radius:50%;background:#64748b;display:inline-block}
+  .badge.success .dot{background:#16a34a}
+  .badge.pending .dot{background:#f59e0b}
+  .badge.failure .dot{background:#ef4444}
+
+  .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  @media (max-width: 650px){ .meta{grid-template-columns:1fr} }
+
+  .kv{border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;background:#fbfdff;}
+  .k{color:#64748b;font-size:.82rem;margin-bottom:4px}
+  .v{font-weight:850;font-size:.98rem;overflow-wrap:anywhere}
+  .muted{color:#64748b;font-weight:650}
+
+  .alert{border-radius:16px;padding:12px 14px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.06);color:#7f1d1d;margin-top:12px;white-space:pre-wrap;overflow:auto;}
+  .alert.warn{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08);color:#7c2d12;}
+
+  .divider{height:1px;background:#e5e7eb;margin:14px 0;border-radius:999px}
+
+  .tag{display:inline-flex;align-items:center;gap:8px;border:1px solid #e5e7eb;background:#f8fafc;padding:4px 10px;border-radius:999px;font-size:.78rem;font-weight:850;color:#0f172a;white-space:nowrap;}
+  .tag.blue{border-color:rgba(37,99,235,.25);background:rgba(37,99,235,.06);color:#1e40af}
+  .tag.purple{border-color:rgba(124,58,237,.25);background:rgba(124,58,237,.06);color:#5b21b6}
+  .tag.green{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
+  .tag.yellow{border-color:rgba(245,158,11,.30);background:rgba(245,158,11,.08);color:#7c2d12}
+  .tag.red{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.08);color:#7f1d1d}
+
+  .card-list{margin-top:14px;}
+  .item-card{border:1px solid #e5e7eb;border-radius:16px;padding:14px;background:#fff;margin-top:12px;}
+  .ic-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .ic-title{font-weight:950;font-size:1rem}
+  .ic-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:#64748b;font-size:.85rem}
+
+  .block{margin-top:12px;border-top:1px dashed #e5e7eb;padding-top:10px;}
+  .block h4{margin:0 0 6px 0;font-size:.92rem;color:#0f172a}
+  .small-note{color:#64748b;font-size:.92rem;line-height:1.9;white-space:pre-line;}
+  ul{margin:8px 0 0;padding-right:18px}
+  li{margin:4px 0}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  @media (max-width: 850px){ .two-col{grid-template-columns:1fr} }
+
+  details.raw{margin-top:14px;border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;background:#fbfdff;}
+  details.raw summary{cursor:pointer;color:var(--primary);font-weight:950;list-style:none}
+  details.raw summary::-webkit-details-marker{display:none}
+  .code{margin-top:10px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.86rem;color:#0f172a;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+
+<div class="topbar">
+    <div>
+      <h1 class="main-title">Stage 2 — برنامه پیشنهادی دانش‌آموز</h1>
+      <div class="subtitle part-title">
+        Bundle #{{ bundle.id }}{% if bundle.created_at %} — {{ bundle.created_at }}{% endif %}
       </div>
-
-      <p class="muted" style="margin-top:10px;">
-        این صفحه هم خلاصه نتیجه را نشان می‌دهد و هم برای دیباگ، ورودی‌ها و خروجی خام را قابل مشاهده می‌کند.
-      </p>
     </div>
+    <div class="actions">
+      <a class="btn" href="javascript:history.back()"> برگشت</a>
+    </div>
+  </div>
 
-    {% if bundle.error_message %}
-      <div class="card">
-        <h2>خطا</h2>
-        <div class="msg error">{{ bundle.error_message }}</div>
-      </div>
-    {% endif %}
-
+  <div class="grid">
     <div class="card">
-      <h2>اطلاعات Bundle</h2>
-      <div class="grid">
-        <div>
-          <div class="k">وضعیت</div>
-          <div class="v">{{ bundle.status }}</div>
+      <div class="section-title">
+        <h2>وضعیت پردازش</h2>
+        {% if bundle.status == "success" %}
+          <span class="badge success"><span class="dot"></span> موفق</span>
+        {% elif bundle.status == "pending" %}
+          <span class="badge pending"><span class="dot"></span> در حال پردازش</span>
+        {% else %}
+          <span class="badge failure"><span class="dot"></span> ناموفق</span>
+        {% endif %}
+      </div>
+
+      <div class="meta">
+        <div class="kv">
+          <div class="k">عنوان</div>
+          <div class="v">{{ bundle.title|default:"—" }}</div>
         </div>
-        <div>
-          <div class="k">Stage</div>
-          <div class="v"><span class="pill">{{ bundle.stage }}</span></div>
+
+        <div class="kv">
+          <div class="k">مدل</div>
+          <div class="v">{{ bundle.model_name|default:"—" }}</div>
         </div>
-        <div>
-          <div class="k">Exam</div>
-          <div class="v">{{ bundle.exam_id }}</div>
-        </div>
-        <div>
-          <div class="k">Teacher</div>
-          <div class="v">{% if bundle.teacher %}{{ bundle.teacher }}{% else %}—{% endif %}</div>
-        </div>
-        <div>
-          <div class="k">Prompt</div>
+
+        <div class="kv">
+          <div class="k">Template</div>
           <div class="v">
             {% if bundle.prompt_template %}
-              {{ bundle.prompt_template.name }} v{{ bundle.prompt_template.version }}
-            {% else %}
-              —
-            {% endif %}
+              {{ bundle.prompt_template.name }} (v{{ bundle.prompt_template.version }})
+            {% else %}—{% endif %}
           </div>
         </div>
-        <div>
-          <div class="k">Model</div>
-          <div class="v">{{ bundle.model_name }}</div>
-        </div>
-        <div>
-          <div class="k">Created</div>
-          <div class="v">{{ bundle.created_at }}</div>
+
+        <div class="kv">
+          <div class="k">Exam</div>
+          <div class="v">
+            {% if bundle.exam %}{{ bundle.exam }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+          </div>
         </div>
       </div>
+
+      {% if bundle.error_message %}
+        <div class="alert">خطا: {{ bundle.error_message }}</div>
+      {% endif %}
     </div>
 
     <div class="card">
-      <h2>ورودی‌ها (Input JSON)</h2>
-      <p class="muted">
-        برای اطمینان از اینکه پرامپت با داده درست پر شده، اینجا خلاصه ورودی‌ها را می‌بینی.
-      </p>
+      <div class="section-title">
+        <h2>راهنما</h2>
+        <span class="pill">student_plan_v2_2_stage02</span>
+      </div>
+      <div class="small-note">
+        این صفحه داده را از <b>bundle.result.result_json</b> می‌خواند و بدون JavaScript نمایش می‌دهد.
+        اگر بعضی فیلدها null/unknown باشند، «ذکر نشده» نمایش داده می‌شود.
+      </div>
+      <div class="divider"></div>
+      <div class="small-note">
+        برچسب سطح: weak / medium / strong — تمرکز تمرین: learning / consolidation
+      </div>
+    </div>
+  </div>
 
-milad, [2/5/2026 7:39 PM]
-{% if bundle.input_json %}
-        <div class="grid">
-          <div>
-            <div class="k">STAGE1_BUNDLE_ID</div>
-            <div class="v">{{ bundle.input_json.STAGE1_BUNDLE_ID|default:"—" }}</div>
+  {% if bundle.result %}
+    {% with data=bundle.result.result_json %}
+
+      <!-- Header -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>مشخصات دانش‌آموز</h2>
+          <span class="pill">schema: {{ data.schema_version|default:"—" }}</span>
+        </div>
+
+        <div class="meta">
+          <div class="kv">
+            <div class="k">نام و نام خانوادگی</div>
+            <div class="v">{{ data.full_name|default:"—" }}</div>
           </div>
-          <div>
-            <div class="k">SNAPSHOT_ID</div>
-            <div class="v">{{ bundle.input_json.SNAPSHOT_ID|default:"—" }}</div>
+          <div class="kv">
+            <div class="k">شناسه دانش‌آموز</div>
+            <div class="v">{{ data.student_id|default:"—" }}</div>
+          </div>
+
+          <div class="kv">
+            <div class="k">سطح</div>
+            <div class="v">
+              {% if data.student_level_label == "weak" %}
+                <span class="tag red">ضعیف (weak)</span>
+              {% elif data.student_level_label == "medium" %}
+                <span class="tag yellow">متوسط (medium)</span>
+              {% elif data.student_level_label == "strong" %}
+                <span class="tag green">قوی (strong)</span>
+              {% else %}
+                <span class="tag">نامشخص</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="kv">
+            <div class="k">روزهای برنامه</div>
+            <div class="v">
+              {% if data.plan_days %}{{ data.plan_days }}{% else %}<span class="muted">ذکر نشده</span>{% endif %}
+
+
+{% if data.daily_min_exercises != None and data.daily_max_exercises != None %}
+                <span class="muted"> (روزانه {{ data.daily_min_exercises }} تا {{ data.daily_max_exercises }} تمرین)</span>
+              {% endif %}
+            </div>
           </div>
         </div>
 
-        <h3 style="margin-top:14px;">Student Answers (خلاصه)</h3>
-        {% if bundle.input_json.STUDENT_ANSWERS %}
-          <ul>
-            <li><b>student_id:</b> {{ bundle.input_json.STUDENT_ANSWERS.student_id }}</li>
-            <li><b>full_name:</b> {{ bundle.input_json.STUDENT_ANSWERS.full_name }}</li>
-            <li><b>results count:</b> {{ bundle.input_json.STUDENT_ANSWERS.results|length }}</li>
-          </ul>
+        <div class="block">
+          <h4>توجیه سطح (level_rationale_fa)</h4>
+          <div class="small-note">{{ data.level_rationale_fa|default:"ذکر نشده" }}</div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>گزارش‌ها</h2>
+          <span class="pill">teacher / student / parent</span>
+        </div>
+
+        <div class="two-col">
+          <div class="kv">
+            <div class="k">گزارش برای معلم</div>
+            <div class="small-note">{{ data.teacher_report_fa|default:"ذکر نشده" }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">گزارش برای دانش‌آموز</div>
+            <div class="small-note">{{ data.student_report_fa|default:"ذکر نشده" }}</div>
+          </div>
+          <div class="kv" style="grid-column:1/-1;">
+            <div class="k">گزارش برای والدین</div>
+            <div class="small-note">{{ data.parent_report_fa|default:"ذکر نشده" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student metrics -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>شاخص‌های عملکرد (student_metrics)</h2>
+          <span class="pill">metrics</span>
+        </div>
+
+        <div class="meta">
+          <div class="kv">
+            <div class="k">Matched total</div>
+            <div class="v">{{ data.student_metrics.matched_total|default:"0" }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Matched correct</div>
+            <div class="v">{{ data.student_metrics.matched_correct|default:"0" }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Matched incorrect</div>
+            <div class="v">{{ data.student_metrics.matched_incorrect|default:"0" }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Correct rate</div>
+            <div class="v">{{ data.student_metrics.correct_rate|default:"—" }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Learning load</div>
+            <div class="v">{{ data.student_metrics.learning_load|default:"0" }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Consolidation load</div>
+            <div class="v">{{ data.student_metrics.consolidation_load|default:"0" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expected items + selected -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>آیتم‌ها</h2>
+          <span class="pill">expected: {{ data.expected_items|length }} • selected: {{ data.meta.selected_item_keys|length }}</span>
+        </div>
+
+        <div class="two-col">
+          <div class="kv">
+            <div class="k">Expected items</div>
+            {% if data.expected_items and data.expected_items|length %}
+              <div class="small-note">
+                {% for it in data.expected_items %}
+                  • {{ it }}{% if not forloop.last %}<br/>{% endif %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="small-note">ذکر نشده</div>
+            {% endif %}
+          </div>
+
+          <div class="kv">
+            <div class="k">Selected item keys (meta.selected_item_keys)</div>
+            {% if data.meta.selected_item_keys and data.meta.selected_item_keys|length %}
+              <div class="small-note">
+                {% for it in data.meta.selected_item_keys %}
+                  • {{ it }}{% if not forloop.last %}<br/>{% endif %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="small-note">ذکر نشده</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+<!-- Plan 3 days -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>برنامه ۳ روزه (plan_3_days)</h2>
+          <span class="pill">روزها: {{ data.plan_3_days|length }}</span>
+        </div>
+
+        {% if data.plan_3_days and data.plan_3_days|length %}
+          <div class="card-list">
+            {% for day in data.plan_3_days %}
+              <div class="item-card">
+                <div class="ic-head">
+                  <div class="ic-title">روز {{ day.day }}</div>
+                  <div class="ic-meta">
+                    <span class="tag blue">کل: {{ day.total_exercises_target }}</span>
+                    <span class="tag purple">یادگیری: {{ day.learning_exercises_target }}</span>
+                    <span class="tag green">تثبیت: {{ day.consolidation_exercises_target }}</span>
+                  </div>
+                </div>
+
+                <div class="block">
+                  <h4>بلوک‌ها (blocks)</h4>
+
+                  {% if day.blocks and day.blocks|length %}
+                    <div class="two-col">
+                      {% for b in day.blocks %}
+                        <div class="kv">
+                          <div class="k">
+                            تمرکز: {{ b.practice_focus }} — اهمیت: {{ b.importance_level }}
+                          </div>
+                          <div class="v">تعداد تمرین: {{ b.exercise_count }}</div>
+
+                          <div class="small-note" style="margin-top:8px;">
+                            <b>item_keys:</b>
+                            {% if b.item_keys and b.item_keys|length %}
+                              {% for k in b.item_keys %}{{ k }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% else %}—{% endif %}
+                            <br/>
+                            <b>exercise_types:</b>
+                            {% if b.exercise_types and b.exercise_types|length %}
+                              {% for t in b.exercise_types %}{{ t }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% else %}—{% endif %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <div class="small-note">بلوک‌ها ذکر نشده‌اند.</div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
         {% else %}
-          <p class="muted">کلید STUDENT_ANSWERS در input_json موجود نیست.</p>
+          <div class="alert warn">plan_3_days خالی است.</div>
         {% endif %}
+      </div>
 
-      {% else %}
-        <p class="muted">input_json ذخیره نشده است.</p>
-      {% endif %}
-    </div>
+      <!-- Exercise requests -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>درخواست‌های تمرین (exercise_requests)</h2>
+          <span class="pill">تعداد: {{ data.exercise_requests|length }}</span>
+        </div>
 
-    <div class="card">
-      <h2>خلاصه نتیجه (Result JSON)</h2>
-
-      {% if bundle.result %}
-        {% with r=bundle.result.result_json %}
-          {% if r.summary %}
-            <h3>Strengths</h3>
-            {% if r.summary.strengths %}
-              <ul>
-                {% for s in r.summary.strengths %}
-                  <li>
-                    <b>{{ s.concept }}</b>
-                    {% if s.book_ref %}
-                      — page: {{ s.book_ref.page }} — section: {{ s.book_ref.section_title }}
+        {% if data.exercise_requests and data.exercise_requests|length %}
+          <div class="card-list">
+            {% for r in data.exercise_requests %}
+              <div class="item-card">
+                <div class="ic-head">
+                  <div class="ic-title">{{ r.item_key }}</div>
+                  <div class="ic-meta">
+                    {% if r.include_in_plan %}
+                      <span class="tag green">در برنامه: بله</span>
+                    {% else %}
+                      <span class="tag red">در برنامه: خیر</span>
                     {% endif %}
-                  </li>
+                    <span class="tag blue">اهمیت: {{ r.importance_level }} ({{ r.base_importance_score }})</span>
+                    <span class="tag purple">وزن تمرین: {{ r.practice_weight }}</span>
+                    <span class="tag yellow">تمرکز: {{ r.practice_focus }}</span>
+                  </div>
+                </div>
+
+                <div class="two-col">
+
+
+<div class="kv">
+                    <div class="k">Day distribution</div>
+                    <div class="small-note">
+                      day1: {{ r.day_distribution.day1 }}<br/>
+                      day2: {{ r.day_distribution.day2 }}<br/>
+                      day3: {{ r.day_distribution.day3 }}
+                    </div>
+                  </div>
+
+                  <div class="kv">
+                    <div class="k">Suggested exercise types</div>
+                    <div class="small-note">
+                      {% for t in r.suggested_exercise_types %}
+                        • {{ t }}{% if not forloop.last %}<br/>{% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <div class="kv" style="grid-column:1/-1;">
+                    <div class="k">Stage3 tags</div>
+                    <div class="small-note">
+                      {% for t in r.stage3_tags %}
+                        <span class="tag">{{ t }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert warn">exercise_requests خالی است.</div>
+        {% endif %}
+      </div>
+
+      <!-- Item analysis map -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>تحلیل آیتم‌ها (item_analysis_map)</h2>
+          <span class="pill">count: {{ data.item_analysis_map|length }}</span>
+        </div>
+
+        {% if data.item_analysis_map %}
+          <div class="card-list">
+            {% for item_key, a in data.item_analysis_map.items %}
+              <div class="item-card">
+                <div class="ic-head">
+                  <div class="ic-title">{{ item_key }}</div>
+                  <div class="ic-meta">
+                    <span class="tag blue">match: {{ a.match_status }}</span>
+                    <span class="tag purple">answer: {{ a.answer_status }}</span>
+                    <span class="tag yellow">mastery: {{ a.mastery_status }}</span>
+                    <span class="tag">skill: {{ a.skill }}</span>
+                  </div>
+                </div>
+
+                <div class="two-col">
+                  <div class="kv">
+                    <div class="k">سطح‌ها</div>
+                    <div class="small-note">
+                      difficulty: {{ a.difficulty }}<br/>
+                      cognitive: {{ a.cognitive_level }}<br/>
+                      prompt (stage1): {{ a.prompt_type_stage1 }}<br/>
+                      prompt (final): {{ a.prompt_type_final }}
+                    </div>
+                  </div>
+
+                  <div class="kv">
+                    <div class="k">امتیازدهی</div>
+                    <div class="small-note">
+                      importance_score: {{ a.importance_score }} ({{ a.importance_level }})<br/>
+                      practice_weight: {{ a.practice_weight }} ({{ a.practice_focus }})
+                    </div>
+                  </div>
+
+                  <div class="kv" style="grid-column:1/-1;">
+                    <div class="k">مفهوم / ارزش سنجش</div>
+                    <div class="small-note">
+                      concept_tested: {{ a.concept_tested }}<br/>
+                      assessment_value: {{ a.assessment_value }}
+                    </div>
+                  </div>
+
+                  <div class="kv" style="grid-column:1/-1;">
+                    <div class="k">توجیه‌ها</div>
+                    <div class="small-note">
+                      <b>importance_rationale_fa:</b> {{ a.importance_rationale_fa }}<br/>
+                      <b>practice_rationale_fa:</b> {{ a.practice_rationale_fa }}
+                    </div>
+                  </div>
+
+
+<div class="kv">
+                    <div class="k">Suggested exercise types</div>
+                    <div class="small-note">
+                      {% for t in a.suggested_exercise_types %}
+                        • {{ t }}{% if not forloop.last %}<br/>{% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <div class="kv">
+                    <div class="k">Stage3 tags</div>
+                    <div class="small-note">
+                      {% for t in a.stage3_tags %}
+                        <span class="tag">{{ t }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <div class="kv" style="grid-column:1/-1;">
+                    <div class="k">score_components</div>
+                    <div class="small-note">
+                      difficulty_points: {{ a.score_components.difficulty_points }} |
+                      cognitive_points: {{ a.score_components.cognitive_points }} |
+                      skill_points: {{ a.score_components.skill_points }} |
+                      prompt_points: {{ a.score_components.prompt_points }} |
+                      mastery_points: {{ a.score_components.mastery_points }}<br/>
+                      raw_importance: {{ a.score_components.raw_importance }} |
+                      raw_practice: {{ a.score_components.raw_practice }} |
+                      spread_adjustment_applied: {{ a.score_components.spread_adjustment_applied }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert warn">item_analysis_map خالی است.</div>
+        {% endif %}
+      </div>
+
+      <!-- Meta / warnings -->
+      <div class="card" style="margin-top:14px;">
+        <div class="section-title">
+          <h2>Meta و هشدارها</h2>
+          <span class="pill">meta</span>
+        </div>
+
+        <div class="meta">
+          <div class="kv">
+            <div class="k">Warnings counts</div>
+            <div class="small-note">
+              stage1_duplicate_itemkey_warnings: {{ data.meta.stage1_duplicate_itemkey_warnings }}<br/>
+              duplicate_answers_resolved_warnings: {{ data.meta.duplicate_answers_resolved_warnings }}<br/>
+              conflicting_answers_warnings: {{ data.meta.conflicting_answers_warnings }}<br/>
+              plan_diversity_low_warnings: {{ data.meta.plan_diversity_low_warnings }}
+            </div>
+          </div>
+
+          <div class="kv">
+            <div class="k">Policy</div>
+            <div class="v">{{ data.meta.exercise_requests_policy|default:"—" }}</div>
+            <div class="small-note" style="margin-top:6px;">
+              integrity_passed: {{ data.meta.plan_integrity.integrity_passed }}<br/>
+              diversity_passed: {{ data.meta.diversity_report.diversity_passed }}
+            </div>
+          </div>
+
+          <div class="kv" style="grid-column:1/-1;">
+            <div class="k">warnings</div>
+            {% if data.meta.warnings and data.meta.warnings|length %}
+              <div class="small-note">
+                {% for w in data.meta.warnings %}
+                  • {{ w }}{% if not forloop.last %}<br/>{% endif %}
                 {% endfor %}
-              </ul>
+              </div>
             {% else %}
-              <p class="muted">موردی ثبت نشده.</p>
+              <div class="small-note">هشداری ثبت نشده.</div>
             {% endif %}
+          </div>
+        </div>
 
-            <h3>Weaknesses</h3>
-            {% if r.summary.weaknesses %}
-              <ul>
-                {% for w in r.summary.weaknesses %}
-                  <li>
-                    <b>{{ w.concept }}</b> — priority: <span class="pill">{{ w.priority }}</span>
-                    {% if w.book_ref %}
-                      — page: {{ w.book_ref.page }} — section: {{ w.book_ref.section_title }}
-                    {% endif %}
-                  </li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <p class="muted">موردی ثبت نشده.</p>
-            {% endif %}
-          {% else %}
-            <p class="muted">کلید summary در خروجی وجود ندارد (یا ساختار خروجی متفاوت است).</p>
-          {% endif %}
+        <div class="block">
+          <h4>coverage_report</h4>
+          <div class="small-note">
+            expected_items_count: {{ data.meta.coverage_report.expected_items_count }}<br/>
+            item_analysis_count: {{ data.meta.coverage_report.item_analysis_count }}<br/>
+            missing_analysis_item_keys:
 
-          <h3>Study Targets</h3>
-          {% if r.study_targets %}
-            <ul>
-              {% for t in r.study_targets %}
-                <li>
-                  priority: <span class="pill">{{ t.priority }}</span>
-                  {% if t.book_ref %}
-                    — page: {{ t.book_ref.page }} — section: {{ t.book_ref.section_title }}
-                  {% endif %}
-                  {% if t.related_skills %}
-                    — skills: {{ t.related_skills }}
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="muted">study_targets خالی است یا وجود ندارد.</p>
-          {% endif %}
 
-          <details style="margin-top:14px;">
-            <summary style="cursor:pointer; font-weight:700;">نمایش Question Results (جزئیات)</summary>
-            <pre>{{ r.question_results }}</pre>
-          </details>
+{% if data.meta.coverage_report.missing_analysis_item_keys and data.meta.coverage_report.missing_analysis_item_keys|length %}
+              {% for k in data.meta.coverage_report.missing_analysis_item_keys %}{{ k }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            {% else %}—{% endif %}
+            <br/>
+            extra_analysis_item_keys:
+            {% if data.meta.coverage_report.extra_analysis_item_keys and data.meta.coverage_report.extra_analysis_item_keys|length %}
+              {% for k in data.meta.coverage_report.extra_analysis_item_keys %}{{ k }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            {% else %}—{% endif %}
+          </div>
+        </div>
 
-          <details style="margin-top:12px;">
-            <summary style="cursor:pointer; font-weight:700;">نمایش Result JSON کامل</summary>
-            <pre>{{ r }}</pre>
-          </details>
-        {% endwith %}
-      {% else %}
-        <p class="muted">هنوز result ذخیره نشده است.</p>
-      {% endif %}
+        <div class="block">
+          <h4>plan_integrity</h4>
+          <div class="small-note">
+            integrity_passed: {{ data.meta.plan_integrity.integrity_passed }}<br/>
+            day_totals_from_distribution:
+            {% for n in data.meta.plan_integrity.day_totals_from_distribution %}{{ n }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            <br/>
+            target_totals:
+            {% for n in data.meta.plan_integrity.target_totals %}{{ n }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </div>
+        </div>
+
+        <div class="block">
+          <h4>step_evidence</h4>
+          <div class="small-note">
+            built_stage1_index: {{ data.meta.step_evidence.built_stage1_index }} |
+            resolved_duplicates: {{ data.meta.step_evidence.resolved_duplicates }} |
+            built_item_analysis_for_all_expected: {{ data.meta.step_evidence.built_item_analysis_for_all_expected }}<br/>
+            applied_score_spread_enforcer_if_needed: {{ data.meta.step_evidence.applied_score_spread_enforcer_if_needed }} |
+            enforced_diversity_rules: {{ data.meta.step_evidence.enforced_diversity_rules }} |
+            plan_integrity_passed: {{ data.meta.step_evidence.plan_integrity_passed }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw JSON (optional) -->
+      <details class="raw">
+        <summary>نمایش خروجی خام (برای دیباگ)</summary>
+        <div class="code">{{ data }}</div>
+      </details>
+
+    {% endwith %}
+  {% else %}
+    <div class="card" style="margin-top:14px;">
+      <div class="alert warn">هنوز نتیجه‌ای برای این Bundle ذخیره نشده.</div>
     </div>
+  {% endif %}
 
-    <div class="card">
-      <h2>خروجی خام مدل (Raw Output Text)</h2>
-      {% if bundle.result %}
-        <pre>{{ bundle.result.raw_output_text }}</pre>
-      {% else %}
-        <p class="muted">raw_output_text موجود نیست.</p>
-      {% endif %}
-    </div>
+</div>
+{% endblock %}
 
-  </div>
-</body>
-</html>
+
+
+{#<!doctype html>#}
+{#<html lang="fa" dir="rtl">#}
+{#<head>#}
+{#  <meta charset="utf-8" />#}
+{#  <meta name="viewport" content="width=device-width,initial-scale=1" />#}
+{#  <title>Stage2 - جزئیات نتیجه</title>#}
+{#  <style>#}
+{#    body { font-family: sans-serif; margin: 0; background:#f7f7f8; color:#111; }#}
+{#    .wrap { max-width: 1050px; margin: 0 auto; padding: 18px; }#}
+{#    .card { background:#fff; border:1px solid #e6e6e6; border-radius: 14px; padding:16px; margin: 12px 0; }#}
+{#    h1 { font-size: 20px; margin: 0 0 8px; }#}
+{#    h2 { font-size: 16px; margin: 0 0 10px; }#}
+{#    h3 { font-size: 14px; margin: 14px 0 8px; }#}
+{#    .muted { color:#666; font-size: 13px; }#}
+{#    .msg { border-radius: 12px; padding: 10px 12px; margin: 10px 0; border: 1px solid #ddd; background:#fff; }#}
+{#    .msg.error { border-color:#ffb4b4; background:#fff5f5; }#}
+{#    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border:1px solid #ddd; font-size: 12px; background:#fafafa; }#}
+{#    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }#}
+{#    .k { color:#555; font-size: 12px; margin-bottom: 4px; }#}
+{#    .v { font-weight: 700; }#}
+{#    pre { white-space: pre-wrap; background:#f7f7f7; border:1px solid #eee; padding: 12px; border-radius: 12px; overflow:auto; }#}
+{#    a { color:#111; text-decoration:none; border-bottom: 1px dashed #aaa; }#}
+{#    a:hover { border-bottom-color:#111; }#}
+{#    .btn { display:inline-block; padding: 9px 12px; border-radius: 12px; border:1px solid #111; background:#111; color:#fff; text-decoration:none; font-weight:600; }#}
+{#    .btn.secondary { background:#fff; color:#111; }#}
+{#    ul { margin: 8px 0; padding: 0 18px 0 0; }#}
+{#    li { margin: 6px 0; line-height: 1.9; }#}
+{#    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }#}
+{#  </style>#}
+{#</head>#}
+{#<body>#}
+{#  <div class="wrap">#}
+{##}
+{#    <div class="card">#}
+{#      <h1>جزئیات Stage 2 — Bundle #{{ bundle.id }}</h1>#}
+{##}
+{#      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">#}
+{#        {% if bundle.exam_id %}#}
+{#          <a class="btn secondary" href="{% url 'analysis:stage2_result' bundle.exam_id %}">بازگشت به نتایج Exam</a>#}
+{#        {% endif %}#}
+{#        <a class="btn secondary" href="{% url 'analysis:stage2_run' %}">اجرای جدید</a>#}
+{#      </div>#}
+{##}
+{#      <p class="muted" style="margin-top:10px;">#}
+{#        این صفحه هم خلاصه نتیجه را نشان می‌دهد و هم برای دیباگ، ورودی‌ها و خروجی خام را قابل مشاهده می‌کند.#}
+{#      </p>#}
+{#    </div>#}
+{##}
+{#    {% if bundle.error_message %}#}
+{#      <div class="card">#}
+{#        <h2>خطا</h2>#}
+{#        <div class="msg error">{{ bundle.error_message }}</div>#}
+{#      </div>#}
+{#    {% endif %}#}
+{##}
+{#    <div class="card">#}
+{#      <h2>اطلاعات Bundle</h2>#}
+{#      <div class="grid">#}
+{#        <div>#}
+{#          <div class="k">وضعیت</div>#}
+{#          <div class="v">{{ bundle.status }}</div>#}
+{#        </div>#}
+{#        <div>#}
+{#          <div class="k">Stage</div>#}
+{#          <div class="v"><span class="pill">{{ bundle.stage }}</span></div>#}
+{#        </div>#}
+{#        <div>#}
+{#          <div class="k">Exam</div>#}
+{#          <div class="v">{{ bundle.exam_id }}</div>#}
+{#        </div>#}
+{#        <div>#}
+{#          <div class="k">Teacher</div>#}
+{#          <div class="v">{% if bundle.teacher %}{{ bundle.teacher }}{% else %}—{% endif %}</div>#}
+{#        </div>#}
+{#        <div>#}
+{#          <div class="k">Prompt</div>#}
+{#          <div class="v">#}
+{#            {% if bundle.prompt_template %}#}
+{#              {{ bundle.prompt_template.name }} v{{ bundle.prompt_template.version }}#}
+{#            {% else %}#}
+{#              —#}
+{#            {% endif %}#}
+{#          </div>#}
+{#        </div>#}
+{#        <div>#}
+{#          <div class="k">Model</div>#}
+{#          <div class="v">{{ bundle.model_name }}</div>#}
+{#        </div>#}
+{#        <div>#}
+{#          <div class="k">Created</div>#}
+{#          <div class="v">{{ bundle.created_at }}</div>#}
+{#        </div>#}
+{#      </div>#}
+{#    </div>#}
+{##}
+{#    <div class="card">#}
+{#      <h2>ورودی‌ها (Input JSON)</h2>#}
+{#      <p class="muted">#}
+{#        برای اطمینان از اینکه پرامپت با داده درست پر شده، اینجا خلاصه ورودی‌ها را می‌بینی.#}
+{#      </p>#}
+{##}
+{#milad, [2/5/2026 7:39 PM]#}
+{#{% if bundle.input_json %}#}
+{#        <div class="grid">#}
+{#          <div>#}
+{#            <div class="k">STAGE1_BUNDLE_ID</div>#}
+{#            <div class="v">{{ bundle.input_json.STAGE1_BUNDLE_ID|default:"—" }}</div>#}
+{#          </div>#}
+{#          <div>#}
+{#            <div class="k">SNAPSHOT_ID</div>#}
+{#            <div class="v">{{ bundle.input_json.SNAPSHOT_ID|default:"—" }}</div>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#        <h3 style="margin-top:14px;">Student Answers (خلاصه)</h3>#}
+{#        {% if bundle.input_json.STUDENT_ANSWERS %}#}
+{#          <ul>#}
+{#            <li><b>student_id:</b> {{ bundle.input_json.STUDENT_ANSWERS.student_id }}</li>#}
+{#            <li><b>full_name:</b> {{ bundle.input_json.STUDENT_ANSWERS.full_name }}</li>#}
+{#            <li><b>results count:</b> {{ bundle.input_json.STUDENT_ANSWERS.results|length }}</li>#}
+{#          </ul>#}
+{#        {% else %}#}
+{#          <p class="muted">کلید STUDENT_ANSWERS در input_json موجود نیست.</p>#}
+{#        {% endif %}#}
+{##}
+{#      {% else %}#}
+{#        <p class="muted">input_json ذخیره نشده است.</p>#}
+{#      {% endif %}#}
+{#    </div>#}
+{##}
+{#    <div class="card">#}
+{#      <h2>خلاصه نتیجه (Result JSON)</h2>#}
+{##}
+{#      {% if bundle.result %}#}
+{#        {% with r=bundle.result.result_json %}#}
+{#          {% if r.summary %}#}
+{#            <h3>Strengths</h3>#}
+{#            {% if r.summary.strengths %}#}
+{#              <ul>#}
+{#                {% for s in r.summary.strengths %}#}
+{#                  <li>#}
+{#                    <b>{{ s.concept }}</b>#}
+{#                    {% if s.book_ref %}#}
+{#                      — page: {{ s.book_ref.page }} — section: {{ s.book_ref.section_title }}#}
+{#                    {% endif %}#}
+{#                  </li>#}
+{#                {% endfor %}#}
+{#              </ul>#}
+{#            {% else %}#}
+{#              <p class="muted">موردی ثبت نشده.</p>#}
+{#            {% endif %}#}
+{##}
+{#            <h3>Weaknesses</h3>#}
+{#            {% if r.summary.weaknesses %}#}
+{#              <ul>#}
+{#                {% for w in r.summary.weaknesses %}#}
+{#                  <li>#}
+{#                    <b>{{ w.concept }}</b> — priority: <span class="pill">{{ w.priority }}</span>#}
+{#                    {% if w.book_ref %}#}
+{#                      — page: {{ w.book_ref.page }} — section: {{ w.book_ref.section_title }}#}
+{#                    {% endif %}#}
+{#                  </li>#}
+{#                {% endfor %}#}
+{#              </ul>#}
+{#            {% else %}#}
+{#              <p class="muted">موردی ثبت نشده.</p>#}
+{#            {% endif %}#}
+{#          {% else %}#}
+{#            <p class="muted">کلید summary در خروجی وجود ندارد (یا ساختار خروجی متفاوت است).</p>#}
+{#          {% endif %}#}
+{##}
+{#          <h3>Study Targets</h3>#}
+{#          {% if r.study_targets %}#}
+{#            <ul>#}
+{#              {% for t in r.study_targets %}#}
+{#                <li>#}
+{#                  priority: <span class="pill">{{ t.priority }}</span>#}
+{#                  {% if t.book_ref %}#}
+{#                    — page: {{ t.book_ref.page }} — section: {{ t.book_ref.section_title }}#}
+{#                  {% endif %}#}
+{#                  {% if t.related_skills %}#}
+{#                    — skills: {{ t.related_skills }}#}
+{#                  {% endif %}#}
+{#                </li>#}
+{#              {% endfor %}#}
+{#            </ul>#}
+{#          {% else %}#}
+{#            <p class="muted">study_targets خالی است یا وجود ندارد.</p>#}
+{#          {% endif %}#}
+{##}
+{#          <details style="margin-top:14px;">#}
+{#            <summary style="cursor:pointer; font-weight:700;">نمایش Question Results (جزئیات)</summary>#}
+{#            <pre>{{ r.question_results }}</pre>#}
+{#          </details>#}
+{##}
+{#          <details style="margin-top:12px;">#}
+{#            <summary style="cursor:pointer; font-weight:700;">نمایش Result JSON کامل</summary>#}
+{#            <pre>{{ r }}</pre>#}
+{#          </details>#}
+{#        {% endwith %}#}
+{#      {% else %}#}
+{#        <p class="muted">هنوز result ذخیره نشده است.</p>#}
+{#      {% endif %}#}
+{#    </div>#}
+{##}
+{#    <div class="card">#}
+{#      <h2>خروجی خام مدل (Raw Output Text)</h2>#}
+{#      {% if bundle.result %}#}
+{#        <pre>{{ bundle.result.raw_output_text }}</pre>#}
+{#      {% else %}#}
+{#        <p class="muted">raw_output_text موجود نیست.</p>#}
+{#      {% endif %}#}
+{#    </div>#}
+{##}
+{#  </div>#}
+{#</body>#}
+{#</html>#}

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="fa" dir="rtl">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>برهان - سیستم هوشمند مدارس</title>
-    <link rel="stylesheet" href={% static 'css/style.css' %}>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/landing.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -15,8 +15,8 @@
     <nav class="landing-navbar">
         <div class="container nav-container">
             <a href="#" class="nav-logo">
-                <img class="logo-home" src="{% static 'background_removed_image.png' %}" />
-
+                <img class="logo-home" src="{% static 'images/logo-black.svg' %}" />
+                <span class="logo-title">برنامه راهنمای هوشمند آموزش نوین</span>
             </a>
 
             <div class="menu-toggle" id="mobile-menu-btn">
@@ -28,10 +28,10 @@
                     <li><a href="#features" class="nav-link">ویژگی‌ها</a></li>
 
                 </ul>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'teacher panel' %}" class="btn btn-primary nav-btn">ورود به پنل کاربری</a>
+                {% if user.is_authenticated %}#}
+                    <a href="{% url 'teacher panel' %}" class="btn btn-primary nav-btn"><img class="icon-login" src="{% static 'icon/ورود به حساب کاربری.svg' %}">ورود به پنل کاربری</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-primary nav-btn">ورود به پنل کاربری</a>
+                    <a href="{% url 'login' %}" class="btn btn-primary nav-btn"><img class="icon-login" src="{% static 'icon/ورود به حساب کاربری.svg' %}">ورود به پنل کاربری</a>
                 {% endif %}
             </div>
 
@@ -43,28 +43,34 @@
         <div>
         <div class="container hero-container">
             <div class="hero-content">
-                <span class="badge">برنامه راهنمای هوشمند آموزش نوین</span>
+
                 <h1 style="font-size: 35px;">
                     <span class="text-primary">برهان</span>
-                    دلیلی برای تحول
-                    <br/>در آموزش و پرورش با
                     <br/>
-                    <span class="text-primary">هوش مصنوعی</span>
+                    <span style="font-size: 38px;">
+
+                        دلیلی برای تحول
+                        در آموزش و پرورش
+                    </span>
+                    <br/>
+                    <span class="text-primary">با هوش مصنوعی</span>
 
                 </h1>
                 <p>
                     برنامه جامع مدیریت کلاسی هوشمند، طراحی آزمون و تمرین شخصی سازی شده، تحلیل پیشرفت تحصیلی، نگارش طرح درس اختصاصی همه با قدرت هوش مصنوعی در دستان شماست.
                 </p>
                 <div class="hero-actions">
-                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
-                        شروع کنید
-                    </a>
-                    <a href="#features" class="btn btn-outline btn-lg">بیشتر بدانید</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'teacher panel' %}" class="btn btn-primary btn-lg">شروع کنید</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">شروع کنید</a>
+                {% endif %}
+                    <a href="#features" style="color: #fff;" class="btn btn-outline btn-lg ">بیشتر بدانید</a>
                 </div>
             </div>
             <div class="hero-image">
                 <div class="abstract-shape">
-                    <img src="{% static 'background_removed_image.png'  %}" style="width: 250px;transform: translate(0,-1.5rem);"/>
+                    <img src="{% static 'background_removed_image.png' %}" style="width: 300px;transform: translate(0,-1.5rem);"/>
                     <div class="floating-card card-1">
                         <i class="fa-solid fa-check-circle text-success"></i> آزمون ساخته شد
                     </div>
@@ -79,7 +85,7 @@
 
     <section id="features" class="section-features">
         <div class="container">
-            <div class="section-title">
+            <div class="section-title body-text">
                 <h2>چرا برهان ؟</h2>
                 <p>برنامه راهنمای هوشمند آموزش نوین ابزارهایی در اخیار شما قرار میدهد که هر معلم / دانش‌آموز / والدینی به آن نیاز دارد</p>
 
@@ -99,8 +105,7 @@
                         <i class="fa-solid fa-chart-pie"></i>
                     </div>
                     <h3>مدیریت هوشمند کلاسی</h3>
-                    <p style="text-align: justify;">شناسایی هوشمند نقاط ضعف و قوت هر دانش‌آموز به همراه گروه بندی هوشمند دانش آموزان برای تضمین ارتقای یادگیری دانش آموزان در
-کلاس.</p>
+                    <p style="text-align: justify;">شناسایی هوشمند نقاط ضعف و قوت هر دانش‌آموز به همراه گروه بندی هوشمند دانش آموزان برای تضمین ارتقای یادگیری دانش آموزان در کلاس.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon-box bg-green">
@@ -122,3 +127,132 @@
     <script src="{% static 'js/index.js' %}" ></script>
 </body>
 </html>
+
+
+
+{#<!DOCTYPE html>#}
+{#{% load static %}#}
+{#<html lang="fa" dir="rtl">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
+{#    <title>برهان - سیستم هوشمند مدارس</title>#}
+{#    <link rel="stylesheet" href={% static 'css/style.css' %}>#}
+{#    <link rel="stylesheet" href="{% static 'css/landing.css' %}">#}
+{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">#}
+{##}
+{#</head>#}
+{#<body>#}
+{##}
+{#    <nav class="landing-navbar">#}
+{#        <div class="container nav-container">#}
+{#            <a href="#" class="nav-logo">#}
+{#                <img class="logo-home" src="{% static 'background_removed_image.png' %}" />#}
+{##}
+{#            </a>#}
+{##}
+{#            <div class="menu-toggle" id="mobile-menu-btn">#}
+{#                <i class="fa-solid fa-bars"></i>#}
+{#            </div>#}
+{##}
+{#            <div class="nav-menu" id="nav-menu">#}
+{#                <ul class="nav-list">#}
+{#                    <li><a href="#features" class="nav-link">ویژگی‌ها</a></li>#}
+{##}
+{#                </ul>#}
+{#                {% if user.is_authenticated %}#}
+{#                    <a href="{% url 'teacher panel' %}" class="btn btn-primary nav-btn">ورود به پنل کاربری</a>#}
+{#                {% else %}#}
+{#                    <a href="{% url 'login' %}" class="btn btn-primary nav-btn">ورود به پنل کاربری</a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <div class="nav-overlay" id="nav-overlay"></div>#}
+{#        </div>#}
+{#    </nav>#}
+{##}
+{#    <header class="hero">#}
+{#        <div>#}
+{#        <div class="container hero-container">#}
+{#            <div class="hero-content">#}
+{#                <span class="badge">برنامه راهنمای هوشمند آموزش نوین</span>#}
+{#                <h1 style="font-size: 35px;">#}
+{#                    <span class="text-primary">برهان</span>#}
+{#                    دلیلی برای تحول#}
+{#                    <br/>در آموزش و پرورش با#}
+{#                    <br/>#}
+{#                    <span class="text-primary">هوش مصنوعی</span>#}
+{##}
+{#                </h1>#}
+{#                <p>#}
+{#                    برنامه جامع مدیریت کلاسی هوشمند، طراحی آزمون و تمرین شخصی سازی شده، تحلیل پیشرفت تحصیلی، نگارش طرح درس اختصاصی همه با قدرت هوش مصنوعی در دستان شماست.#}
+{#                </p>#}
+{#                <div class="hero-actions">#}
+{#                    {% if user.is_authenticated %}#}
+{#                    <a href="{% url 'teacher panel' %}" class="btn btn-primary nav-btn">شروع کنید</a>#}
+{#                {% else %}#}
+{#                    <a href="{% url 'login' %}" class="btn btn-primary nav-btn">شروع کنید</a>#}
+{#                {% endif %}#}
+{#                    <a href="#features" class="btn btn-outline btn-lg">بیشتر بدانید</a>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="hero-image">#}
+{#                <div class="abstract-shape">#}
+{#                    <img src="{% static 'background_removed_image.png'  %}" style="width: 250px;transform: translate(0,-1.5rem);"/>#}
+{#                    <div class="floating-card card-1">#}
+{#                        <i class="fa-solid fa-check-circle text-success"></i> آزمون ساخته شد#}
+{#                    </div>#}
+{#                    <div class="floating-card card-2">#}
+{#                        <i class="fa-solid fa-chart-line text-primary"></i> رشد ۳۰٪ نمرات#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        </div>#}
+{#    </header>#}
+{##}
+{#    <section id="features" class="section-features">#}
+{#        <div class="container">#}
+{#            <div class="section-title">#}
+{#                <h2>چرا برهان ؟</h2>#}
+{#                <p>برنامه راهنمای هوشمند آموزش نوین ابزارهایی در اخیار شما قرار میدهد که هر معلم / دانش‌آموز / والدینی به آن نیاز دارد</p>#}
+{##}
+{#            </div>#}
+{##}
+{#            <div class="features-grid">#}
+{#                <div class="feature-card">#}
+{#                    <div class="icon-box bg-blue">#}
+{#                        <i class="fa-solid fa-wand-magic-sparkles"></i>#}
+{#                    </div>#}
+{#                    <h3>طراحی آزمون های شخصی سازی شده با AI</h3>#}
+{#                    <p style="text-align: justify;">فقط دانش آموز را انتخاب کنید، هوش مصنوعی در چند ثانیه آزمون استاندارد مناسب با سطح هر دانش آموز طرح می‌کند.</p>#}
+{#                </div>#}
+{##}
+{#                <div class="feature-card">#}
+{#                    <div class="icon-box bg-purple">#}
+{#                        <i class="fa-solid fa-chart-pie"></i>#}
+{#                    </div>#}
+{#                    <h3>مدیریت هوشمند کلاسی</h3>#}
+{#                    <p style="text-align: justify;">شناسایی هوشمند نقاط ضعف و قوت هر دانش‌آموز به همراه گروه بندی هوشمند دانش آموزان برای تضمین ارتقای یادگیری دانش آموزان در#}
+{#کلاس.</p>#}
+{#                </div>#}
+{#                <div class="feature-card">#}
+{#                    <div class="icon-box bg-green">#}
+{#                        <i class="fa-solid fa-file-excel"></i>#}
+{#                    </div>#}
+{#                    <h3>طراحی تمرین های شخصی سازی شده با AI</h3>#}
+{#                    <p style="text-align: justify;">به هر دانش آموز متناسب با سطح او تمرین های منحصر به فرد داده میشود تا فرایند یادگیری در هر دانش آموز متناسب با شرایط ویژه اش کامل شود.</p>#}
+{#                </div>#}
+{##}
+{#            </div>#}
+{#        </div>#}
+{#    </section>#}
+{##}
+{#    <footer class="footer">#}
+{#        <div class="container">#}
+{#            <p>&copy; ۲۰۲۵ برهان. تمامی حقوق محفوظ است.</p>#}
+{#        </div>#}
+{#    </footer>#}
+{#    <script src="{% static 'js/index.js' %}" ></script>#}
+{#</body>#}
+{#</html>#}

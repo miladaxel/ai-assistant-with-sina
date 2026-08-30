@@ -2,7 +2,7 @@ from django.urls import path
 from question import views
 
 urlpatterns = [
-    path('', views.ChatTestView.as_view(), name='chat_test'),
+    path('', views.ChatTestView.as_view(), name='chat'),
     path('exam/', views.ExamQuestionListView.as_view(), name='exam_question_list'),
     path('analyze/', views.AnalyzeStudentsView.as_view(), name='text_analyze'),
     path('assignment/', views.AssignExercisesView.as_view(), name='assignment_question_list'),
@@ -19,5 +19,6 @@ urlpatterns = [
     path('exam/<int:exam_id>/snapshot/create/',views.ExamSnapShotCreateView.as_view(),name='exam_snapshot_create'),
     path('exam/<int:exam_id>/snapshots/',views.ExamSnapShotListView.as_view(),name='exam_snapshot_list'),
     path('exam/participation_list/<int:exam_id>/', views.StudentParticipationListView.as_view(), name='exam_participation_list'),
+    path('exams/', views.ExamListView.as_view(), name='exam_list'),
 
 ]

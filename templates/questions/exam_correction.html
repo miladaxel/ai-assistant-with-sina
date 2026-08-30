@@ -1,379 +1,462 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ثبت نمرات</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends 'Profile/base.html' %}
+{% load static %}
+
+{% block title %}پنل تصحیح آزمون{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/studentcheck.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* --- استایل‌های پایه --- */
-        body {
-            font-family: 'Tahoma', sans-serif;
-            background-color: #f3f4f6;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* --- کارت مشخصات دانش‌آموز (Sticky) --- */
-        .student-header-card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            margin-bottom: 30px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .student-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e5e7eb;
-        }
-
-        .st-name { margin: 0; font-size: 1.1rem; font-weight: bold; }
-        .st-detail { font-size: 0.85rem; color: #6b7280; }
-
-        .total-score-box {
-            text-align: center;
-            background: #f9fafb;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-        .score-val { font-size: 1.5rem; font-weight: bold; color: #4f46e5; }
-        .score-label { font-size: 0.8rem; color: #6b7280; }
-
-        /* --- کارت سوالات --- */
-        .question-card {
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .q-header {
-            background: #f8fafb;
-            padding: 15px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            font-weight: bold;
-            color: #374151;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .q-body {
-            padding: 0 20px;
-        }
-
-        /* --- ردیف زیر سوال --- */
-        .sub-question-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px dashed #e5e7eb;
-        }
-
-        .sub-question-row:last-child {
-            border-bottom: none;
-        }
-
-        .sub-q-text {
-            font-size: 0.95rem;
-            color: #1f2937;
-        }
-
-        .sub-q-weight {
-            font-size: 0.8rem;
-            color: #9ca3af;
-            margin-right: 5px;
-        }
-
-        /* --- استایل چک‌باکس سفارشی (نکته کلیدی) --- */
-        .grading-checkbox-wrapper {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        /* مخفی کردن چک‌باکس اصلی مرورگر */
-        .grading-checkbox-wrapper input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        /* ظاهر چک‌باکس (مربع) */
-        .custom-checkmark {
-            height: 32px;
-            width: 32px;
-            background-color: #fff;
-            border: 2px solid #d1d5db;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            color: white;
-            font-size: 18px;
-        }
-
-        /* هاور */
-        .grading-checkbox-wrapper:hover .custom-checkmark {
-            border-color: #9ca3af;
-            background-color: #f9fafb;
-        }
-
-        /* حالت تیک خورده (صحیح) */
-        .grading-checkbox-wrapper input:checked ~ .custom-checkmark {
-            background-color: #4CAF50; /* سبز */
-            border-color: #4CAF50;
-        }
-
-        /* آیکون تیک */
-        .custom-checkmark:after {
-            content: "\f00c"; /* کد آیکون FontAwesome */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            display: none;
-        }
-
-        .grading-checkbox-wrapper input:checked ~ .custom-checkmark:after {
-            display: block;
-        }
-
-        /* لیبل وضعیت (کنار چک باکس) */
-        .status-label {
-            margin-left: 10px;
-            font-size: 0.85rem;
-            color: #6b7280;
-            width: 50px;
-            text-align: left;
-        }
-
-        .grading-checkbox-wrapper input:checked ~ .status-label {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        /* --- دکمه ثبت --- */
-        .submit-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            padding: 15px;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            text-align: left;
-            padding-left: 50px;
-            box-sizing: border-box;
-        }
-
-        .btn-submit {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .main-content { margin: 0 auto; padding: 40px 20px; }
+        /* استایل برای چک‌باکس‌های مخفی که توسط دکمه‌ها کنترل می‌شوند */
+        .hidden-check { display: none !important; }
     </style>
-</head>
-<body><h2>تصحیح آزمون: {{ exam.name }}</h2>
-<h3>دانش‌آموز: {{ student.full_name }}</h3>
+{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
+{% block content %}
+<div class="main-content" style="width: 900px">
+    <header class="header-container">
+        <a href="{{ request.META.HTTP_REFERER }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
 
-    <div id="questionsList">
+        <div class="page-titles">
+            <h1>تصحیح آزمون: {{ exam.name }}</h1>
+            <p>لطفاً نمرات را با دقت وارد نمایید</p>
+        </div>
+    </header>
 
-        {% with current_q_id=None %}
+    <form method="post" id="gradingForm">
+        {% csrf_token %}
 
-        {% for r in results %}
-
-            {% if r.subquestion %}
-                {% if current_q_id != r.subquestion.question.id %}
-
-                    {% if not forloop.first %}
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <div class="question-card">
-                        <div class="q-header">
-                            <span>سوال {{ r.subquestion.question.number }}</span>
-                            <span>بارم کل: {{ r.subquestion.question.total_score }}</span>
-                        </div>
-                        <div class="q-body">
-
-                    {% with current_q_id=r.subquestion.question.id %}
-                    {% endwith %}
-
-                {% endif %}
-
-            {% else %}
-                {% if current_q_id != r.question.id %}
-
-                    {% if not forloop.first %}
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <div class="question-card">
-                        <div class="q-header">
-                            <span>سوال {{ r.question.number }}</span>
-                            <span>بارم کل: {{ r.question.total_score }}</span>
-                        </div>
-                        <div class="q-body">
-
-                    {% with current_q_id=r.question.id %}
-                    {% endwith %}
-
-                {% endif %}
-            {% endif %}
-
-            <div class="sub-question-row">
-                <div>
-                    {% if r.subquestion %}
-                        <span class="sub-q-text">
-                            {{ r.subquestion.number }}) {{ r.subquestion.text }}
-                        </span>
-                        <span class="sub-q-weight">
-                            ({{ r.subquestion.score }} نمره)
-                        </span>
-                    {% else %}
-                        <span class="sub-q-text">
-                            {{ r.question.text }}
-                        </span>
-                        <span class="sub-q-weight">
-                            ({{ r.question.score }} نمره)
-                        </span>
-                    {% endif %}
-                </div>
-
-                <div style="display:flex; align-items:center;">
-                    <span class="status-label">
-                        {% if r.is_correct %}درست{% else %}غلط{% endif %}
-                    </span>
-
-                    <label class="grading-checkbox-wrapper">
-                        <input
-                            type="checkbox"
-                            name="result_{{ r.id }}"
-                            class="grade-checkbox"
-                            {% if r.is_correct %}checked{% endif %}
-                        >
-                        <span class="custom-checkmark"></span>
-                    </label>
-                </div>
+        <div class="student-card">
+            <div class="student-name-section">
+                <h2 class="q-number-pill" style="width: 400px">{{ student.full_name }}</h2>
             </div>
 
-        {% endfor %}
+            <div class="questions-wrapper">
+                {% for r in results %}
+                <div class="question-row-container">
+                    <div class="question-box">
+                        <div class="q-number-pill">
+                            {% if r.subquestion %}
+                                سوال {{ r.subquestion.question.number }} - بخش {{ r.subquestion.number }}
+                            {% else %}
+                                سوال {{ r.question.number }}
+                            {% endif %}
+                        </div>
 
+                        <div class="status-btn-group" data-result-id="{{ r.id }}">
+                            <button type="button" class="status-dot dot-success {% if r.is_correct %}active{% endif %}" data-value="true">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            <button type="button" class="status-dot dot-warning" data-value="false">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <button type="button" class="status-dot dot-error {% if not r.is_correct %}active{% endif %}" data-value="false">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="checkbox"
+                           name="result_{{ r.id }}"
+                           id="check-{{ r.id }}"
+                           class="hidden-check"
+                           {% if r.is_correct %}checked{% endif %}>
                 </div>
+
+                {% if not forloop.last %}<div class="divider"></div>{% endif %}
+                {% endfor %}
             </div>
+        </div>
 
-        {% endwith %}
+        <div style="text-align: center; margin-top: 30px;">
+            <button type="submit" class="btn-submit" style="padding: 12px 60px; border-radius: 50px; background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-save"></i> ذخیره تغییرات
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
 
-    </div>
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const groups = document.querySelectorAll(".status-btn-group");
 
-    <div class="submit-container">
-        <button type="submit" class="btn-submit">
-            ذخیره تصحیح
-        </button>
-    </div>
-</form>
-    <script>
-        // تابع محاسبه نمره زنده
-        function updateScore(checkbox, labelId) {
-            const label = document.getElementById(labelId);
+        groups.forEach((group) => {
+            const resultId = group.getAttribute('data-result-id');
+            const checkbox = document.getElementById(`check-${resultId}`);
+            const btns = group.querySelectorAll(".status-dot");
 
-            // ۱. تغییر متن کنار چک‌باکس
-            if (checkbox.checked) {
-                label.innerText = "صحیح";
-                label.style.color = "#4CAF50"; // سبز
-            } else {
-                label.innerText = "غلط";
-                label.style.color = "#6b7280"; // خاکستری
-            }
+            btns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    // تغییر حالت فعال دکمه‌ها
+                    btns.forEach((b) => b.classList.remove("active"));
+                    btn.classList.add("active");
 
-            // ۲. محاسبه مجدد نمره کل
-            calculateTotal();
-        }
+                    // به‌روزرسانی مقدار چک‌باکس مخفی
+                    const isCorrect = btn.getAttribute('data-value') === "true";
+                    checkbox.checked = isCorrect;
 
-        function calculateTotal() {
-            let total = 0;
-            // گرفتن تمام چک‌باکس‌ها
-            const checkboxes = document.querySelectorAll('.grade-checkbox');
-
-            checkboxes.forEach(box => {
-                if (box.checked) {
-                    // اگر تیک خورده بود، نمره‌اش (data-score) را اضافه کن
-                    total += parseFloat(box.getAttribute('data-score'));
-                }
+                    console.log(`نتیجه سوال ${resultId}:`, checkbox.checked);
+                });
             });
+        });
+    });
+</script>
+{% endblock %}
 
-            // نمایش نمره
-            document.getElementById('totalScoreDisplay').innerText = total;
-        }
-    </script>
-</body>
-</html>
 
-{#<h2>تصحیح آزمون: {{ exam.name }}</h2>#}
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="fa" dir="rtl">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
+{#    <title>ثبت نمرات</title>#}
+{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">#}
+{#    <style>#}
+{#        /* --- استایل‌های پایه --- */#}
+{#        body {#}
+{#            font-family: 'Tahoma', sans-serif;#}
+{#            background-color: #f3f4f6;#}
+{#            margin: 0;#}
+{#            padding: 20px;#}
+{#            color: #333;#}
+{#        }#}
+{##}
+{#        .container {#}
+{#            max-width: 800px;#}
+{#            margin: 0 auto;#}
+{#        }#}
+{##}
+{#        /* --- کارت مشخصات دانش‌آموز (Sticky) --- */#}
+{#        .student-header-card {#}
+{#            background: #fff;#}
+{#            padding: 20px;#}
+{#            border-radius: 12px;#}
+{#            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);#}
+{#            display: flex;#}
+{#            justify-content: space-between;#}
+{#            align-items: center;#}
+{#            position: sticky;#}
+{#            top: 20px;#}
+{#            z-index: 100;#}
+{#            margin-bottom: 30px;#}
+{#            border: 1px solid #e5e7eb;#}
+{#        }#}
+{##}
+{#        .student-info {#}
+{#            display: flex;#}
+{#            align-items: center;#}
+{#            gap: 15px;#}
+{#        }#}
+{##}
+{#        .avatar {#}
+{#            width: 50px;#}
+{#            height: 50px;#}
+{#            border-radius: 50%;#}
+{#            object-fit: cover;#}
+{#            border: 2px solid #e5e7eb;#}
+{#        }#}
+{##}
+{#        .st-name { margin: 0; font-size: 1.1rem; font-weight: bold; }#}
+{#        .st-detail { font-size: 0.85rem; color: #6b7280; }#}
+{##}
+{#        .total-score-box {#}
+{#            text-align: center;#}
+{#            background: #f9fafb;#}
+{#            padding: 10px 20px;#}
+{#            border-radius: 8px;#}
+{#            border: 1px solid #e5e7eb;#}
+{#        }#}
+{#        .score-val { font-size: 1.5rem; font-weight: bold; color: #4f46e5; }#}
+{#        .score-label { font-size: 0.8rem; color: #6b7280; }#}
+{##}
+{#        /* --- کارت سوالات --- */#}
+{#        .question-card {#}
+{#            background: #fff;#}
+{#            border-radius: 12px;#}
+{#            border: 1px solid #e5e7eb;#}
+{#            margin-bottom: 20px;#}
+{#            overflow: hidden;#}
+{#        }#}
+{##}
+{#        .q-header {#}
+{#            background: #f8fafb;#}
+{#            padding: 15px 20px;#}
+{#            border-bottom: 1px solid #e5e7eb;#}
+{#            font-weight: bold;#}
+{#            color: #374151;#}
+{#            display: flex;#}
+{#            justify-content: space-between;#}
+{#        }#}
+{##}
+{#        .q-body {#}
+{#            padding: 0 20px;#}
+{#        }#}
+{##}
+{#        /* --- ردیف زیر سوال --- */#}
+{#        .sub-question-row {#}
+{#            display: flex;#}
+{#            justify-content: space-between;#}
+{#            align-items: center;#}
+{#            padding: 15px 0;#}
+{#            border-bottom: 1px dashed #e5e7eb;#}
+{#        }#}
+{##}
+{#        .sub-question-row:last-child {#}
+{#            border-bottom: none;#}
+{#        }#}
+{##}
+{#        .sub-q-text {#}
+{#            font-size: 0.95rem;#}
+{#            color: #1f2937;#}
+{#        }#}
+{##}
+{#        .sub-q-weight {#}
+{#            font-size: 0.8rem;#}
+{#            color: #9ca3af;#}
+{#            margin-right: 5px;#}
+{#        }#}
+{##}
+{#        /* --- استایل چک‌باکس سفارشی (نکته کلیدی) --- */#}
+{#        .grading-checkbox-wrapper {#}
+{#            position: relative;#}
+{#            display: inline-block;#}
+{#            cursor: pointer;#}
+{#            user-select: none;#}
+{#        }#}
+{##}
+{#        /* مخفی کردن چک‌باکس اصلی مرورگر */#}
+{#        .grading-checkbox-wrapper input {#}
+{#            position: absolute;#}
+{#            opacity: 0;#}
+{#            cursor: pointer;#}
+{#            height: 0;#}
+{#            width: 0;#}
+{#        }#}
+{##}
+{#        /* ظاهر چک‌باکس (مربع) */#}
+{#        .custom-checkmark {#}
+{#            height: 32px;#}
+{#            width: 32px;#}
+{#            background-color: #fff;#}
+{#            border: 2px solid #d1d5db;#}
+{#            border-radius: 8px;#}
+{#            display: flex;#}
+{#            align-items: center;#}
+{#            justify-content: center;#}
+{#            transition: all 0.2s;#}
+{#            color: white;#}
+{#            font-size: 18px;#}
+{#        }#}
+{##}
+{#        /* هاور */#}
+{#        .grading-checkbox-wrapper:hover .custom-checkmark {#}
+{#            border-color: #9ca3af;#}
+{#            background-color: #f9fafb;#}
+{#        }#}
+{##}
+{#        /* حالت تیک خورده (صحیح) */#}
+{#        .grading-checkbox-wrapper input:checked ~ .custom-checkmark {#}
+{#            background-color: #4CAF50; /* سبز */#}
+{#            border-color: #4CAF50;#}
+{#        }#}
+{##}
+{#        /* آیکون تیک */#}
+{#        .custom-checkmark:after {#}
+{#            content: "\f00c"; /* کد آیکون FontAwesome */#}
+{#            font-family: "Font Awesome 6 Free";#}
+{#            font-weight: 900;#}
+{#            display: none;#}
+{#        }#}
+{##}
+{#        .grading-checkbox-wrapper input:checked ~ .custom-checkmark:after {#}
+{#            display: block;#}
+{#        }#}
+{##}
+{#        /* لیبل وضعیت (کنار چک باکس) */#}
+{#        .status-label {#}
+{#            margin-left: 10px;#}
+{#            font-size: 0.85rem;#}
+{#            color: #6b7280;#}
+{#            width: 50px;#}
+{#            text-align: left;#}
+{#        }#}
+{##}
+{#        .grading-checkbox-wrapper input:checked ~ .status-label {#}
+{#            color: #4CAF50;#}
+{#            font-weight: bold;#}
+{#        }#}
+{##}
+{#        /* --- دکمه ثبت --- */#}
+{#        .submit-container {#}
+{#            position: fixed;#}
+{#            bottom: 0;#}
+{#            left: 0;#}
+{#            width: 100%;#}
+{#            background: white;#}
+{#            padding: 15px;#}
+{#            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);#}
+{#            text-align: left;#}
+{#            padding-left: 50px;#}
+{#            box-sizing: border-box;#}
+{#        }#}
+{##}
+{#        .btn-submit {#}
+{#            background: #4f46e5;#}
+{#            color: white;#}
+{#            border: none;#}
+{#            padding: 12px 30px;#}
+{#            border-radius: 8px;#}
+{#            font-size: 1rem;#}
+{#            cursor: pointer;#}
+{#            font-weight: bold;#}
+{#        }#}
+{#    </style>#}
+{#</head>#}
+{#<body><h2>تصحیح آزمون: {{ exam.name }}</h2>#}
 {#<h3>دانش‌آموز: {{ student.full_name }}</h3>#}
 {##}
 {#<form method="post">#}
 {#    {% csrf_token %}#}
 {##}
-{#    <table border="1" cellpadding="8">#}
-{#        <tr>#}
-{#            <th>سؤال</th>#}
-{#            <th>درست است؟</th>#}
-{#        </tr>#}
+{#    <div id="questionsList">#}
+{##}
+{#        {% with current_q_id=None %}#}
 {##}
 {#        {% for r in results %}#}
-{#            <tr>#}
-{#                <td>#}
-{#                    {% if r.subquestion %}#}
-{#                        سؤال {{ r.subquestion.question.number }} - زیرسؤال {{ r.subquestion.number }}#}
-{#                    {% else %}#}
-{#                        سؤال {{ r.question.number }}#}
-{#                    {% endif %}#}
-{#                </td>#}
-{#                <td>#}
-{#                    <input type="checkbox" name="result_{{ r.id }}" {% if r.is_correct %}checked{% endif %}>#}
-{#                </td>#}
-{#            </tr>#}
-{#        {% endfor %}#}
-{#    </table>#}
 {##}
-{#    <button type="submit">ذخیره تصحیح</button>#}
+{#            {% if r.subquestion %}#}
+{#                {% if current_q_id != r.subquestion.question.id %}#}
+{##}
+{#                    {% if not forloop.first %}#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{##}
+{#                    <div class="question-card">#}
+{#                        <div class="q-header">#}
+{#                            <span>سوال {{ r.subquestion.question.number }}</span>#}
+{#                            <span>بارم کل: {{ r.subquestion.question.total_score }}</span>#}
+{#                        </div>#}
+{#                        <div class="q-body">#}
+{##}
+{#                    {% with current_q_id=r.subquestion.question.id %}#}
+{#                    {% endwith %}#}
+{##}
+{#                {% endif %}#}
+{##}
+{#            {% else %}#}
+{#                {% if current_q_id != r.question.id %}#}
+{##}
+{#                    {% if not forloop.first %}#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{##}
+{#                    <div class="question-card">#}
+{#                        <div class="q-header">#}
+{#                            <span>سوال {{ r.question.number }}</span>#}
+{#                            <span>بارم کل: {{ r.question.total_score }}</span>#}
+{#                        </div>#}
+{#                        <div class="q-body">#}
+{##}
+{#                    {% with current_q_id=r.question.id %}#}
+{#                    {% endwith %}#}
+{##}
+{#                {% endif %}#}
+{#            {% endif %}#}
+{##}
+{#            <div class="sub-question-row">#}
+{#                <div>#}
+{#                    {% if r.subquestion %}#}
+{#                        <span class="sub-q-text">#}
+{#                            {{ r.subquestion.number }}) {{ r.subquestion.text }}#}
+{#                        </span>#}
+{#                        <span class="sub-q-weight">#}
+{#                            ({{ r.subquestion.score }} نمره)#}
+{#                        </span>#}
+{#                    {% else %}#}
+{#                        <span class="sub-q-text">#}
+{#                            {{ r.question.text }}#}
+{#                        </span>#}
+{#                        <span class="sub-q-weight">#}
+{#                            ({{ r.question.score }} نمره)#}
+{#                        </span>#}
+{#                    {% endif %}#}
+{#                </div>#}
+{##}
+{#                <div style="display:flex; align-items:center;">#}
+{#                    <span class="status-label">#}
+{#                        {% if r.is_correct %}درست{% else %}غلط{% endif %}#}
+{#                    </span>#}
+{##}
+{#                    <label class="grading-checkbox-wrapper">#}
+{#                        <input#}
+{#                            type="checkbox"#}
+{#                            name="result_{{ r.id }}"#}
+{#                            class="grade-checkbox"#}
+{#                            {% if r.is_correct %}checked{% endif %}#}
+{#                        >#}
+{#                        <span class="custom-checkmark"></span>#}
+{#                    </label>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#        {% endfor %}#}
+{##}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#        {% endwith %}#}
+{##}
+{#    </div>#}
+{##}
+{#    <div class="submit-container">#}
+{#        <button type="submit" class="btn-submit">#}
+{#            ذخیره تصحیح#}
+{#        </button>#}
+{#    </div>#}
 {#</form>#}
+{#    <script>#}
+{#        // تابع محاسبه نمره زنده#}
+{#        function updateScore(checkbox, labelId) {#}
+{#            const label = document.getElementById(labelId);#}
+{##}
+{#            // ۱. تغییر متن کنار چک‌باکس#}
+{#            if (checkbox.checked) {#}
+{#                label.innerText = "صحیح";#}
+{#                label.style.color = "#4CAF50"; // سبز#}
+{#            } else {#}
+{#                label.innerText = "غلط";#}
+{#                label.style.color = "#6b7280"; // خاکستری#}
+{#            }#}
+{##}
+{#            // ۲. محاسبه مجدد نمره کل#}
+{#            calculateTotal();#}
+{#        }#}
+{##}
+{#        function calculateTotal() {#}
+{#            let total = 0;#}
+{#            // گرفتن تمام چک‌باکس‌ها#}
+{#            const checkboxes = document.querySelectorAll('.grade-checkbox');#}
+{##}
+{#            checkboxes.forEach(box => {#}
+{#                if (box.checked) {#}
+{#                    // اگر تیک خورده بود، نمره‌اش (data-score) را اضافه کن#}
+{#                    total += parseFloat(box.getAttribute('data-score'));#}
+{#                }#}
+{#            });#}
+{##}
+{#            // نمایش نمره#}
+{#            document.getElementById('totalScoreDisplay').innerText = total;#}
+{#        }#}
+{#    </script>#}
+{#</body>#}
+{#</html>#}
+{##}

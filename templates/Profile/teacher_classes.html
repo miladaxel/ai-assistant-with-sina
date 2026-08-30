@@ -247,7 +247,7 @@
                                         <td>{{ student.fathers_name|default:"-" }}</td>
                                         <td>{{ student.national_code }}</td>
                                         <td>
-                                            <a href="#" class="btn-sm-outline" style="text-decoration:none; color:#4f46e5; font-size:0.85rem;">
+                                            <a href="{% url 'student_detail' student.id %}" class="btn-sm-outline" style="text-decoration:none; color:#4f46e5; font-size:0.85rem;">
                                                 <i class="fa-solid fa-address-card"></i>
                                                 پروفایل
                                             </a>

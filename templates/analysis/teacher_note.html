@@ -1,19 +1,13 @@
-
-
+{% extends 'Profile/base.html' %}
 {% load static %}
-<!doctype html>
-<html lang="fa" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+{% block extra_css %}
     <title>ثبت یادداشت جدید</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="{% static 'css/notes.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-
     <style>
       /* استایل‌های اختصاصی تم شفق قطبی (Aurora) */
       :root {
@@ -213,7 +207,9 @@
         .big-textarea { min-height: 300px; }
       }
     </style>
-  </head>
+{% endblock %}
+
+{% block content %}
   <body>
     <form id="noteForm" method="POST" action="">
     {% csrf_token %}
@@ -353,7 +349,8 @@
     </div>
     </form>
   </body>
-
+{% endblock %}
+{% block extra_js %}
   {{ students_json|json_script:"students-data" }}
 
   <script src="{% static 'js/layout.js' %}"></script>
@@ -366,4 +363,4 @@
       // اگر JS شما نیاز به لیست دانش‌آموزان دارد، اینجا می‌توانید به متغیر گلوبال پاس دهید
       // window.allStudents = studentsData; 
   </script>
-</html>
+{% endblock %}

@@ -5,6 +5,7 @@ import time
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count
 
 from .exam_data import EXAM_DATA, students_data, student_exercises
 from django.views.generic import TemplateView, CreateView, DetailView, ListView, FormView
@@ -335,6 +336,21 @@ class ExamSummaryView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
         ctx["total_subquestions"] = total_sub
         ctx["participants"] = participants
         return ctx
+
+
+class ExamListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+    model = Exam
+    template_name = "questions/exam_list.html"
+    context_object_name = "exams"
+    paginate_by = 12
+
+    def get_queryset(self):
+        return (
+            Exam.objects
+            .filter(teacher=self.request.user)
+            .annotate(participants_count=Count("students", distinct=True))
+            .order_by("-created_at")
+        )
 
 
 class ExamSelectStudentsView(LoginRequiredMixin, TemplateView):
