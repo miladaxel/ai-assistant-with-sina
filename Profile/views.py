@@ -125,7 +125,6 @@ class StuedentPanelView(LoginRequiredMixin, TemplateView):
         student = self.request.user.student_profile
         full_name = student.full_name
         student_analyze = get_student_analyze_by_name(full_name)
-        print(student_analyze)
         context['student'] = student
         context['student_analyze'] = student_analyze
         return context

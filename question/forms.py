@@ -15,8 +15,15 @@ class AnalysisBundleCreateForm(forms.ModelForm):
         required=True
     )
     exam = forms.ModelChoiceField(
-        queryset=Exam.objects.all(),label='ازمون',
+        queryset=Exam.objects.none(), label='ازمون',
     )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user is not None and user.is_authenticated:
+            self.fields['exam'].queryset = Exam.objects.filter(
+                teacher=user
+            ).order_by('-created_at')
 
     class Meta:
         model = AnalysisBundle

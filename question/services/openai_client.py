@@ -107,7 +107,7 @@ class OpenAIAnalyzer:
     ) -> OpenAIAnalysisResponse:
         """
         Used for Stage 2 / Stage 3 where inputs are pure text (JSON injected in prompt).
-        This version is more robust and prints raw model output for debugging.
+        This version parses JSON from the model output robustly.
         """
         self._ensure_client()
 
@@ -119,19 +119,7 @@ class OpenAIAnalyzer:
             max_output_tokens=24000,
         )
 
-        # مرحله 2: چاپ کامل پاسخ مدل برای debug
-        print("===== RAW RESPONSE OBJECT =====")
-        print(response)
-        print("===== OUTPUT_TEXT =====")
-        print(getattr(response, "output_text", None))
-        print("===== CONTENT ITEMS =====")
-        for idx, item in enumerate(getattr(response, "output", []) or []):
-            print(f"Item {idx}:")
-            for c_idx, c in enumerate(getattr(item, "content", []) or []):
-                print(f"  Content {c_idx}: type={getattr(c, 'type', None)} text={getattr(c, 'text', None)}")
-        print("===============================")
-
-        # مرحله 3: تلاش برای parse JSON
+        # مرحله 2: تلاش برای parse JSON
         parsed = None
         for item in getattr(response, "output", []) or []:
             for c in getattr(item, "content", []) or []:
@@ -153,9 +141,8 @@ class OpenAIAnalyzer:
             if parsed is not None:
                 break
 
-        # مرحله 4: اگر هنوز JSON parse نشد، log کن ولی crash نکن
+        # مرحله 3: اگر هنوز JSON parse نشد، crash نکن
         if parsed is None:
-            print("⚠️ WARNING: Could not parse JSON from model output (Stage2).")
             parsed = {}  # یا None بسته به جایی که استفاده می‌کنه
 
         usage = getattr(response, "usage", None)

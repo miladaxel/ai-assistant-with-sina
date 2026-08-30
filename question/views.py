@@ -125,9 +125,6 @@ class AnalyzeStudentsView(LoginRequiredMixin, TemplateView):
                 if issue.get("student_answer") != issue.get("correct_answer")
             ]
 
-        # چاپ context برای بررسی
-        print("Context Data:", context)  # اینجا چاپ می‌کنیم که مطمئن بشیم داده‌ها در context هست
-
         context["students_analysis"] = students_data["students"]
         return context
 
@@ -144,9 +141,6 @@ class AssignExercisesView(LoginRequiredMixin, TemplateView):
             # بدون تغییر، داده‌ها رو به شکل ساده در context قرار می‌دهیم
             student["exercises"] = student.get("exercises", [])
 
-        # چاپ داده‌ها برای بررسی
-        print("Context Data:", context)  # اینجا چاپ می‌کنیم که مطمئن بشیم داده‌ها در context هستند
-
         context["students_exercises"] = student_exercises["students"]
         return context
 
@@ -155,6 +149,11 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
     model = AnalysisBundle
     form_class = AnalysisBundleCreateForm
     template_name = "questions/bundle_create.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def form_valid(self, form):
         analyzer = OpenAIAnalyzer()
@@ -211,6 +210,12 @@ class AnalysisBundleDetailView(LoginRequiredMixin, TeacherRequiredMixin ,DetailV
     template_name = "questions/bundle_detail.html"
     context_object_name = "bundle"
 
+    def get_queryset(self):
+        return AnalysisBundle.objects.filter(
+            teacher=self.request.user,
+            exam__teacher=self.request.user,
+        )
+
 
 class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
     model = AnalysisBundle
@@ -220,7 +225,11 @@ class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
 
     def get_queryset(self):
         return (
-            AnalysisBundle.objects.filter(teacher=self.request.user, stage=AnalysisBundle.STAGE_ONE).order_by('-created_at')
+            AnalysisBundle.objects.filter(
+                teacher=self.request.user,
+                exam__teacher=self.request.user,
+                stage=AnalysisBundle.STAGE_ONE,
+            ).order_by('-created_at')
         )
 
 

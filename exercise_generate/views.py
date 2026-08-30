@@ -12,9 +12,14 @@ from question.mixins import TeacherRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class Stage3RunView(LoginRequiredMixin, FormView):
+class Stage3RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
     template_name = "exercise_generate/stage3_run.html"
     form_class = Stage3RunForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def form_valid(self, form):
         stage2_bundle = form.cleaned_data["stage2_bundle"]
@@ -34,16 +39,6 @@ class Stage3RunView(LoginRequiredMixin, FormView):
             # ===== آپلود به OpenAI =====
             pdf_file_id = analyzer.upload_pdf(temp_pdf_path)
 
-            print("\n========== STAGE3 DEBUG ==========")
-            print("Uploaded PDF file_id:", pdf_file_id)
-
-            # تست اینکه فایل واقعاً روی OpenAI وجود دارد
-            file_obj = analyzer.client.files.retrieve(pdf_file_id)
-            print("Retrieved file from OpenAI:")
-            print("File ID:", file_obj.id)
-            print("File Size (bytes):", file_obj.bytes)
-            print("==================================\n")
-
             # ===== خروجی Stage2 =====
             stage2_json = stage2_bundle.result.result_json
 
@@ -53,33 +48,13 @@ class Stage3RunView(LoginRequiredMixin, FormView):
                 json.dumps(stage2_json, ensure_ascii=False)
             )
 
-            print("\n----- INSTRUCTIONS DEBUG -----")
-            print("Instructions length:", len(instructions))
-            print("Instructions preview (first 800 chars):")
-            print(instructions[:800])
-            print("------------------------------\n")
-
             # ===== اسکیما =====
             json_schema = stage3_prompt.schema_json or {}
-
-            print("\n----- SCHEMA DEBUG -----")
-            if json_schema:
-                print("Schema exists ✅")
-                print("Schema keys:", list(json_schema.keys()))
-                print("Schema preview:")
-                print(json.dumps(json_schema, indent=2, ensure_ascii=False)[:800])
-            else:
-                print("Schema is EMPTY ❌")
-            print("-------------------------\n")
 
             # (اختیاری ولی بهتر) اگر اسکیما خالی بود، جلوی اجرا را بگیر
             if not json_schema:
                 raise ValueError("Stage3 prompt schema_json is empty. Please set schema_json for this template.")
 
-            print("\n===== ABOUT TO CALL ANALYZE =====")
-            print("Sending file_id:", pdf_file_id)
-            print("Sending schema keys:", list(json_schema.keys()))
-            print("=================================\n")
             # ===== اجرای مدل با فایل + اسکیما (STRICT) =====
             resp = analyzer.analyze(
                 model='gpt-4.1-mini',
@@ -125,14 +100,16 @@ class Stage3RunView(LoginRequiredMixin, FormView):
         return redirect("exercise_generate:stage3_detail", pk=bundle.pk)
 
 
-class Stage3StudentListView(LoginRequiredMixin, ListView):
+class Stage3StudentListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
     template_name = 'exercise_generate/stage3_list.html'
     context_object_name = 'bundles'
 
     def get_queryset(self):
         return (
             AnalysisBundle.objects.filter(
-                teacher=self.request.user, stage=AnalysisBundle.STAGE_THREE
+                teacher=self.request.user,
+                exam__teacher=self.request.user,
+                stage=AnalysisBundle.STAGE_THREE,
             ).order_by('-created_at')
         )
 
@@ -141,6 +118,13 @@ class AnalysisBundleDetailViewStage3(LoginRequiredMixin, TeacherRequiredMixin ,D
     model = AnalysisBundle
     template_name = "exercise_generate/bundle_detail_stage3.html"
     context_object_name = "bundle"
+
+    def get_queryset(self):
+        return AnalysisBundle.objects.filter(
+            teacher=self.request.user,
+            exam__teacher=self.request.user,
+            stage=AnalysisBundle.STAGE_THREE,
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

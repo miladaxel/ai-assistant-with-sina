@@ -12,16 +12,28 @@ import json
 from django import forms
 from question.models import ExamSnapShot  # مسیر را مچ کن
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from question.mixins import TeacherRequiredMixin
 
-class Stage2RunView(LoginRequiredMixin, FormView):
+class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
     template_name = "analysis/stage2_run.html"
     form_class = Stage2RunForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def _get_exam_id_from_request(self):
         return self.request.GET.get("exam") or self.request.POST.get("exam")
 
     def _get_stage1_bundles_for_exam(self, exam_id):
-        qs = AnalysisBundle.objects.filter(status=AnalysisBundle.STATUS_SUCCESS, stage=AnalysisBundle.STAGE_ONE).order_by("-created_at")
+        qs = AnalysisBundle.objects.filter(
+            teacher=self.request.user,
+            exam__teacher=self.request.user,
+            status=AnalysisBundle.STATUS_SUCCESS,
+            stage=AnalysisBundle.STAGE_ONE,
+        ).order_by("-created_at")
         if exam_id:
             qs = qs.filter(exam_id=exam_id)
         return qs.select_related("prompt_template", "exam")[:300]
@@ -43,7 +55,10 @@ class Stage2RunView(LoginRequiredMixin, FormView):
 
         snapshot_info = None
         if exam_id:
-            snap = ExamSnapShot.objects.filter(exam_id=exam_id).order_by("-created_at").first()
+            snap = ExamSnapShot.objects.filter(
+                exam_id=exam_id,
+                exam__teacher=self.request.user,
+            ).order_by("-created_at").first()
             if snap:
                 data = snap.data or {}
                 students = data.get("students", []) or []
@@ -67,14 +82,17 @@ class Stage2RunView(LoginRequiredMixin, FormView):
         exam = form.cleaned_data["exam"]
         stage1_bundle_id = form.cleaned_data["stage1_bundle_id"]
         stage2_prompt = form.cleaned_data["stage2_prompt"]
-        print('================template raw text ==========================')
-        print(stage2_prompt.instruction_text)
-        print('==================end template==============================')
 
         stage1_bundle = (
             AnalysisBundle.objects
             .select_related("exam")
-            .filter(id=stage1_bundle_id, status=AnalysisBundle.STATUS_SUCCESS)
+            .filter(
+                id=stage1_bundle_id,
+                teacher=self.request.user,
+                exam__teacher=self.request.user,
+                status=AnalysisBundle.STATUS_SUCCESS,
+                stage=AnalysisBundle.STAGE_ONE,
+            )
             .first()
         )
         if not stage1_bundle:
@@ -90,15 +108,6 @@ class Stage2RunView(LoginRequiredMixin, FormView):
             return redirect(f"{reverse('analysis:stage2_run')}?exam={exam.id}")
 
         exam_map_json = stage1_bundle.result.result_json
-
-        print("===== EXAM_MAP_JSON (type) =====")
-        print(type(exam_map_json))
-        print("===== EXAM_MAP_JSON (keys) =====")
-        if isinstance(exam_map_json, dict):
-            print(list(exam_map_json.keys())[:50])  # 50 کلید اول
-        print("===== EXAM_MAP_JSON (pretty) =====")
-        print(json.dumps(exam_map_json, ensure_ascii=False, indent=2)[:20000])  # 20k کاراکتر اول
-        print("===== END EXAM_MAP_JSON =====")
 
         snapshot_obj = ExamSnapShot.objects.filter(exam=exam).order_by("-created_at").first()
         if not snapshot_obj:
@@ -146,11 +155,7 @@ class Stage2RunView(LoginRequiredMixin, FormView):
                         exam_map_json=exam_map_json,
                         student_answers=sp,
                     )
-                    print('step1')
                     resp = analyzer.analyze_text(model=bundle.model_name, prompt_text=prompt_text, temperature=0.2)
-                    print("========= raw model output=========")
-                    print(resp.raw_output_text)
-                    print("====================================")
                     AnalysisResult.objects.create(
                         bundle=bundle,
                         result_json=resp.parsed_json,
@@ -174,27 +179,40 @@ class Stage2RunView(LoginRequiredMixin, FormView):
 
 
 
-class Stage2ResultsView(LoginRequiredMixin, ListView):
+class Stage2ResultsView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
     template_name = "analysis/stage2_results.html"
     context_object_name = "bundles"
 
     def get_queryset(self):
         exam_id = self.kwargs["exam_id"]
+        self.exam = get_object_or_404(
+            Exam,
+            id=exam_id,
+            teacher=self.request.user,
+        )
         return (
             AnalysisBundle.objects
-            .filter(exam_id=exam_id, stage=AnalysisBundle.STAGE_TWO)
+            .filter(
+                exam=self.exam,
+                teacher=self.request.user,
+                stage=AnalysisBundle.STAGE_TWO,
+            )
             .select_related("prompt_template", "exam")
             .order_by("-created_at")
         )
 
 
-class Stage2StudentDetailView(LoginRequiredMixin, DetailView):
+class Stage2StudentDetailView(LoginRequiredMixin, TeacherRequiredMixin, DetailView):
     model = AnalysisBundle
     template_name = "analysis/stage2_student_detail.html"
     context_object_name = "bundle"
 
     def get_queryset(self):
-        return AnalysisBundle.objects.select_related("result", "prompt_template", "exam", "teacher")
+        return AnalysisBundle.objects.filter(
+            teacher=self.request.user,
+            exam__teacher=self.request.user,
+            stage=AnalysisBundle.STAGE_TWO,
+        ).select_related("result", "prompt_template", "exam", "teacher")
 
 
 
