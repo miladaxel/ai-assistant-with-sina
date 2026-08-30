@@ -1,0 +1,538 @@
+
+:root {
+    --primary: #3b82f6;
+    --bg-body: #f3f4f6;
+    --text-default:#fff;
+    --text-alter:#ededed;
+    --sidebar-width: 260px;
+    --bg-title-card:#cbd5e1;
+    --secondary: #f1f5f9;
+
+}
+@font-face {
+    font-family: "Inter";
+    src: url("../fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Estedad";
+    src: url("../fonts/Estedad[KSHD,wght].ttf") format("truetype");
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family:  'Inter','Estedad'; text-decoration: none; }
+
+body {
+    background-image: url("./../images/8.svg"); /* ../ میره یک پوشه بالا */
+    background-repeat: no-repeat;
+    background-size: cover;
+    direction: rtl;
+}
+/* تیتر اصلی */
+.main-title {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-default) !important;
+}
+
+/* تیتر بخش‌ها */
+.part-title {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
+        color: var(--text-default) !important;
+}
+
+/* نام دانش‌آموزان و لیست‌ها */
+.student-name, .list-item {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+        color: var(--text-default) !important;
+}
+.icon-template{
+    width: 30px;
+    display: flex;
+    align-items: center;
+}
+/* متن بدنه و سوالات آزمون */
+.body-text, .exam-question {
+    color: #e9e9e9;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.8; /* انتخاب میانگین برای خوانایی بهتر */
+}
+
+/* دکمه‌ها و منوهای سایت */
+.btn-label, .nav-menu {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+        color: var(--text-default);
+}
+
+/* اعداد و نمرات */
+.numeric-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* توضیحات فرعی و ریز */
+.caption-text {
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--text-alter);
+}
+/* سایدبار */
+.sidebar {
+    width: var(--sidebar-width);
+    background: white;
+    height: 100vh;
+    position: fixed;
+    right: 0; top: 0;
+    padding: 20px;
+    border-left: 1px solid #ddd;
+}
+
+.nav-item {
+    display: flex; gap: 10px; align-items: center;
+    padding: 12px; color: #555; border-radius: 8px; margin-bottom: 5px;
+    transition: 0.2s;
+}
+.nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary); }
+
+/* محتوای اصلی */
+.main-content {
+    margin-right: var(--sidebar-width);
+    padding: 30px;
+}
+
+/* کارت‌ها (برای صفحه کلاس) */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.card {
+    background: white; padding: 20px; border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-top: 4px solid transparent;
+}
+.card-blue { border-top-color: #3b82f6; }
+.card-purple { border-top-color: #8b5cf6; }
+
+.add-card {
+    border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; min-height: 150px; flex-direction: column; color: #777;
+}
+/* تنظیم بخش اطلاعات سمت راست */
+.st-info {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* فاصله بین عدد، عکس و نام */
+}
+
+/* استایل شماره ردیف (دایره‌ای یا ساده) */
+.st-index {
+    width: 28px;
+    height: 28px;
+    background-color: #f1f5f9; /* خاکستری خیلی روشن */
+    color: #64748b;            /* رنگ متن خاکستری */
+    border-radius: 50%;        /* گرد کردن (دایره) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    flex-shrink: 0; /* جلوگیری از جمع شدن */
+}
+
+/* استایل ریز برای نام کلاس زیر اسم (اختیاری) */
+.st-class-name {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* جهت اطمینان از چیدمان نام */
+.st-text-details {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* --- استایل بخش فیلتر --- */
+.filter-section {
+    margin: 2rem 0;
+    padding: 0 1rem;
+    display: flex;
+}
+
+.filter-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 10px 20px;
+    border-radius: 50px; /* گرد کردن گوشه‌ها */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.filter-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    font-family: inherit; /* فونت وزیر یا هر چیزی که دارید */
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: #007bff; /* رنگ آبی هنگام کلیک */
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+/* --- استایل شبکه کلاس‌ها (Grid) --- */
+.classes-grid {
+    display: grid;
+    /* این خط جادویی است: خودش تعداد ستون‌ها را بر اساس سایز صفحه تنظیم می‌کند */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+}
+
+/* --- استایل کارت کلاس --- */
+.class-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex; /* برای چیدمان داخلی */
+    flex-direction: column;
+}
+
+.class-card:hover {
+    transform: translateY(-5px); /* حرکت به بالا هنگام هاور */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-image img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.card-content h3 {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+/* استایل برچسب‌های دسته بندی */
+.badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #eee;
+    color: #555;
+}
+
+/* انیمیشن محو شدن برای فیلتر */
+.class-card.hide {
+    display: none;
+}
+
+.class-card.show {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+
+/*:root {*/
+/*    --primary: #3b82f6;*/
+/*    --bg-body: #f3f4f6;*/
+/*    --sidebar-width: 260px;*/
+
+/*    --primary-blue: #2196F3;*/
+/*    */
+/*}*/
+/*.btn-primary-full {*/
+/*    width: 100%;*/
+/*    text-wrap: nowrap;*/
+/*    background-color: var(--primary-blue);*/
+/*    color: white;*/
+/*    border: none;*/
+/*    padding: 12px;*/
+/*    border-radius: 8px;*/
+/*    font-size: 1rem;*/
+/*    cursor: pointer;*/
+/*    transition: background 0.2s;*/
+/*}*/
+/*.btn-primary-full:hover { background-color: #1976D2; }*/
+/*@font-face {*/
+/*    font-family: "Inter";*/
+/*    src: url("../fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");*/
+/*}*/
+
+/*@font-face {*/
+/*    font-family: "Estedad";*/
+/*    src: url("../fonts/Estedad[KSHD,wght].ttf") format("truetype");*/
+/*}*/
+/** { box-sizing: border-box; margin: 0; padding: 0; font-family:  'Inter','Estedad'; text-decoration: none; }*/
+
+/*body {*/
+/*    background: var(--bg-body);*/
+/*    background-image: url("./../images/8.jpg"); !* ../ میره یک پوشه بالا *!*/
+/*    background-repeat: no-repeat;*/
+/*    background-size: cover;*/
+/*    direction: rtl;*/
+/*}*/
+
+/*!* تیتر اصلی *!*/
+/*h1 {*/
+/*    font-size: 32px;*/
+/*    font-weight: 800;*/
+/*    line-height: 1.2;*/
+/*}*/
+
+/*!* تیتر بخش‌ها *!*/
+/*h2 {*/
+/*    font-size: 24px;*/
+/*    font-weight: 700;*/
+/*    line-height: 1.4;*/
+/*}*/
+
+/*!* نام دانش‌آموزان و لیست‌ها *!*/
+/*.student-name, .list-item {*/
+/*    font-size: 18px;*/
+/*    font-weight: 600;*/
+/*    line-height: 1.5;*/
+/*}*/
+
+/*!* متن بدنه و سوالات آزمون *!*/
+/*.body-text, .exam-question {*/
+/*    font-size: 16px;*/
+/*    font-weight: 400;*/
+/*    line-height: 1.8; !* انتخاب میانگین برای خوانایی بهتر *!*/
+/*}*/
+
+/*!* دکمه‌ها و منوهای سایت *!*/
+/*.btn-label, .nav-menu {*/
+/*    font-size: 14px;*/
+/*    font-weight: 600;*/
+/*    line-height: 1;*/
+/*}*/
+
+/*!* اعداد و نمرات *!*/
+/*.numeric-value {*/
+/*    font-family: 'Inter', sans-serif;*/
+/*    font-size: 15px;*/
+/*    font-weight: 500;*/
+/*}*/
+
+/*!* توضیحات فرعی و ریز *!*/
+/*.caption-text {*/
+/*    font-size: 13px;*/
+/*    font-weight: 300;*/
+/*    line-height: 1.5;*/
+/*}*/
+/*!* سایدبار *!*/
+/*.sidebar {*/
+/*    width: var(--sidebar-width);*/
+/*    background: white;*/
+/*    height: 100vh;*/
+/*    position: fixed;*/
+/*    right: 0; top: 0;*/
+/*    padding: 20px;*/
+/*    border-left: 1px solid #ddd;*/
+/*}*/
+
+/*.nav-item {*/
+/*    display: flex; gap: 10px; align-items: center;*/
+/*    padding: 12px; color: #555; border-radius: 8px; margin-bottom: 5px;*/
+/*    transition: 0.2s;*/
+/*}*/
+/*.nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary); }*/
+
+/*!* محتوای اصلی *!*/
+/*.main-content {*/
+/*    margin-right: var(--sidebar-width);*/
+/*    padding: 30px;*/
+/*}*/
+
+/*!* کارت‌ها (برای صفحه کلاس) *!*/
+/*.grid-container {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));*/
+/*    gap: 20px;*/
+/*    margin-top: 20px;*/
+/*}*/
+
+/*.card {*/
+/*    background: white; padding: 20px; border-radius: 10px;*/
+/*    box-shadow: 0 2px 5px rgba(0,0,0,0.05);*/
+/*    border-top: 4px solid transparent;*/
+/*}*/
+/*.card-blue { border-top-color: #3b82f6; }*/
+/*.card-purple { border-top-color: #8b5cf6; }*/
+
+/*.add-card {*/
+/*    border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center;*/
+/*    cursor: pointer; min-height: 150px; flex-direction: column; color: #777;*/
+/*}*/
+/*!* تنظیم بخش اطلاعات سمت راست *!*/
+/*.st-info {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 12px; !* فاصله بین عدد، عکس و نام *!*/
+/*}*/
+
+/*!* استایل شماره ردیف (دایره‌ای یا ساده) *!*/
+/*.st-index {*/
+/*    width: 28px;*/
+/*    height: 28px;*/
+/*    background-color: #f1f5f9; !* خاکستری خیلی روشن *!*/
+/*    color: #64748b;            !* رنگ متن خاکستری *!*/
+/*    border-radius: 50%;        !* گرد کردن (دایره) *!*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    font-size: 0.85rem;*/
+/*    font-weight: bold;*/
+/*    flex-shrink: 0; !* جلوگیری از جمع شدن *!*/
+/*}*/
+
+/*!* استایل ریز برای نام کلاس زیر اسم (اختیاری) *!*/
+/*.st-class-name {*/
+/*    font-size: 0.75rem;*/
+/*    color: #94a3b8;*/
+/*    margin-top: 2px;*/
+/*}*/
+
+/*!* جهت اطمینان از چیدمان نام *!*/
+/*.st-text-details {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+
+/*!* --- استایل بخش فیلتر --- *!*/
+/*.filter-section {*/
+/*    margin: 2rem 0;*/
+/*    padding: 0 1rem;*/
+/*    display: flex;*/
+/*}*/
+
+/*.filter-wrapper {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 10px;*/
+/*    background: #f8f9fa;*/
+/*    padding: 10px 20px;*/
+/*    border-radius: 50px; !* گرد کردن گوشه‌ها *!*/
+/*    box-shadow: 0 2px 5px rgba(0,0,0,0.05);*/
+/*}*/
+
+/*.filter-label {*/
+/*    font-weight: bold;*/
+/*    color: #333;*/
+/*}*/
+
+/*.filter-select {*/
+/*    padding: 8px 12px;*/
+/*    border: 1px solid #ddd;*/
+/*    border-radius: 8px;*/
+/*    background-color: white;*/
+/*    font-family: inherit; !* فونت وزیر یا هر چیزی که دارید *!*/
+/*    cursor: pointer;*/
+/*    outline: none;*/
+/*    transition: all 0.3s ease;*/
+/*}*/
+
+/*.filter-select:focus {*/
+/*    border-color: #007bff; !* رنگ آبی هنگام کلیک *!*/
+/*    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);*/
+/*}*/
+
+/*!* --- استایل شبکه کلاس‌ها (Grid) --- *!*/
+/*.classes-grid {*/
+/*    display: grid;*/
+/*    !* این خط جادویی است: خودش تعداد ستون‌ها را بر اساس سایز صفحه تنظیم می‌کند *!*/
+/*    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));*/
+/*    gap: 2rem;*/
+/*    padding: 1rem;*/
+/*}*/
+
+/*!* --- استایل کارت کلاس --- *!*/
+/*.class-card {*/
+/*    background: white;*/
+/*    border: 1px solid #eee;*/
+/*    border-radius: 12px;*/
+/*    overflow: hidden;*/
+/*    transition: transform 0.3s ease, box-shadow 0.3s ease;*/
+/*    display: flex; !* برای چیدمان داخلی *!*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*.class-card:hover {*/
+/*    transform: translateY(-5px); !* حرکت به بالا هنگام هاور *!*/
+/*    box-shadow: 0 10px 20px rgba(0,0,0,0.1);*/
+/*}*/
+
+/*.card-image img {*/
+/*    width: 100%;*/
+/*    height: 180px;*/
+/*    object-fit: cover;*/
+/*}*/
+
+/*.card-content {*/
+/*    padding: 1.5rem;*/
+/*}*/
+
+/*.card-content h3 {*/
+/*    margin: 10px 0;*/
+/*    font-size: 1.1rem;*/
+/*}*/
+
+/*!* استایل برچسب‌های دسته بندی *!*/
+/*.badge {*/
+/*    font-size: 0.8rem;*/
+/*    padding: 4px 8px;*/
+/*    border-radius: 4px;*/
+/*    background: #eee;*/
+/*    color: #555;*/
+/*}*/
+
+/*!* انیمیشن محو شدن برای فیلتر *!*/
+/*.class-card.hide {*/
+/*    display: none;*/
+/*}*/
+
+/*.class-card.show {*/
+/*    animation: fadeIn 0.5s ease forwards;*/
+/*}*/
+
+/*@keyframes fadeIn {*/
+/*    from { opacity: 0; transform: translateY(10px); }*/
+/*    to { opacity: 1; transform: translateY(0); }*/
+/*}*/

@@ -1,0 +1,110 @@
+/* css/performance.css */
+
+.container-scroll {
+    max-width: 600px; margin: 0 auto; padding-bottom: 100px;
+}
+
+/* --- Tabs Layout --- */
+.tabs-header {
+    display: flex; background: white; padding: 5px; border-radius: 12px;
+    margin-bottom: 20px; border: 1px solid #e2e8f0;
+}
+
+.tab-btn {
+    flex: 1; padding: 10px; border: none; background: transparent;
+    border-radius: 8px; font-weight: bold; color: #64748b; cursor: pointer;
+    transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.tab-btn.active {
+    background: #eff6ff; color: var(--primary);
+}
+
+.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
+
+/* --- Tab 1: Questions List --- */
+.question-card {
+    background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 15px; border: 1px solid #f1f5f9; cursor: pointer;
+}
+.q-badge {
+    width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; color: #64748b;
+}
+.q-text { flex: 1; font-size: 0.9rem; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- Tab 2: Grades List --- */
+.sort-box { margin-bottom: 15px; text-align: left; }
+.sort-dropdown { padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-size: 0.85rem; }
+
+.rank-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: white; padding: 12px 15px; border-radius: 12px; margin-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.rank-num { width: 25px; font-weight: bold; color: #cbd5e1; font-size: 0.9rem; }
+.rank-score { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
+.rank-name { flex: 1; margin-right: 10px; font-weight: 500; }
+
+/* --- Summary Stats Section --- */
+.stats-section { margin-top: 30px; border-top: 1px dashed #cbd5e1; padding-top: 20px; }
+.section-head { font-weight: 800; margin-bottom: 15px; color: #1e293b; }
+
+.kpi-row { display: flex; gap: 10px; margin-bottom: 20px; }
+.kpi-card {
+    flex: 1; background: white; padding: 15px; border-radius: 12px; text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+.kpi-val { font-size: 1.4rem; font-weight: 800; display: block; margin-bottom: 4px; }
+.kpi-lbl { font-size: 0.75rem; color: #64748b; }
+
+/* CSS Bar Chart (Distribution) */
+.chart-container {
+    background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px;
+    display: flex; align-items: flex-end; justify-content: space-around; height: 180px;
+}
+.chart-bar {
+    width: 40px; background: #e2e8f0; border-radius: 8px 8px 0 0;
+    position: relative; transition: height 0.5s ease;
+}
+.chart-bar:hover { background: var(--primary); }
+.bar-label {
+    position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%);
+    font-size: 0.7rem; color: #64748b; white-space: nowrap;
+}
+.bar-val {
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    font-size: 0.8rem; font-weight: bold; color: #334155;
+}
+
+/* --- Student Detail Page --- */
+.result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
+    border-right: 4px solid transparent;
+}
+.res-correct { border-right-color: #22c55e; background: #f0fdf4; }
+.res-wrong { border-right-color: #ef4444; background: #fef2f2; }
+.res-partial { border-right-color: #eab308; background: #fefce8; }
+
+.q-detail-num { font-weight: bold; color: #64748b; margin-left: 10px; }
+.q-score-badge { font-size: 0.9rem; font-weight: bold; }
+
+/* Sticky Dark Footer */
+.dark-footer {
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    background: #1e293b; color: white;
+    padding: 15px 20px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; text-align: center;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+.df-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.df-val { font-size: 1.1rem; font-weight: bold; }
+.df-lbl { font-size: 0.7rem; color: #94a3b8; }
+.quality-badge {
+    background: #eab308; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;
+}

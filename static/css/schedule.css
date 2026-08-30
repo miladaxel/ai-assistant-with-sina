@@ -1,0 +1,140 @@
+/* css/schedule.css */
+
+.schedule-wrapper {
+    max-width: 600px; /* شبیه موبایل در دسکتاپ */
+    margin: 0 auto;
+}
+
+.page-header-simple {
+    display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+}
+.page-header-simple h1 { font-size: 1.3rem; margin: 0; color: #1e293b; }
+.back-btn { font-size: 1.2rem; color: #64748b; }
+
+/* --- Days List --- */
+.day-section {
+    margin-bottom: 30px;
+    animation: fadeIn 0.3s ease;
+}
+
+.day-header {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    padding-right: 5px;
+    border-right: 3px solid #e2e8f0;
+    padding-right: 10px;
+}
+
+/* --- Slots (زنگ‌ها) --- */
+.slot-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+}
+
+.slot-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    margin-right: 5px;
+}
+
+/* 1. Empty State (خط‌چین) */
+.slot-empty {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 16px;
+    background-color: #f8fafc;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    min-height: 80px;
+}
+
+.slot-empty:hover {
+    border-color: var(--primary);
+    background-color: #eff6ff;
+    color: var(--primary);
+}
+
+.empty-icon { font-size: 1.2rem; }
+
+/* 2. Filled State (توپر) */
+.slot-filled {
+    background: #eff6ff; /* Blue-50 */
+    border-radius: 12px;
+    padding: 16px;
+    border-right: 4px solid #3b82f6; /* نوار رنگی سمت راست */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    cursor: pointer;
+    transition: 0.2s;
+    min-height: 80px;
+}
+
+.slot-filled:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.class-name { font-weight: bold; font-size: 1rem; color: #1e293b; margin-bottom: 4px; }
+.class-loc { font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 5px; }
+
+/* --- Floating Action Button (FAB) --- */
+.fab-btn {
+    position: fixed;
+    bottom: 24px;
+    left: 24px; /* سمت چپ طبق استاندارد فارسی */
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    z-index: 100;
+}
+
+.fab-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    background: #4338ca;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+    display: none; justify-content: center; align-items: center; z-index: 2000;
+}
+.modal-overlay.open { display: flex; }
+
+.select-card {
+    background: white; width: 90%; max-width: 400px;
+    border-radius: 16px; padding: 25px;
+    text-align: center;
+}
+
+.class-options-list {
+    display: flex; flex-direction: column; gap: 10px; margin: 20px 0; max-height: 300px; overflow-y: auto;
+}
+
+.class-option {
+    padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: 0.2s; text-align: right;
+}
+.class-option:hover { background: #eff6ff; border-color: var(--primary); }
+.btn-cancel { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; }

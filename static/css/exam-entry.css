@@ -1,0 +1,147 @@
+/* css/exam-entry.css */
+
+.matrix-container {
+    width: 100%;
+    overflow-x: auto; /* اسکرول افقی برای سوالات زیاد */
+    max-height: 80vh;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    position: relative;
+}
+
+.exam-table {
+    border-collapse: separate; /* ضروری برای sticky header */
+    border-spacing: 0;
+    width: 100%;
+
+}
+
+/* هدر و سلول‌ها */
+.exam-table th, .exam-table td {
+    padding: 0;
+    border-bottom: 1px solid #e5e7eb;
+    border-left: 1px solid #f3f4f6;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.exam-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 20; /* بالاتر از ستون‌های چسبنده */
+    padding: 10px;
+}
+
+/* --- Sticky Columns Logic (RTL Compatible) --- */
+
+/* ستون شروع (نام دانش‌آموز - سمت راست) */
+.col-fixed-start {
+    position: sticky;
+    right: 0; /* در حالت RTL می‌چسبد به راست */
+    background: white;
+    z-index: 10;
+    min-width: 180px;
+    text-align: right !important;
+    padding-right: 15px !important;
+    border-left: 2px solid #e5e7eb; /* سایه جداکننده */
+}
+th.col-fixed-start { z-index: 30; background: #f9fafb; } /* گوشه بالا راست */
+
+/* ستون پایان (نمره کل - سمت چپ) */
+.col-fixed-end {
+    position: sticky;
+    left: 0; /* در حالت RTL می‌چسبد به چپ */
+    background: #f8fafc;
+    z-index: 10;
+    min-width: 80px;
+    font-weight: bold;
+    color: var(--primary);
+    border-right: 2px solid #e5e7eb;
+}
+th.col-fixed-end { z-index: 30; background: #f9fafb; } /* گوشه بالا چپ */
+
+/* --- Inputs & Interactions --- */
+
+.cell-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.score-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    text-align: center;
+    font-size: 1rem;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    direction: ltr; /* اعداد انگلیسی تایپ شوند */
+}
+
+/* وضعیت‌های رنگی */
+.score-input.status-correct {
+    background-color: #dcfce7; /* سبز کمرنگ */
+    color: #166534;
+}
+.score-input.status-wrong {
+    background-color: #fee2e2; /* قرمز کمرنگ */
+    color: #991b1b;
+}
+.score-input:focus {
+    box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* دکمه دراپ‌داون (Hybrid Input) */
+.dropdown-trigger {
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: #9ca3af;
+    padding: 2px;
+    display: none; /* فقط وقتی موس هاور شد نشان بده */
+}
+
+.cell-wrapper:hover .dropdown-trigger {
+    display: block;
+}
+
+/* منوی سریع (context menu) */
+.quick-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    z-index: 100;
+    display: none;
+    width: 120px;
+    text-align: right;
+}
+.quick-menu.active { display: block; }
+.quick-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: block;
+}
+.quick-item:hover { background: #f3f4f6; }
+
+/* Readonly Total */
+.total-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}

@@ -1,0 +1,799 @@
+/* css/landing.css */
+
+/* متغیرها در فایل style.css هستند، اینجا استفاده می‌کنیم */
+body{
+    background-image: url("../images/13.svg") ;background-repeat: no-repeat; background-size: cover
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navbar */
+/* css/landing.css */
+.icon-login{
+    width: 25px;
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+}
+/* --- تنظیمات کلی نوار ناوبری --- */
+.landing-navbar {
+    background-color: rgba(255, 255, 255, 0.95); /* کمی شیشه‌ای */
+    backdrop-filter: blur(10px);
+    position: fixed; /* چسبیدن به بالا */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    height: 70px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* لوگو */
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+/* منوی دسکتاپ */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+.logo-title{
+    font-size: 14px;
+    color: var(--primary);
+    line-height: 15px;
+}
+
+.nav-link {
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 15px;
+    transition: color 0.3s;
+    position: relative;
+    -webkit-transition: color 0.3s;
+    -moz-transition: color 0.3s;
+    -ms-transition: color 0.3s;
+    -o-transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--primary);
+}
+
+/* دکمه ورود */
+.nav-btn {
+    padding: 10px 24px !important;
+    font-size: 15px;
+}
+
+/* دکمه همبرگری (در دسکتاپ مخفی) */
+.menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #374151;
+}
+
+.nav-overlay {
+    display: none;
+}
+.logo-home{
+    width: 80px;
+}
+/* --- واکنش‌گرا (موبایل و تبلت) --- */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block; /* نمایش دکمه همبرگری */
+    }
+
+    /* تبدیل منو به سایدبار */
+    .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -280px; /* مخفی در سمت راست */
+        width: 260px;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 80px 20px 20px 20px;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        transition: right 0.3s ease-in-out;
+        z-index: 1001;
+    }
+
+    /* کلاسی که با جاوااسکریپت اضافه می‌شود تا منو باز شود */
+    .nav-menu.active {
+        right: 0;
+    }
+
+    .nav-list {
+        flex-direction: column;
+        width: 100%;
+        gap: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .nav-list li{
+        border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-radius: 5px;
+    }
+    .nav-link {
+        font-size: 1.1rem;
+        display: block;
+        padding: 10px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .nav-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* لایه تاریک پشت منو */
+    .nav-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+    }
+
+    .nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #ddd;
+    color: #555;
+}
+
+.btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary) !important;
+}
+
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+/* Hero Section */
+.hero {
+    padding: 80px 0;
+
+    overflow: hidden;
+}
+
+.hero-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: #f0f5ff;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.badge {
+    background: #eff6ff;
+    color: var(--primary);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.text-primary { color: var(--primary); font-size: 46px; }
+
+/* Hero Image Abstract */
+.hero-image {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.abstract-shape {
+    width: 400px;
+    height: 400px;
+    background: #e0e7ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.big-icon {
+    font-size: 10rem;
+    color: #818cf8;
+    opacity: 0.5;
+}
+
+.floating-card {
+    position: absolute;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.card-1 { top: 20%; right: -30px; }
+.card-2 { bottom: 15%; left: -20px; animation-delay: 1.5s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Features Section */
+.section-features {
+    padding: 20px 0 140px 0;
+}
+.abstract-shape{
+    width: 425px;
+    height: 425px;
+}
+.section-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-title h2 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background: #f9fafb;
+    padding: 30px;
+    border-radius: 16px;
+    transition: 0.3s;
+    border: 1px solid transparent;
+}
+
+.feature-card:hover {
+    background: white;
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transform: translateY(-5px);
+}
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.bg-blue { background: #dbeafe; color: #2563eb; }
+.bg-purple { background: #f3e8ff; color: #9333ea; }
+.bg-green { background: #dcfce7; color: #16a34a; }
+
+.feature-card h3 {
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.feature-card p {
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Footer */
+.footer {
+    background: #1f2937;
+    color: white;
+    text-align: center;
+    padding: 30px 0;
+    margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-content h1 { font-size: 2rem; }
+
+    .nav-links { display: none; } /* منوی موبایل فعلا مخفی */
+
+    .abstract-shape {
+        width: 300px;
+        height: 300px;
+    }
+}
+
+
+
+
+
+/*!* css/landing.css *!*/
+
+/*!* متغیرها در فایل style.css هستند، اینجا استفاده می‌کنیم *!*/
+/*body{*/
+/*    background-image: url("../images/13.jpg") ;background-repeat: no-repeat; background-size: cover*/
+/*}*/
+/*.container {*/
+/*    max-width: 1200px;*/
+/*    margin: 0 auto;*/
+/*    padding: 0 20px;*/
+/*}*/
+
+/*!* Navbar *!*/
+/*!* css/landing.css *!*/
+
+/*!* --- تنظیمات کلی نوار ناوبری --- *!*/
+/*.landing-navbar {*/
+/*    background-color: rgba(255, 255, 255, 0.95); !* کمی شیشه‌ای *!*/
+/*    backdrop-filter: blur(10px);*/
+/*    position: fixed; !* چسبیدن به بالا *!*/
+/*    top: 0;*/
+/*    left: 0;*/
+/*    width: 100%;*/
+/*    z-index: 1000;*/
+/*    box-shadow: 0 4px 20px rgba(0,0,0,0.05);*/
+/*    height: 70px;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*}*/
+
+/*.nav-container {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*    width: 100%;*/
+/*}*/
+
+/*!* لوگو *!*/
+/*.nav-logo {*/
+/*    font-size: 1.5rem;*/
+/*    font-weight: 800;*/
+/*    color: #1f2937;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 10px;*/
+/*    text-decoration: none;*/
+/*}*/
+
+/*!* منوی دسکتاپ *!*/
+/*.nav-menu {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 40px;*/
+/*}*/
+
+/*.nav-list {*/
+/*    display: flex;*/
+/*    list-style: none;*/
+/*    gap: 30px;*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*}*/
+
+/*.nav-link {*/
+/*    color: #4b5563;*/
+/*    font-weight: 500;*/
+/*    font-size: 0.95rem;*/
+/*    transition: color 0.3s;*/
+/*    position: relative;*/
+/*}*/
+
+/*.nav-link:hover {*/
+/*    color: var(--primary);*/
+/*}*/
+
+/*!* دکمه ورود *!*/
+/*.nav-btn {*/
+/*    padding: 10px 24px !important;*/
+/*}*/
+
+/*!* دکمه همبرگری (در دسکتاپ مخفی) *!*/
+/*.menu-toggle {*/
+/*    display: none;*/
+/*    font-size: 1.5rem;*/
+/*    cursor: pointer;*/
+/*    color: #374151;*/
+/*}*/
+
+/*.nav-overlay {*/
+/*    display: none;*/
+/*}*/
+/*.logo-home{*/
+/*    width: 80px;*/
+/*}*/
+/*!* --- واکنش‌گرا (موبایل و تبلت) --- *!*/
+/*@media (max-width: 768px) {*/
+/*    .menu-toggle {*/
+/*        display: block; !* نمایش دکمه همبرگری *!*/
+/*    }*/
+
+/*    !* تبدیل منو به سایدبار *!*/
+/*    .nav-menu {*/
+/*        position: fixed;*/
+/*        top: 0;*/
+/*        right: -280px; !* مخفی در سمت راست *!*/
+/*        width: 260px;*/
+/*        height: 100vh;*/
+/*        background: white;*/
+/*        flex-direction: column;*/
+/*        align-items: flex-start;*/
+/*        padding: 80px 20px 20px 20px;*/
+/*        box-shadow: -5px 0 15px rgba(0,0,0,0.1);*/
+/*        transition: right 0.3s ease-in-out;*/
+/*        z-index: 1001;*/
+/*    }*/
+
+/*    !* کلاسی که با جاوااسکریپت اضافه می‌شود تا منو باز شود *!*/
+/*    .nav-menu.active {*/
+/*        right: 0;*/
+/*    }*/
+
+/*    .nav-list {*/
+/*        flex-direction: column;*/
+/*        width: 100%;*/
+/*        gap: 20px;*/
+/*        margin-bottom: 30px;*/
+/*        text-align: center;*/
+/*    }*/
+/*    .nav-list li{*/
+/*        border-top: 1px solid #ddd;*/
+/*    border-bottom: 1px solid #ddd;*/
+/*    border-radius: 5px;*/
+/*    }*/
+/*    .nav-link {*/
+/*        font-size: 1.1rem;*/
+/*        display: block;*/
+/*        padding: 10px 0;*/
+/*        border-bottom: 1px solid #f3f4f6;*/
+/*    }*/
+
+/*    .nav-btn {*/
+/*        width: 100%;*/
+/*        text-align: center;*/
+/*        justify-content: center;*/
+/*    }*/
+
+/*    !* لایه تاریک پشت منو *!*/
+/*    .nav-overlay {*/
+/*        display: block;*/
+/*        position: fixed;*/
+/*        top: 0;*/
+/*        left: 0;*/
+/*        width: 100%;*/
+/*        height: 100%;*/
+/*        background: rgba(0,0,0,0.5);*/
+/*        z-index: 1000;*/
+/*        opacity: 0;*/
+/*        visibility: hidden;*/
+/*        transition: 0.3s;*/
+/*    }*/
+
+/*    .nav-overlay.active {*/
+/*        opacity: 1;*/
+/*        visibility: visible;*/
+/*    }*/
+/*}*/
+
+/*!* Buttons *!*/
+/*.btn {*/
+/*    padding: 10px 20px;*/
+/*    border-radius: 8px;*/
+/*    font-weight: bold;*/
+/*    cursor: pointer;*/
+/*    transition: all 0.3s;*/
+/*    display: inline-flex;*/
+/*    align-items: center;*/
+/*    gap: 8px;*/
+/*    border: none;*/
+/*    text-decoration: none;*/
+/*}*/
+
+/*.btn-primary {*/
+/*    background: var(--primary);*/
+/*    color: white;*/
+/*    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);*/
+/*}*/
+
+/*.btn-primary:hover {*/
+/*    background: #2563eb;*/
+/*    transform: translateY(-2px);*/
+/*}*/
+
+/*.btn-outline {*/
+/*    background: transparent;*/
+/*    border: 2px solid #ddd;*/
+/*    color: #555;*/
+/*}*/
+
+/*.btn-outline:hover {*/
+/*    border-color: var(--primary);*/
+/*    color: var(--primary);*/
+/*}*/
+
+/*.btn-lg {*/
+/*    padding: 12px 30px;*/
+/*    font-size: 1.1rem;*/
+/*}*/
+
+/*!* Hero Section *!*/
+/*.hero {*/
+/*    padding: 80px 0;*/
+/*    */
+/*    overflow: hidden;*/
+/*}*/
+
+/*.hero-container {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: space-between;*/
+/*    gap: 50px;*/
+
+/*}*/
+
+/*.hero-content {*/
+/*    flex: 1;*/
+/*}*/
+
+/*.hero-content h1 {*/
+/*    font-size: 3rem;*/
+/*    line-height: 1.2;*/
+/*    margin-bottom: 20px;*/
+/*    color: #1f2937;*/
+/*}*/
+
+/*.hero-content p {*/
+/*    font-size: 1.2rem;*/
+/*    color: #f0f5ff;*/
+/*    margin-bottom: 30px;*/
+/*    line-height: 1.6;*/
+/*}*/
+
+/*.badge {*/
+/*    background: #eff6ff;*/
+/*    color: var(--primary);*/
+/*    padding: 5px 12px;*/
+/*    border-radius: 20px;*/
+/*    font-size: 0.9rem;*/
+/*    margin-bottom: 15px;*/
+/*    display: inline-block;*/
+/*    font-weight: bold;*/
+/*}*/
+
+/*.text-primary { color: var(--primary); }*/
+
+/*!* Hero Image Abstract *!*/
+/*.hero-image {*/
+/*    flex: 1;*/
+/*    position: relative;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*}*/
+
+/*.abstract-shape {*/
+/*    width: 400px;*/
+/*    height: 400px;*/
+/*    background: #e0e7ff;*/
+/*    border-radius: 50%;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    position: relative;*/
+/*}*/
+
+/*.big-icon {*/
+/*    font-size: 10rem;*/
+/*    color: #818cf8;*/
+/*    opacity: 0.5;*/
+/*}*/
+
+/*.floating-card {*/
+/*    position: absolute;*/
+/*    background: white;*/
+/*    padding: 15px 20px;*/
+/*    border-radius: 12px;*/
+/*    box-shadow: 0 10px 25px rgba(0,0,0,0.1);*/
+/*    font-weight: bold;*/
+/*    font-size: 0.9rem;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 10px;*/
+/*    animation: float 3s ease-in-out infinite;*/
+/*}*/
+
+/*.card-1 { top: 20%; right: -20px; }*/
+/*.card-2 { bottom: 20%; left: -20px; animation-delay: 1.5s; }*/
+
+/*@keyframes float {*/
+/*    0%, 100% { transform: translateY(0); }*/
+/*    50% { transform: translateY(-10px); }*/
+/*}*/
+
+/*!* Features Section *!*/
+/*.section-features {*/
+/*    padding: 80px 0;*/
+/*}*/
+
+/*.section-title {*/
+/*    text-align: center;*/
+/*    margin-bottom: 50px;*/
+/*}*/
+
+/*.section-title h2 {*/
+/*    font-size: 2.2rem;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*.features-grid {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));*/
+/*    gap: 30px;*/
+/*}*/
+
+/*.feature-card {*/
+/*    background: #f9fafb;*/
+/*    padding: 30px;*/
+/*    border-radius: 16px;*/
+/*    transition: 0.3s;*/
+/*    border: 1px solid transparent;*/
+/*}*/
+
+/*.feature-card:hover {*/
+/*    background: white;*/
+/*    border-color: #e5e7eb;*/
+/*    box-shadow: 0 10px 30px rgba(0,0,0,0.05);*/
+/*    transform: translateY(-5px);*/
+/*}*/
+
+/*.icon-box {*/
+/*    width: 60px;*/
+/*    height: 60px;*/
+/*    border-radius: 12px;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    font-size: 1.5rem;*/
+/*    margin-bottom: 20px;*/
+/*}*/
+
+/*.bg-blue { background: #dbeafe; color: #2563eb; }*/
+/*.bg-purple { background: #f3e8ff; color: #9333ea; }*/
+/*.bg-green { background: #dcfce7; color: #16a34a; }*/
+
+/*.feature-card h3 {*/
+/*    margin-bottom: 15px;*/
+/*    font-size: 1.3rem;*/
+/*}*/
+
+/*.feature-card p {*/
+/*    color: #6b7280;*/
+/*    line-height: 1.6;*/
+/*}*/
+
+/*!* Footer *!*/
+/*.footer {*/
+/*    background: #1f2937;*/
+/*    color: white;*/
+/*    text-align: center;*/
+/*    padding: 30px 0;*/
+/*    margin-top: auto;*/
+/*}*/
+
+/*!* Responsive *!*/
+/*@media (max-width: 768px) {*/
+/*    .hero-container {*/
+/*        flex-direction: column;*/
+/*        text-align: center;*/
+/*    }*/
+/*    */
+/*    .hero-content h1 { font-size: 2rem; }*/
+/*    */
+/*    .nav-links { display: none; } !* منوی موبایل فعلا مخفی *!*/
+/*    */
+/*    .abstract-shape {*/
+/*        width: 300px;*/
+/*        height: 300px;*/
+/*    }*/
+/*}*/
+

@@ -1,0 +1,91 @@
+/* css/exam-matrix.css */
+
+.matrix-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    max-height: 80vh;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.visual-grid {
+    width: 100%;
+    border-collapse: separate; /* حیاتی برای sticky */
+    border-spacing: 0;
+    min-width: 800px;
+}
+
+.visual-grid th, .visual-grid td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #f3f4f6;
+    height: 60px;
+    vertical-align: middle;
+}
+
+.visual-grid th {
+    background: #f9fafb;
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* --- Sticky Student Column (RTL) --- */
+.col-student {
+    position: sticky;
+    right: 0;
+    background: white;
+    z-index: 10;
+    text-align: right !important;
+    padding-right: 20px !important;
+    min-width: 200px;
+    border-left: 2px solid #e5e7eb; /* خط جداکننده سایه‌دار */
+}
+th.col-student { z-index: 30; background: #f9fafb; }
+
+.student-info { display: flex; align-items: center; gap: 10px; }
+.st-avatar { width: 36px; height: 36px; border-radius: 50%; }
+.st-name { font-weight: bold; font-size: 0.95rem; color: #1f2937; }
+
+/* --- Visual Indicators --- */
+.indicator-cell { display: flex; justify-content: center; align-items: center; }
+
+.status-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: transform 0.2s;
+    cursor: help; /* نشانگر موس برای تولتیپ */
+}
+
+.status-dot:hover { transform: scale(1.15); }
+
+/* Mappings based on JSON */
+.bg-green-500 { background-color: #22c55e; color: white; }
+.bg-red-500 { background-color: #ef4444; color: white; }
+.bg-yellow-400 { background-color: #facc15; color: white; }
+
+/* Skipped Style (Outline) */
+.circle_outline {
+    background: transparent;
+    border: 2px solid #9ca3af;
+    color: #9ca3af;
+}
+
+/* Total Score Column */
+.col-score {
+    background-color: #F3F4F6; /* طبق JSON */
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #1f2937;
+    min-width: 80px;
+}

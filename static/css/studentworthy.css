@@ -1,0 +1,114 @@
+:root {
+        --bg-dark: #0f172a;
+        --surface: #ffffff;
+        --black-row: #000000;
+        --success: #10b981;
+        --error: #e11d48;
+        --radius-card: 35px;
+        --radius-pill: 50px;
+
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-image: url("../images/11.svg") ;background-repeat: no-repeat; background-size: cover;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 20px;
+        gap: 40px;
+      }
+
+      /* کارت کلی هر دانش‌آموز */
+      .student-card {
+        background-color: var(--surface);
+        width: 100%;
+        max-width: 800px;
+        border-radius: var(--radius-card);
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+      .student-card:hover {
+        max-width: 820px;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      /* کپسول نام در بالای کارت */
+      .name-header {
+        background-color: var(--bg-title-card);
+        color: #333;
+        padding: 10px 50px;
+        border-radius: var(--radius-pill);
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+
+      /* ردیف‌های تیره نتایج (جایگزین Table) */
+      .results-strip {
+        background-color: var(--secondary);
+        width: 100%;
+        border-radius: var(--radius-pill);
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      /* آیتم سوال: شماره بالا، وضعیت پایین */
+      .q-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        
+      }
+
+      .q-num {
+        color: #333;
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+
+      /* پیل‌های رنگی وضعیت */
+      .status-pill {
+        width: 50px;
+        height: 18px;
+        border-radius: var(--radius-pill);
+      }
+
+      .status-pill.green {
+        background-color: var(--success);
+      }
+      .status-pill.red {
+        background-color: var(--error);
+      }
+
+      /* جداکننده کپسولی بین ردیف‌ها */
+      .question-title {
+                background-color: var(--bg-title-card);
+
+        border-radius: 30px;
+        padding: 0px 10px;
+        color: #333;
+        margin: 1rem 0;
+      }
+      .studentworthy-container {
+        width: 900px;
+        display: flex;
+        flex-direction: column;
+        /* justify-content: end; */
+        align-items: center;
+      }

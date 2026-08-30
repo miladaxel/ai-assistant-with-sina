@@ -1,0 +1,291 @@
+:root {
+        /* رنگ‌های برداشته شده از طرح بنفش شما */
+        --bg-color: #700b50; /* بنفش تیره پس‌زمینه */
+        --bg-gradient: linear-gradient(135deg, #5b0849 0%, #881c64 100%);
+
+        --card-surface: #ffffff;
+        --input-bg: #f3f4f6;
+
+        --pill-black: #000000;
+        --pill-text: #ffffff;
+
+        /* رنگ‌های وضعیت */
+        --status-success: #10b981; /* سبز */
+        --status-error: #ef4444; /* قرمز */
+        --status-warning: #f59e0b; /* زرد */
+
+        /* اندازه‌ها */
+        --radius-card: 35px;
+        --radius-pill: 50px;
+        --shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        outline: none;
+      }
+
+      body {
+        background-image: url("../images/11.svg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 20px;
+        color: #fff;
+      }
+
+      /* --- 1. هدر صفحه (راست چین + دکمه بازگشت) --- */
+      .header-container {
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+      }
+
+      .page-titles {
+        text-align: right;
+      }
+
+      .page-titles h1 {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 5px;
+      }
+
+      .page-titles p {
+        font-size: 1rem;
+        opacity: 0.8;
+        font-weight: 300;
+      }
+
+      .back-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+      }
+
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(1.1);
+      }
+
+      /* --- 2. کارت اصلی دانش‌آموز --- */
+      .student-card {
+        background-color: var(--card-surface);
+        border-radius: var(--radius-card);
+        padding: 30px;
+        width: 100%;
+        max-width: 900px;
+        box-shadow: var(--shadow);
+        margin-bottom: 40px; /* فاصله با کارت دانش‌آموز بعدی */
+        color: #333;
+        position: relative;
+      }
+
+      /* --- 3. فیلد نام دانش‌آموز --- */
+      .student-name-section {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 40px;
+      }
+
+      .student-input {
+        background: var(--pill-black);
+        color: var(--pill-text);
+        padding: 12px 40px;
+        border-radius: var(--radius-pill);
+        font-family: inherit;
+        font-size: 1.1rem;
+        font-weight: bold;
+        text-align: center;
+        border: none;
+        width: 60%;
+        min-width: 250px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .student-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: normal;
+      }
+
+      /* --- 4. استایل کلی باکس سوالات --- */
+      .questions-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 30px; /* فاصله بین سوال ۱ و ۲ */
+      }
+
+      .question-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+      }
+
+      /* فیلد مشکی شماره سوال */
+      .q-number-pill {
+        background-color: var(--pill-black);
+        color: #fff;
+        padding: 8px 30px;
+        border-radius: 20px; /* کمی تخت‌تر مثل طرح */
+        font-weight: 900;
+        font-size: 1.2rem;
+        min-width: 100px;
+        text-align: center;
+        z-index: 2;
+      }
+
+      /* --- حالت اول: سوال ساده (بدون زیر سوال) --- */
+      .simple-answer-row {
+        display: flex;
+        gap: 15px;
+        background: #fff;
+        padding: 5px;
+        border-radius: 50px;
+      }
+
+      /* --- حالت دوم: سوال با زیر سوال (طرح دراز) --- */
+      .complex-answer-container {
+        width: 100%;
+        background: #f8fafc; /* رنگ زمینه خیلی محو برای فیلد دراز */
+        border: 2px solid #e2e8f0;
+        border-radius: 25px;
+        padding: 15px 10px;
+
+        /* چیدمان زیر سوالات کنار هم */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px; /* فاصله بین ستون‌های زیر سوال */
+      }
+
+      .sub-question-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* فیلد شماره زیر سوال (داخل فیلد دراز) */
+      .sub-q-label {
+        background-color: var(--pill-black);
+        color: #fff;
+        padding: 5px 20px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        min-width: 60px;
+        text-align: center;
+      }
+
+      /* دکمه‌های وضعیت (مشترک) */
+      .status-btn-group {
+        display: flex;
+        gap: 8px;
+      }
+
+      .status-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        color: white;
+        transition:
+          transform 0.2s,
+          opacity 0.2s;
+        opacity: 0.3; /* حالت خاموش */
+      }
+      input[type="checkbox"].custom-box {
+        -webkit-appearance: none; /* برای مرورگرهای مبتنی بر کرومیوم */
+        appearance: none;
+         width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        color: white;
+        transition:0.3s;
+      }
+
+     
+
+      .dot-success {
+        background-color: var(--status-success);
+      }
+      .dot-warning {
+        background-color: var(--status-warning);
+      }
+      .dot-error {
+        background-color: var(--status-error);
+      }
+
+      .status-dot:hover {
+        transform: scale(1.1);
+        opacity: 0.6;
+      }
+      .status-dot.active {
+        opacity: 1;
+        transform: scale(1.2);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* جداکننده سوالات */
+      .divider {
+        height: 2px;
+        background: #f1f5f9;
+        width: 80%;
+        margin: 10px auto;
+      }
+
+      /* رسپانسیو */
+      @media (max-width: 600px) {
+        .complex-answer-container {
+          flex-direction: column; /* در موبایل زیر هم قرار بگیرند */
+          align-items: center;
+        }
+        .header-container {
+          flex-direction: column-reverse;
+          gap: 15px;
+          align-items: flex-end;
+        }
+        .back-btn {
+          align-self: flex-start;
+        }
+      }
+      /* مخفی کردن چک‌باکس پیش‌فرض */
+.checkbox-container input[type="checkbox"] {
+  display: none;
+}
+
+/* استایل کانتینر برای هماهنگی */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
