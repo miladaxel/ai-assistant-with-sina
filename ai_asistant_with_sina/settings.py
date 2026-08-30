@@ -151,6 +151,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'Profile.Users'
 
+LOGIN_URL = 'login'
+
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 

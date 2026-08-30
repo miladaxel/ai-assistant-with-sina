@@ -11,8 +11,9 @@ from Profile.models import Student
 import json
 from django import forms
 from question.models import ExamSnapShot  # مسیر را مچ کن
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class Stage2RunView(FormView):
+class Stage2RunView(LoginRequiredMixin, FormView):
     template_name = "analysis/stage2_run.html"
     form_class = Stage2RunForm
 
@@ -173,7 +174,7 @@ class Stage2RunView(FormView):
 
 
 
-class Stage2ResultsView(ListView):
+class Stage2ResultsView(LoginRequiredMixin, ListView):
     template_name = "analysis/stage2_results.html"
     context_object_name = "bundles"
 
@@ -187,7 +188,7 @@ class Stage2ResultsView(ListView):
         )
 
 
-class Stage2StudentDetailView(DetailView):
+class Stage2StudentDetailView(LoginRequiredMixin, DetailView):
     model = AnalysisBundle
     template_name = "analysis/stage2_student_detail.html"
     context_object_name = "bundle"
@@ -200,36 +201,36 @@ class Stage2StudentDetailView(DetailView):
 # class WeeklyPlan(TemplateView)
 
 
-class TeacherNote(TemplateView):
+class TeacherNote(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/teacher_note.html'
 
-class WeeklyPlan(TemplateView):
+class WeeklyPlan(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/weekly_plan.html'
 
-class Settings(TemplateView):
+class Settings(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/settings.html'
 
 
-class Messenger(TemplateView):
+class Messenger(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/messenger.html'
     
-class ExamStep1(TemplateView):
+class ExamStep1(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/exam_step1.html'
 
-class ExamStep2(TemplateView):
+class ExamStep2(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/exam_step2.html'
 
-class ChooseSchool(TemplateView):
+class ChooseSchool(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/choose_school.html'
 
-class ExamManagement(TemplateView):
+class ExamManagement(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/exam_management.html'
 
-class ChooseClass(TemplateView):
+class ChooseClass(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/choose_class.html'
 
-class PreAnalysisResult(TemplateView):
+class PreAnalysisResult(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/pre_analysis.html'
 
-class PreAnalysisResultList(TemplateView):
+class PreAnalysisResultList(LoginRequiredMixin, TemplateView):
     template_name = 'analysis/pre_analysis_list.html'

@@ -18,7 +18,7 @@ from question.exam_data import get_student_analyze_by_name
 from django.shortcuts import get_object_or_404
 
 
-class ExcelUploadView(FormView):
+class ExcelUploadView(LoginRequiredMixin, FormView):
     template_name = 'Profile/upload_exel.html'
     form_class = ExelUploadForm
     success_url = reverse_lazy('upload_success')
@@ -65,7 +65,7 @@ class ExcelUploadView(FormView):
 
         return redirect('upload_success')
 
-class SuccessView(TemplateView):
+class SuccessView(LoginRequiredMixin, TemplateView):
     template_name = 'Profile/success.html'
 
 
@@ -144,7 +144,7 @@ class TeacherPanelView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class StudentPracticeView(TemplateView, LoginRequiredMixin):
+class StudentPracticeView(LoginRequiredMixin, TemplateView):
     template_name = 'Profile/student_practice.html'
     login_url = 'login'
 

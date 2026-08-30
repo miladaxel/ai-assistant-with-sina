@@ -25,7 +25,7 @@ from django.db.models import Sum
 
 
 
-class ChatTestView(View):
+class ChatTestView(LoginRequiredMixin, View):
     def get(self, request):
         q = (request.GET.get("q") or "").strip()
 
@@ -72,7 +72,7 @@ class ChatTestView(View):
 
 
 
-class ExamQuestionListView(TemplateView):
+class ExamQuestionListView(LoginRequiredMixin, TemplateView):
         template_name = "questions/exam_question_list.html"
 
         def get_context_data(self, **kwargs):
@@ -111,7 +111,7 @@ class ExamQuestionListView(TemplateView):
             return context
 
 
-class AnalyzeStudentsView(TemplateView):
+class AnalyzeStudentsView(LoginRequiredMixin, TemplateView):
     template_name = "questions/analyze_students.html"
 
     def get_context_data(self, **kwargs):
@@ -133,7 +133,7 @@ class AnalyzeStudentsView(TemplateView):
 
 
 
-class AssignExercisesView(TemplateView):
+class AssignExercisesView(LoginRequiredMixin, TemplateView):
     template_name = "questions/assign_exercise.html"
 
     def get_context_data(self, **kwargs):
@@ -248,6 +248,8 @@ class ExamQuestionsSetupView(LoginRequiredMixin, TemplateView):
     template_name = "questions/exam_questions_setup.html"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
         return super().dispatch(request, *args, **kwargs)
 
@@ -277,6 +279,8 @@ class ExamSubQuestionsSetupView(LoginRequiredMixin, TemplateView):
     template_name = "questions/exam_subquestions_setup.html"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
         return super().dispatch(request, *args, **kwargs)
 
@@ -320,6 +324,8 @@ class ExamSummaryView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
     template_name = "questions/exam_summary.html"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
         return super().dispatch(request, *args, **kwargs)
 
@@ -357,6 +363,8 @@ class ExamSelectStudentsView(LoginRequiredMixin, TemplateView):
     template_name = 'questions/exam_select_students.html'
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
         self.teacher_profile = get_object_or_404(TeacherUser, user=request.user)
         return super().dispatch(request, *args, **kwargs)
@@ -464,6 +472,8 @@ class ExamResultsReportView(LoginRequiredMixin, TeacherRequiredMixin, TemplateVi
     template_name = "questions/exam_result_report.html"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         self.exam = get_object_or_404(
             Exam,
             id=kwargs["exam_id"],

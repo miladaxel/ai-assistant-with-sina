@@ -12,7 +12,7 @@ from question.mixins import TeacherRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class Stage3RunView(FormView):
+class Stage3RunView(LoginRequiredMixin, FormView):
     template_name = "exercise_generate/stage3_run.html"
     form_class = Stage3RunForm
 
@@ -125,7 +125,7 @@ class Stage3RunView(FormView):
         return redirect("exercise_generate:stage3_detail", pk=bundle.pk)
 
 
-class Stage3StudentListView(ListView):
+class Stage3StudentListView(LoginRequiredMixin, ListView):
     template_name = 'exercise_generate/stage3_list.html'
     context_object_name = 'bundles'
 
