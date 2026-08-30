@@ -163,19 +163,22 @@ class LogoutView(View):
         return redirect("login")
 
 
-class StudentDetailView(LoginRequiredMixin, DetailView):
+class StudentDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Student
     template_name = 'Profile/student_detail.html'
     context_object_name = 'student'
     login_url = 'login'
 
-    def get_queryset(self):
+    def test_func(self):
         user = self.request.user
+        return (
+            user.is_authenticated
+            and user.role == 'teacher'
+            and hasattr(user, 'teacher_profile')
+        )
 
-        if hasattr(user, 'student_profile'):
-            teacher = user.teacher_profile
-            return Student.objects.filter(teacher=teacher)
-        return Student.objects.all()
+    def get_queryset(self):
+        return self.request.user.teacher_profile.students.all()
 
 
 class SchoolClassStudentView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
