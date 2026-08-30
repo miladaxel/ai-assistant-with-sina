@@ -1,25 +1,92 @@
+# Python bytecode and caches
 __pycache__/
-*.pyc
-*pyo
+*.py[cod]
+*$py.class
+*.so
 
-db.sqlite3
-
+# Python virtual environments
+.venv/
 venv/
 env/
+ENV/
+env.bak/
+venv.bak/
 
-*.log
+# Packaging and build output
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-/static/
-
-/media/
-
-*.json
-*.pot
-*.py[cod]
-
-.idea
-
-.Ds_store
-Thumbs.db
-
+# Environment files and credentials
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Django runtime and generated files
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+db.sqlite3-shm
+db.sqlite3-wal
+/media/
+/staticfiles/
+
+# Test, coverage, and type-checker caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+coverage.xml
+*.cover
+*.py,cover
+
+# Jupyter and interactive Python
+.ipynb_checkpoints/
+.python_history
+
+# IDEs and editors
+.idea/
+.vscode/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Operating-system metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Local backups and generated patches
+*.rar
+*.7z
+/git_ignore_updated.patch
