@@ -2,64 +2,354 @@
 {% load static %}
 
 {% block extra_css %}
+<title>جزئیات برنامه تمرینی</title>
 <style>
-  /* کارت‌های شما سفیدند، پس متن داخل کارت باید تیره باشد */
-  .main-content .card, .main-content .card * { color:#0f172a !important; }
-
-  .section-title{ font-size:18px; font-weight:800; margin-bottom:10px; }
-  .subtle{ color:#64748b !important; font-size:12px; margin-top:-6px; margin-bottom:10px; }
-
-  .kv{ margin-bottom:8px; font-size:14px; line-height:1.9; }
-  .kv b{ display:inline-block; min-width:170px; color:#334155 !important; }
-
-  .pre{ white-space:pre-wrap; }
-  .ltr{ direction:ltr; text-align:left; unicode-bidi:plaintext; }
-
-  details{ border:1px solid #e2e8f0; border-radius:12px; padding:10px 12px; background:#fff; margin-top:10px; }
-  summary{ cursor:pointer; font-weight:900; }
-  summary::-webkit-details-marker{ display:none; }
-
-  .pill{
-    display:inline-block;
-    padding:3px 8px;
-    border-radius:999px;
-    background:#f1f5f9;
-    border:1px solid #e2e8f0;
-    font-size:12px;
-    font-weight:800;
-    color:#0f172a !important;
-    margin-right:6px;
-    margin-top:4px;
+  :root {
+    --stage3-ink: #f7f9ff;
+    --stage3-muted: #b9c7e6;
+    --stage3-line: rgba(255, 255, 255, .14);
+    --stage3-panel: rgba(9, 22, 54, .76);
+    --stage3-panel-soft: rgba(255, 255, 255, .065);
+    --stage3-blue: #5bc5ff;
+    --stage3-purple: #ad8cff;
   }
 
-  .box{ border:1px solid #e2e8f0; border-radius:12px; padding:10px 12px; background:#f8fafc; margin-top:10px; }
+  body { background-attachment: fixed; }
 
-  .line{ padding:8px 0; border-bottom:1px dashed #e2e8f0; }
-  .line:last-child{ border-bottom:none; }
-
-  .lang-badge{
-    display:inline-flex; align-items:center; justify-content:center;
-    min-width:34px; padding:2px 8px; border-radius:999px;
-    border:1px solid #e2e8f0; background:#fff;
-    font-size:12px; font-weight:800; margin-left:8px;
+  .stage3-detail {
+    min-height: 100vh;
+    color: var(--stage3-ink);
   }
 
-  .warn{ border:1px solid #fde68a; background:#fffbeb; border-right:4px solid #f59e0b; border-radius:12px; padding:10px 12px; margin-top:10px; }
-  .warn .code{ font-weight:900; }
+  .stage3-shell {
+    width: min(100%, 1480px);
+    margin-inline: auto;
+  }
 
-  .table-lite{ width:100%; border-collapse:collapse; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; margin-top:10px; }
-  .table-lite th,.table-lite td{ padding:10px; border-bottom:1px solid #e2e8f0; vertical-align:top; font-size:13px; }
-  .table-lite th{ background:#f8fafc; font-weight:900; color:#334155 !important; text-align:right; }
-  .table-lite tr:last-child td{ border-bottom:none; }
+  .stage3-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 6px 2px 4px;
+  }
+
+  .stage3-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #cfe9ff;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: .02em;
+  }
+
+  .stage3-eyebrow::before {
+    content: "";
+    width: 24px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--stage3-purple), var(--stage3-blue));
+    box-shadow: 0 0 16px rgba(91, 197, 255, .75);
+  }
+
+  .stage3-detail .main-title {
+    font-size: clamp(26px, 3vw, 38px);
+    line-height: 1.45;
+  }
+
+  .stage3-detail .caption-text {
+    max-width: 720px;
+    margin-top: 6px;
+    color: var(--stage3-muted);
+    font-size: 14px;
+    font-weight: 450;
+    line-height: 1.9;
+  }
+
+  .stage3-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    padding: 9px 14px;
+    border: 1px solid rgba(91, 197, 255, .28);
+    border-radius: 999px;
+    background: rgba(8, 27, 62, .48);
+    color: #d9f3ff;
+    font-size: 12px;
+    font-weight: 800;
+    backdrop-filter: blur(12px);
+  }
+
+  .stage3-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #63e6be;
+    box-shadow: 0 0 0 4px rgba(99, 230, 190, .12);
+  }
+
+  .stage3-detail .grid-container {
+    gap: 18px;
+  }
+
+  .stage3-detail .card {
+    --card-accent: var(--stage3-blue);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: 22px;
+    border: 1px solid var(--stage3-line);
+    border-top: 1px solid rgba(255, 255, 255, .24);
+    border-radius: 24px;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .015)),
+      var(--stage3-panel);
+    box-shadow: 0 18px 50px rgba(2, 8, 30, .22);
+    color: var(--stage3-ink);
+    backdrop-filter: blur(18px) saturate(125%);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+  }
+
+  .stage3-detail .card::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-block: 22px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 0 999px 999px 0;
+    background: var(--card-accent);
+    box-shadow: 0 0 22px var(--card-accent);
+    opacity: .8;
+  }
+
+  .stage3-detail .card-blue { --card-accent: var(--stage3-blue); }
+  .stage3-detail .card-purple { --card-accent: var(--stage3-purple); }
+  .stage3-detail .card,
+  .stage3-detail .card * { color: inherit; }
+
+  .stage3-detail .section-title {
+    margin-bottom: 10px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 850;
+    line-height: 1.6;
+  }
+
+  .stage3-detail .subtle {
+    margin-top: -6px;
+    margin-bottom: 14px;
+    color: var(--stage3-muted);
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    line-height: 1.7;
+  }
+
+  .stage3-detail .kv {
+    margin-bottom: 8px;
+    color: #dce5f7;
+    font-size: 14px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+  }
+
+  .stage3-detail .kv b {
+    display: inline-block;
+    min-width: 170px;
+    color: #f4f7ff;
+    font-weight: 750;
+  }
+
+  .stage3-detail .pre {
+    color: #dce5f7;
+    line-height: 2;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .stage3-detail .ltr {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: plaintext;
+  }
+
+  .stage3-detail details {
+    margin-top: 12px;
+    padding: 12px 14px;
+    overflow: hidden;
+    border: 1px solid rgba(188, 211, 255, .13);
+    border-radius: 17px;
+    background: rgba(4, 14, 38, .44);
+    transition: border-color .2s ease, background-color .2s ease;
+  }
+
+  .stage3-detail details:hover,
+  .stage3-detail details[open] {
+    border-color: rgba(91, 197, 255, .24);
+    background: rgba(5, 17, 44, .62);
+  }
+
+  .stage3-detail summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    color: #f6f8ff;
+    cursor: pointer;
+    font-weight: 800;
+    line-height: 1.8;
+    list-style: none;
+  }
+
+  .stage3-detail summary::-webkit-details-marker { display: none; }
+
+  .stage3-detail summary::after {
+    content: "+";
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    margin-inline-start: auto;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .07);
+    color: #bfeaff;
+    font-family: "Inter", sans-serif;
+    font-size: 18px;
+    font-weight: 450;
+    transition: transform .2s ease, background-color .2s ease;
+  }
+
+  .stage3-detail details[open] > summary::after {
+    transform: rotate(45deg);
+    background: rgba(91, 197, 255, .13);
+  }
+
+  .stage3-detail .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    margin-top: 3px;
+    margin-right: 4px;
+    padding: 3px 9px;
+    border: 1px solid rgba(164, 197, 255, .18);
+    border-radius: 999px;
+    background: rgba(110, 147, 226, .12);
+    color: #dceaff;
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+  .stage3-detail .box {
+    margin-top: 12px;
+    padding: 13px 15px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 15px;
+    background: var(--stage3-panel-soft);
+  }
+
+  .stage3-detail .line {
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(190, 211, 255, .16);
+  }
+
+  .stage3-detail .line:last-child { border-bottom: none; }
+
+  .stage3-detail .lang-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    margin-left: 8px;
+    padding: 3px 8px;
+    border: 1px solid rgba(91, 197, 255, .25);
+    border-radius: 9px;
+    background: rgba(91, 197, 255, .11);
+    color: #d8f3ff;
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .stage3-detail .warn {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 191, 36, .24);
+    border-right: 3px solid #fbbf24;
+    border-radius: 15px;
+    background: rgba(120, 72, 8, .2);
+    color: #fff0bd;
+  }
+
+  .stage3-detail .warn .code { font-weight: 850; }
+
+  .stage3-detail .table-lite {
+    width: 100%;
+    margin-top: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(188, 211, 255, .14);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 15px;
+    background: rgba(4, 14, 38, .32);
+  }
+
+  .stage3-detail .table-lite th,
+  .stage3-detail .table-lite td {
+    padding: 11px;
+    border-bottom: 1px solid rgba(188, 211, 255, .11);
+    color: #dce5f7;
+    vertical-align: top;
+    font-size: 13px;
+  }
+
+  .stage3-detail .table-lite th {
+    background: rgba(91, 197, 255, .09);
+    color: #f4f8ff;
+    font-weight: 850;
+    text-align: right;
+  }
+
+  .stage3-detail .table-lite tr:last-child td { border-bottom: none; }
+
+  @media (max-width: 900px) {
+    .stage3-detail { margin-right: 0; padding: 22px 16px 34px; }
+    .stage3-hero { align-items: flex-start; flex-direction: column; }
+    .stage3-detail .grid-container { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    .stage3-detail .card { padding: 17px; border-radius: 20px; }
+    .stage3-detail .kv b { display: block; min-width: 0; margin-bottom: 2px; }
+    .stage3-detail details { padding: 10px 11px; border-radius: 15px; }
+    .stage3-detail summary::after { width: 26px; height: 26px; }
+    .stage3-detail .table-lite { display: block; overflow-x: auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage3-detail details,
+    .stage3-detail summary::after { transition: none; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
+<div class="main-content stage3-detail">
+  <div class="stage3-shell">
 
-  <div class="main-title">جزئیات خروجی Stage 3</div>
-  <div class="caption-text" style="margin-top:8px;">
-    نمایش کامل بر اساس result.result_json (طبق اسکیما Stage03).
+  <div class="stage3-hero">
+    <div>
+      <div class="stage3-eyebrow">خروجی مرحله سوم</div>
+      <div class="main-title">جزئیات برنامه تمرینی</div>
+      <div class="caption-text">
+        گزارش‌ها، هشدارها و تمرین‌های تولیدشده را در این صفحه بررسی کنید.
+      </div>
+    </div>
+    <div class="stage3-status">مرحله ۳</div>
   </div>
 
   {% if not result %}
@@ -92,8 +382,7 @@
         <div class="kv"><b>stage:</b> <span class="ltr">{{ data.stage|default:"—" }}</span></div>
         <div class="kv"><b>plan_days:</b> <span class="ltr">{{ data.plan_days|default:"—" }}</span></div>
 
-milad, [2/14/2026 7:48 AM]
-<div class="box">
+        <div class="box">
           <div class="kv"><b>parse_status:</b> <span class="ltr">{{ data.parse_status.status|default:"—" }}</span></div>
           <div class="kv"><b>notes_fa:</b></div>
           <div class="pre">{{ data.parse_status.notes_fa|default:"—" }}</div>
@@ -175,8 +464,7 @@ milad, [2/14/2026 7:48 AM]
 
           <div class="kv" style="margin-top:12px;"><b>skipped_item_keys:</b></div>
 
-milad, [2/14/2026 7:48 AM]
-{% if data.debug.coverage.skipped_item_keys and data.debug.coverage.skipped_item_keys|length %}
+          {% if data.debug.coverage.skipped_item_keys and data.debug.coverage.skipped_item_keys|length %}
             <table class="table-lite">
               <thead><tr><th>item_key</th><th>reason_fa</th></tr></thead>
               <tbody>
@@ -263,8 +551,7 @@ milad, [2/14/2026 7:48 AM]
                           <span class="pill">{{ ex.skill }}</span>
                         </summary>
 
-milad, [2/14/2026 7:48 AM]
-<div class="box">
+                        <div class="box">
                           <div class="kv"><b>item_key:</b> <span class="ltr">{{ ex.item_key }}</span></div>
                           <div class="kv"><b>concept_tested:</b></div>
                           <div class="pre">{{ ex.concept_tested|default:"—" }}</div>
@@ -343,8 +630,7 @@ milad, [2/14/2026 7:48 AM]
       {% endif %}
     </div>
 
-milad, [2/14/2026 7:48 AM]
-<!-- results[] -->
+    <!-- results[] -->
     <div class="card card-purple" style="margin-top:20px;">
       <div class="section-title">results[]</div>
       <div class="subtle">اگر خروجی چنددانش‌آموزی باشد</div>
@@ -390,6 +676,7 @@ milad, [2/14/2026 7:48 AM]
     {% endwith %}
   {% endif %}
 
+  </div>
 </div>
 {% endblock %}
 

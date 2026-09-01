@@ -75,6 +75,9 @@ INSTALLED_APPS = [
     'exercise_generate',
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append('debug_toolbar')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -84,6 +87,26 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE.insert(3, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+
+
+def show_debug_toolbar(request):
+    """Show the debug toolbar only for direct localhost requests."""
+    remote_address = request.META.get('REMOTE_ADDR')
+    host = request.get_host().lower()
+    local_hosts = {'localhost', '127.0.0.1', '[::1]'}
+    is_local_host = host in local_hosts or any(
+        host.startswith(f'{local_host}:') for local_host in local_hosts
+    )
+
+    return DEBUG and remote_address in {'127.0.0.1', '::1'} and is_local_host
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
+}
 
 ROOT_URLCONF = 'ai_asistant_with_sina.urls'
 

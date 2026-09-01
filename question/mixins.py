@@ -5,6 +5,6 @@ class TeacherRequiredMixin(UserPassesTestMixin):
         u = self.request.user
         if not u.is_authenticated:
             return False
-        if hasattr(u, 'teacher panel') :
+        if hasattr(u, 'teacher_profile') :
             return True
         return getattr(u, 'role', None) == 'teacher'

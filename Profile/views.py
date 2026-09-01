@@ -16,9 +16,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Student, Users, SchoolClass, TeacherUser
 from question.exam_data import get_student_analyze_by_name
 from django.shortcuts import get_object_or_404
+from question.mixins import TeacherRequiredMixin
 
-
-class ExcelUploadView(LoginRequiredMixin, FormView):
+class ExcelUploadView(LoginRequiredMixin,TeacherRequiredMixin ,FormView):
     template_name = 'Profile/upload_exel.html'
     form_class = ExelUploadForm
     success_url = reverse_lazy('upload_success')
