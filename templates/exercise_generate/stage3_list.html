@@ -140,11 +140,12 @@
       box-shadow: 0 10px 30px rgba(15,23,42,.06);
     }
   </style>
+  <link rel="stylesheet" href="{% static 'css/result-pages.css' %}">
 {% endblock %}
 
 {% block content %}
-  <div class="main-content">
-    <div class="page-wrap">
+  <div class="main-content result-page stage-3">
+    <div class="page-wrap result-shell">
 
       <div class="topbar">
         <div>
@@ -172,7 +173,7 @@
 
               <div class="card-head">
 
-<div>
+                <div>
                   <a class="result-title"
                      href="{% url 'exercise_generate:stage3_detail' pk=result.id %}">
                     {{ result.title|default:"(بدون عنوان)" }}

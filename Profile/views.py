@@ -17,6 +17,7 @@ from .models import Student, Users, SchoolClass, TeacherUser
 from question.exam_data import get_student_analyze_by_name
 from django.shortcuts import get_object_or_404
 from question.mixins import TeacherRequiredMixin
+from question.models import AnalysisBundle
 
 class ExcelUploadView(LoginRequiredMixin,TeacherRequiredMixin ,FormView):
     template_name = 'Profile/upload_exel.html'
@@ -137,9 +138,23 @@ class TeacherPanelView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         teacher = self.request.user.teacher_profile
-        classes = teacher.classes.all()
+        classes = teacher.classes.prefetch_related('students')
+        successful_bundles = AnalysisBundle.objects.filter(
+            teacher=self.request.user,
+            status=AnalysisBundle.STATUS_SUCCESS,
+        )
+
         context['teacher'] = teacher
         context['classes'] = classes
+        context['class_count'] = classes.count()
+        context['student_count'] = teacher.students.count()
+        context['exam_count'] = self.request.user.exams.count()
+        context['analysis_count'] = successful_bundles.filter(
+            stage__in=[AnalysisBundle.STAGE_ONE, AnalysisBundle.STAGE_TWO]
+        ).count()
+        context['exercise_plan_count'] = successful_bundles.filter(
+            stage=AnalysisBundle.STAGE_THREE
+        ).count()
         return context
 
 

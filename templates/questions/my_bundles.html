@@ -169,11 +169,12 @@
         opacity: 0.3;
     }
 </style>
+<link rel="stylesheet" href="{% static 'css/result-pages.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div class="container-fluid">
+<div class="main-content result-page stage-1">
+    <div class="container-fluid result-shell">
 
         <div class="bundles-container">
 
@@ -185,7 +186,7 @@
                     </h1>
                     <div class="page-subtitle">لیست تمام درخواست‌های تحلیلی که ثبت کرده‌اید</div>
                 </div>
-                <a href="{% url 'bundle_create' %}" class="btn-ai" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; background:#4f46e5; color:white;">
+                <a href="{% url 'bundle_create' %}" class="btn-ai">
                     <i class="fa-solid fa-plus"></i>
                     تحلیل جدید
                 </a>
@@ -213,7 +214,7 @@
                                 <a href="{% url 'bundle_detail' bundle.pk %}">{{ bundle.title }}</a>
                             </td>
                             <td>
-                                <span style="background:#f3f4f6; padding:3px 8px; border-radius:6px; font-size:0.85rem;">
+                                <span class="exam-chip">
                                     {{ bundle.exam.name|default:"-" }}
                                 </span>
                             </td>

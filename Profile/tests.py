@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Student, TeacherUser, Users
+from question.models import AnalysisBundle, Exam, PromptTemplate
+
+from .models import SchoolClass, Student, TeacherUser, Users
 
 
 class StudentDetailViewAccessTests(TestCase):
@@ -89,3 +91,58 @@ class StudentDetailViewAccessTests(TestCase):
             response,
             f"{reverse('login')}?next={reverse('student_detail', kwargs={'pk': self.own_student.pk})}",
         )
+
+
+class TeacherPanelMetricsTests(TestCase):
+    def setUp(self):
+        self.user = Users.objects.create_user(
+            username='dashboard-teacher',
+            password='test-pass',
+            role='teacher',
+        )
+        self.teacher = TeacherUser.objects.create(
+            user=self.user,
+            subject='English',
+            first_name='Dashboard',
+            last_name='Teacher',
+        )
+        self.student_one = StudentDetailViewAccessTests.create_student(
+            'dashboard-student-one', '301', '401'
+        )
+        self.student_two = StudentDetailViewAccessTests.create_student(
+            'dashboard-student-two', '302', '402'
+        )
+        self.teacher.students.add(self.student_one, self.student_two)
+        SchoolClass.objects.create(number=1, subject='English', teacher=self.teacher)
+        Exam.objects.create(teacher=self.user, name='Dashboard exam', total_question=1)
+
+        prompt = PromptTemplate.objects.create(
+            name='Dashboard prompt',
+            version=1,
+            instruction_text='test',
+            schema_json={},
+            stage=PromptTemplate.STAGE_ONE,
+        )
+        for stage in (
+            AnalysisBundle.STAGE_ONE,
+            AnalysisBundle.STAGE_TWO,
+            AnalysisBundle.STAGE_THREE,
+        ):
+            AnalysisBundle.objects.create(
+                teacher=self.user,
+                prompt_template=prompt,
+                stage=stage,
+                status=AnalysisBundle.STATUS_SUCCESS,
+            )
+
+        self.client.force_login(self.user)
+
+    def test_panel_uses_live_dashboard_counts(self):
+        response = self.client.get(reverse('teacher panel'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['class_count'], 1)
+        self.assertEqual(response.context['student_count'], 2)
+        self.assertEqual(response.context['exam_count'], 1)
+        self.assertEqual(response.context['analysis_count'], 2)
+        self.assertEqual(response.context['exercise_plan_count'], 1)

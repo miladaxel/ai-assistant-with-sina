@@ -1,116 +1,99 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stage2 - نتایج</title>
-  <style>
-    body { font-family: sans-serif; margin: 0; background:#f7f7f8; color:#111; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; }
-    .card { background:#fff; border:1px solid #e6e6e6; border-radius: 14px; padding:16px; margin: 12px 0; }
-    h1 { font-size: 20px; margin: 0 0 8px; }
-    h2 { font-size: 16px; margin: 0 0 10px; }
-    .muted { color:#666; font-size: 13px; }
-    .msg { border-radius: 12px; padding: 10px 12px; margin: 10px 0; border: 1px solid #ddd; background:#fff; }
-    .msg.error { border-color:#ffb4b4; background:#fff5f5; }
-    .msg.success { border-color:#b7f2c6; background:#f3fff6; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: right; padding: 10px; border-bottom:1px solid #eee; vertical-align: top; }
-    th { font-size: 13px; color:#555; background:#fafafa; }
-    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border:1px solid #ddd; font-size: 12px; background:#fafafa; }
-    .status { font-weight:700; }
-    .status.success { color:#0a7b2f; }
-    .status.failure { color:#b10000; }
-    .status.pending { color:#8a5b00; }
-    a { color:#111; text-decoration: none; border-bottom: 1px dashed #aaa; }
-    a:hover { border-bottom-color:#111; }
-    .topbar { display:flex; align-items:center; justify-content: space-between; gap: 10px; flex-wrap:wrap; }
-    .btn { display:inline-block; padding: 9px 12px; border-radius: 12px; border:1px solid #111; background:#111; color:#fff; text-decoration:none; font-weight:600; }
-    .btn.secondary { background:#fff; color:#111; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
+{% extends "Profile/base.html" %}
+{% load static %}
 
-    <div class="card">
-      <div class="topbar">
-        <div>
-          <h1>نتایج Stage 2 — Exam #{{ view.kwargs.exam_id }}</h1>
-          <div class="muted">لیست همه Bundleهای ساخته‌شده برای تحلیل دانش‌آموزها در این امتحان.</div>
+{% block extra_css %}
+  <title>نتایج مرحله دوم</title>
+  <link rel="stylesheet" href="{% static 'css/result-pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-content result-page stage-2">
+  <div class="result-shell">
+
+    <div class="topbar">
+      <div>
+        <h1 class="main-title">نتایج تحلیل دانش‌آموزان</h1>
+        <div class="subtitle">
+          تمام خروجی‌های مرحله دوم برای آزمون شماره {{ view.kwargs.exam_id }}
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn" href="{% url 'analysis:stage2_run' %}">اجرای جدید Stage2</a>
-          <a class="btn secondary" href="{% url 'analysis:stage2_result' view.kwargs.exam_id %}">رفرش</a>
-        </div>
+      </div>
+      <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a class="btn primary" href="{% url 'analysis:stage2_run' %}">اجرای جدید مرحله ۲</a>
+        <a class="btn" href="{% url 'analysis:stage2_result' view.kwargs.exam_id %}">به‌روزرسانی</a>
       </div>
     </div>
 
     {% if messages %}
-      <div class="card">
-        <h2>پیام‌ها</h2>
+      <section class="result-panel" style="margin-bottom:18px;">
+        <div class="section-title"><h2>پیام‌ها</h2></div>
         {% for message in messages %}
           <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">
             {{ message }}
           </div>
         {% endfor %}
-      </div>
+      </section>
     {% endif %}
 
-    <div class="card">
-      <h2>لیست نتایج</h2>
+    <section class="result-panel">
+      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <h2>لیست نتایج</h2>
+        <span class="pill">تعداد: {{ bundles|length }}</span>
+      </div>
 
       {% if bundles %}
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>عنوان</th>
-              <th>وضعیت</th>
-              <th>Prompt</th>
-              <th>Model</th>
-              <th>زمان</th>
-              <th>جزئیات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for b in bundles %}
+        <div class="result-table-shell">
+          <table class="result-table">
+            <thead>
               <tr>
-                <td>{{ b.id }}</td>
-                <td>
-                  <div><b>{{ b.title }}</b></div>
-                  <div class="muted">Stage: <span class="pill">{{ b.stage }}</span></div>
-                  {% if b.error_message %}
-                    <div class="muted" style="color:#b10000;">{{ b.error_message|truncatechars:140 }}</div>
-                  {% endif %}
-                </td>
-                <td>
-                  <span class="status {{ b.status }}">{{ b.status }}</span>
-                </td>
-                <td>
-                  {% if b.prompt_template %}
-                    <div><b>{{ b.prompt_template.name }}</b></div>
-                    <div class="muted">v{{ b.prompt_template.version }}</div>
-
-{% else %}
-                    <span class="muted">—</span>
-                  {% endif %}
-                </td>
-                <td>{{ b.model_name }}</td>
-                <td>
-                  <div>{{ b.created_at }}</div>
-                </td>
-                <td>
-                  <a href="{% url 'analysis:stage2_student_detail' b.id %}">باز کردن</a>
-                </td>
+                <th>#</th>
+                <th>عنوان</th>
+                <th>وضعیت</th>
+                <th>قالب تحلیل</th>
+                <th>مدل</th>
+                <th>زمان ایجاد</th>
+                <th>عملیات</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for b in bundles %}
+                <tr>
+                  <td>{{ b.id }}</td>
+                  <td>
+                    <div><strong>{{ b.title|default:"بدون عنوان" }}</strong></div>
+                    <div class="muted" style="margin-top:5px;">
+                      <span class="badge-stage">مرحله {{ b.stage }}</span>
+                    </div>
+                    {% if b.error_message %}
+                      <div class="muted" style="margin-top:6px;color:#ffc1cd !important;">{{ b.error_message|truncatechars:140 }}</div>
+                    {% endif %}
+                  </td>
+                  <td><span class="status {{ b.status }}">{{ b.status }}</span></td>
+                  <td>
+                    {% if b.prompt_template %}
+                      <div><strong>{{ b.prompt_template.name }}</strong></div>
+                      <div class="muted">نسخه {{ b.prompt_template.version }}</div>
+                    {% else %}
+                      <span class="muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ b.model_name|default:"—" }}</td>
+                  <td>{{ b.created_at|date:"Y/m/d - H:i" }}</td>
+                  <td>
+                    <a class="result-action" href="{% url 'analysis:stage2_student_detail' b.id %}">مشاهده</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       {% else %}
-        <p class="muted">هیچ نتیجه‌ای برای این امتحان ثبت نشده.</p>
+        <div class="empty-state">
+          <h3>هنوز نتیجه‌ای ثبت نشده است</h3>
+          <p>برای این آزمون، خروجی مرحله دوم وجود ندارد.</p>
+        </div>
       {% endif %}
-    </div>
+    </section>
 
   </div>
-</body>
-</html>
+</div>
+{% endblock %}

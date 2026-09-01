@@ -65,10 +65,12 @@
   details.raw summary::-webkit-details-marker{display:none}
   .code{margin-top:10px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.86rem;color:#0f172a;}
 </style>
+<link rel="stylesheet" href="{% static 'css/result-pages.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
+<div class="main-content result-page stage-2">
+<div class="result-shell">
 
 
 <div class="topbar">
@@ -612,6 +614,7 @@
     </div>
   {% endif %}
 
+</div>
 </div>
 {% endblock %}
 
