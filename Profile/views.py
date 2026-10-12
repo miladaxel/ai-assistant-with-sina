@@ -1,5 +1,7 @@
 from urllib.parse import uses_netloc
 
+from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
+from django.db.models.functions import Coalesce
 import pandas as pd
 from django.http import HttpResponse
 from django.urls import reverse_lazy
@@ -18,6 +20,9 @@ from question.exam_data import get_student_analyze_by_name
 from django.shortcuts import get_object_or_404
 from question.mixins import TeacherRequiredMixin
 from question.models import AnalysisBundle
+from ai_asistant_with_sina.query_cache import cached_value
+from django.utils.cache import patch_vary_headers
+from django.utils.translation import get_language
 
 class ExcelUploadView(LoginRequiredMixin,TeacherRequiredMixin ,FormView):
     template_name = 'Profile/upload_exel.html'
@@ -72,6 +77,22 @@ class SuccessView(LoginRequiredMixin, TemplateView):
 
 class HomeView(TemplateView):
     template_name = 'Profile/home.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            response = super().get(request, *args, **kwargs)
+        else:
+            html = cached_value(
+                'guest-home-html', (request.get_host(), request.is_secure(), get_language()),
+                (), 300, lambda: self._render_guest_html(request, *args, **kwargs),
+            )
+            # Store only the body, so middleware and cookies remain request-specific.
+            response = HttpResponse(html)
+        patch_vary_headers(response, ['Cookie'])
+        return response
+
+    def _render_guest_html(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs).render().content
 
 
 
@@ -137,25 +158,62 @@ class TeacherPanelView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        teacher = self.request.user.teacher_profile
-        classes = teacher.classes.prefetch_related('students')
-        successful_bundles = AnalysisBundle.objects.filter(
-            teacher=self.request.user,
-            status=AnalysisBundle.STATUS_SUCCESS,
+        # Check that the teacher profile still exists before serving its cache.
+        TeacherUser.objects.values('pk').get(user_id=self.request.user.pk)
+        context.update(cached_value(
+            'teacher-dashboard', (self.request.user.pk,),
+            ('people', 'exams', 'bundles'), 60, self._load_dashboard_data,
+        ))
+        return context
+
+    def _load_dashboard_data(self):
+
+        class_counts = (
+            SchoolClass.objects.filter(teacher_id=OuterRef("pk"))
+            .order_by().values("teacher_id").annotate(total=Count("pk")).values("total")
+        )
+        student_counts = (
+            TeacherUser.students.through.objects.filter(teacheruser_id=OuterRef("pk"))
+            .order_by().values("teacheruser_id").annotate(total=Count("pk")).values("total")
+        )
+        teacher = (
+            TeacherUser.objects
+            .filter(user=self.request.user)
+            .annotate(
+                class_count=Coalesce(Subquery(class_counts), 0),
+                student_count=Coalesce(Subquery(student_counts), 0),
+            )
+            .get()
         )
 
-        context['teacher'] = teacher
-        context['classes'] = classes
-        context['class_count'] = classes.count()
-        context['student_count'] = teacher.students.count()
-        context['exam_count'] = self.request.user.exams.count()
-        context['analysis_count'] = successful_bundles.filter(
-            stage__in=[AnalysisBundle.STAGE_ONE, AnalysisBundle.STAGE_TWO]
-        ).count()
-        context['exercise_plan_count'] = successful_bundles.filter(
-            stage=AnalysisBundle.STAGE_THREE
-        ).count()
-        return context
+        bundle_metrics = (
+            AnalysisBundle.objects
+            .filter(
+                teacher=self.request.user,
+                status=AnalysisBundle.STATUS_SUCCESS,
+            )
+            .aggregate(
+                analysis_count=Count(
+                    'id',
+                    filter=Q(stage__in=[
+                        AnalysisBundle.STAGE_ONE,
+                        AnalysisBundle.STAGE_TWO,
+                    ]),
+                ),
+                exercise_plan_count=Count(
+                    'id',
+                    filter=Q(stage=AnalysisBundle.STAGE_THREE),
+                ),
+            )
+        )
+
+        return {
+            'teacher': teacher,
+            'class_count': teacher.class_count,
+            'student_count': teacher.student_count,
+            'exam_count': self.request.user.exams.count(),
+            **bundle_metrics,
+        }
 
 
 class StudentPracticeView(LoginRequiredMixin, TemplateView):
@@ -193,7 +251,7 @@ class StudentDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         )
 
     def get_queryset(self):
-        return self.request.user.teacher_profile.students.all()
+        return self.request.user.teacher_profile.students.prefetch_related("classes")
 
 
 class SchoolClassStudentView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -206,13 +264,23 @@ class SchoolClassStudentView(LoginRequiredMixin, UserPassesTestMixin, TemplateVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        teacher = get_object_or_404(TeacherUser, user=self.request.user)
+        teacher = self.request.user.teacher_profile
 
         classes = (
-            SchoolClass.objects.filter(teacher=teacher).prefetch_related('students')
+            SchoolClass.objects.filter(teacher=teacher).prefetch_related(
+                Prefetch(
+                    "students",
+                    queryset=Student.objects.only(
+                        "id", "full_name", "fathers_name", "national_code",
+                    ).order_by("full_name", "pk"),
+                )
+            ).order_by("number", "pk")
         )
         context['teacher'] = teacher
-        context['classes'] = classes
+        context['classes'] = cached_value(
+            'teacher-classes', (self.request.user.pk, teacher.pk),
+            ('people',), 300, lambda: list(classes),
+        )
         return context
 
 

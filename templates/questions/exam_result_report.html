@@ -138,77 +138,33 @@
 <div class="page-wrap">
   <div class="content-col">
 
-    {% for student, results in student_results.items %}
+    {% for student, groups in student_question_groups.items %}
       <div class="student-card">
         <div class="name-header">{{ student.full_name }}</div>
 
         <div class="questions-col">
 
-          {% for r in results %}
-
-            {# ---------- سوال دارای زیرسوال ---------- #}
-            {% if r.subquestion %}
-              {% with qid=r.subquestion.question.id qn=r.subquestion.question.number|default:r.subquestion.question.id %}
-                {% ifchanged qid %}
-
-                  {# محاسبه وضعیت کلی سوال از روی زیرسوال‌ها (بدون ویو) #}
-                  {% with any_wrong=0 %}
-                    {# ترفند: اگر هر زیرسوالی غلط بود، any_wrong را 1 در نظر می‌گیریم با چاپ یک متغیر پنهان #}
-                    <span style="display:none">
-                      {% for rr in results %}
-                        {% if rr.subquestion and rr.subquestion.question.id == qid and not rr.is_correct %}
-                          {% with any_wrong=1 %}{% endwith %}
-                        {% endif %}
-                      {% endfor %}
-                    </span>
-
-
-<div class="question-block">
-                      <div class="question-head">
-                        <div class="q-title">سوال {{ qn }}</div>
-
-                        {# اگر حداقل یکی غلط بود => غلط، وگرنه درست #}
-                        {% if any_wrong %}
-                          <div class="q-status bad">غلط</div>
-                        {% else %}
-                          <div class="q-status ok">درست</div>
-                        {% endif %}
-                      </div>
-
-                      <div class="subq-strip">
-                        {% for rr in results %}
-                          {% if rr.subquestion and rr.subquestion.question.id == qid %}
-                            {% with sqn=rr.subquestion.number|default:rr.subquestion.id %}
-                              <div class="subq-pill">
-                                <span class="subq-text">زیرسوال {{ sqn }}</span>
-                                <div class="q-status {% if rr.is_correct %}ok{% else %}bad{% endif %}">
-                                  {% if rr.is_correct %}درست{% else %}غلط{% endif %}
-                                </div>
-                              </div>
-                            {% endwith %}
-                          {% endif %}
-                        {% endfor %}
-                      </div>
-                    </div>
-
-                  {% endwith %}
-                {% endifchanged %}
-              {% endwith %}
-
-            {# ---------- سوال ساده (بدون زیرسوال) ---------- #}
-            {% elif r.question %}
-              {% with qn=r.question.number|default:r.question.id %}
-                <div class="question-block">
-                  <div class="question-head">
-                    <div class="q-title">سوال {{ qn }}</div>
-                    <div class="q-status {% if r.is_correct %}ok{% else %}bad{% endif %}">
-                      {% if r.is_correct %}درست{% else %}غلط{% endif %}
-                    </div>
-                  </div>
+          {% for group in groups %}
+            <div class="question-block">
+              <div class="question-head">
+                <div class="q-title">سوال {{ group.number }}</div>
+                <div class="q-status {% if group.is_correct %}ok{% else %}bad{% endif %}">
+                  {% if group.is_correct %}درست{% else %}غلط{% endif %}
                 </div>
-              {% endwith %}
-            {% endif %}
-
+              </div>
+              {% if group.subresults %}
+                <div class="subq-strip">
+                  {% for r in group.subresults %}
+                    <div class="subq-pill">
+                      <span class="subq-text">زیرسوال {{ r.subquestion.number }}</span>
+                      <div class="q-status {% if r.is_correct %}ok{% else %}bad{% endif %}">
+                        {% if r.is_correct %}درست{% else %}غلط{% endif %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
           {% endfor %}
 
         </div>

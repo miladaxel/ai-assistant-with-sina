@@ -2,8 +2,10 @@ from django.db import models
 from django.conf import settings
 from Profile.models import Student, TeacherUser
 from django.core.exceptions import ValidationError
+from ai_asistant_with_sina.query_cache import CacheInvalidatingManager
 
 class PromptTemplate(models.Model):
+    objects = CacheInvalidatingManager()
     STAGE_ONE = 'stage1'
     STAGE_TWO = 'stage2'
     STAGE_THREE = 'stage3'
@@ -30,6 +32,7 @@ class PromptTemplate(models.Model):
 
 
 class AnalysisBundle(models.Model):
+    objects = CacheInvalidatingManager()
     STATUS_PENDING = 'pending'
     STATUS_SUCCESS = 'success'
     STATUS_FAILURE = 'failure'
@@ -71,6 +74,7 @@ class AnalysisBundle(models.Model):
 
 
 class AnalysisResult(models.Model):
+    objects = CacheInvalidatingManager()
     STAGE_ONE = 'stage1'
     STAGE_TWO = 'stage2'
     STAGE_THREE = 'stage3'
@@ -94,6 +98,7 @@ class AnalysisResult(models.Model):
         return f"Bundle {self.bundle.id} - {self.bundle.status}"
 
 class Exam(models.Model):
+    objects = CacheInvalidatingManager()
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
     name = models.CharField(max_length=120, blank=True, default='')
     total_question = models.PositiveIntegerField(default=0)
@@ -105,6 +110,7 @@ class Exam(models.Model):
 
 
 class ExamParticipation(models.Model):
+    objects = CacheInvalidatingManager()
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='participations')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_participations')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,6 +122,7 @@ class ExamParticipation(models.Model):
         return f"{self.student.full_name} - {self.exam.name}"
 
 class Question(models.Model):
+    objects = CacheInvalidatingManager()
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='questions')
     number = models.PositiveIntegerField(default=0)
     has_subquestion = models.BooleanField(default=False)
@@ -127,6 +134,7 @@ class Question(models.Model):
 
 
 class SubQuestion(models.Model):
+    objects = CacheInvalidatingManager()
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='subquestions')
     number = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -136,6 +144,7 @@ class SubQuestion(models.Model):
 
 
 class StudentQuestionResult(models.Model):
+    objects = CacheInvalidatingManager()
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='student_answers')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='answers')
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', null=True, blank=True)
@@ -158,6 +167,7 @@ class StudentQuestionResult(models.Model):
 
 
 class ExamSnapShot(models.Model):
+    objects = CacheInvalidatingManager()
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='snapshots')
     data = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)

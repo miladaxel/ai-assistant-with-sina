@@ -2,6 +2,17 @@ from django.contrib import admin
 from .models import PromptTemplate, AnalysisBundle, AnalysisResult, Exam, Question, SubQuestion, ExamParticipation, \
     StudentQuestionResult, ExamSnapShot
 
+
+class RelatedQuestionAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        if field is not None:
+            if db_field.remote_field.model is Question:
+                field.queryset = field.queryset.select_related("exam")
+            elif db_field.remote_field.model is SubQuestion:
+                field.queryset = field.queryset.select_related("question__exam")
+        return field
+
 @admin.register(PromptTemplate)
 class PromptTemplateAdmin(admin.ModelAdmin):
     list_display = ('name', 'version', 'is_active', 'created_at')
@@ -39,6 +50,9 @@ class ExamParticipationInline(admin.TabularInline):
     extra = 0
     autocomplete_fields = ['student']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("student", "exam")
+
 @admin.register(ExamParticipation)
 class ExamParticipationAdmin(admin.ModelAdmin):
     list_display = ('id', 'student', 'exam')
@@ -50,19 +64,23 @@ class ExamAdmin(admin.ModelAdmin):
     inlines = [ExamParticipationInline]
 
 @admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    pass
+class QuestionAdmin(RelatedQuestionAdmin):
+    list_display = ('id', 'exam', 'number', 'has_subquestion', 'subquestion_count')
+    list_select_related = ('exam',)
 
 @admin.register(SubQuestion)
-class SubQuestionAdmin(admin.ModelAdmin):
-    pass
+class SubQuestionAdmin(RelatedQuestionAdmin):
+    list_display = ('id', 'question', 'number')
+    list_select_related = ('question__exam',)
 
 
 @admin.register(StudentQuestionResult)
-class StudentQuestionResultAdmin(admin.ModelAdmin):
-    pass
+class StudentQuestionResultAdmin(RelatedQuestionAdmin):
+    list_display = ('id', 'exam', 'student', 'question', 'subquestion', 'is_correct')
+    list_select_related = ('exam', 'student', 'question__exam', 'subquestion__question__exam')
 
 
 @admin.register(ExamSnapShot)
 class ExamSnapShotAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'exam', 'created_at')
+    list_select_related = ('exam',)

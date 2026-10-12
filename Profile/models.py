@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
+from ai_asistant_with_sina.query_cache import CacheInvalidatingManager
 
 persian_username_validator = RegexValidator(
         regex=r'^[0-9a-zA-z_\u0600-\u06FF\s]+$',
@@ -24,6 +25,7 @@ class Users(AbstractUser):
 
 
 class Student(models.Model):
+    objects = CacheInvalidatingManager()
     GENDER = (
         ('M', 'Male'),
         ('F', 'Female'),
@@ -50,7 +52,7 @@ class Student(models.Model):
         return self.full_name
 
     def save(self, *args, **kwargs):
-        if self.user:
+        if self.user and self.user.role != "student":
             self.user.role = "student"
 
             self.user.save(update_fields=['role'])
@@ -62,6 +64,7 @@ class Student(models.Model):
 
 
 class TeacherUser(models.Model):
+    objects = CacheInvalidatingManager()
     user = models.OneToOneField(Users, on_delete=models.CASCADE, related_name='teacher_profile')
 
     subject = models.CharField(max_length=100)
@@ -83,7 +86,7 @@ class TeacherUser(models.Model):
 
 
     def save(self, *args, **kwargs):
-        if self.user:
+        if self.user and self.user.role != "teacher":
             self.user.role = "teacher"
 
             self.user.save(update_fields=['role'])
@@ -117,6 +120,7 @@ class ManagerUser(models.Model):
 
 
 class SchoolClass(models.Model):
+    objects = CacheInvalidatingManager()
     number = models.PositiveIntegerField()
     subject = models.CharField(max_length=100)
     teacher = models.ForeignKey(TeacherUser, on_delete=models.SET_NULL, related_name='classes', null=True, blank=True)

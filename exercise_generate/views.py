@@ -10,6 +10,7 @@ from question.services.openai_client import OpenAIAnalyzer
 import json
 from question.mixins import TeacherRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+from ai_asistant_with_sina.query_cache import CachedBundleDetailMixin, CachedListMixin
 
 
 class Stage3RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
@@ -68,7 +69,7 @@ class Stage3RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
 
             # ===== ذخیره Bundle =====
             bundle = AnalysisBundle.objects.create(
-                exam=stage2_bundle.exam,
+                exam_id=stage2_bundle.exam_id,
                 teacher=self.request.user,
                 prompt_template=stage3_prompt,
                 stage=AnalysisBundle.STAGE_THREE,
@@ -100,9 +101,10 @@ class Stage3RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
         return redirect("exercise_generate:stage3_detail", pk=bundle.pk)
 
 
-class Stage3StudentListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+class Stage3StudentListView(LoginRequiredMixin, TeacherRequiredMixin, CachedListMixin, ListView):
     template_name = 'exercise_generate/stage3_list.html'
     context_object_name = 'bundles'
+    paginate_by = 20
 
     def get_queryset(self):
         return (
@@ -110,11 +112,11 @@ class Stage3StudentListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
                 teacher=self.request.user,
                 exam__teacher=self.request.user,
                 stage=AnalysisBundle.STAGE_THREE,
-            ).order_by('-created_at')
+            ).defer("input_json").order_by('-created_at', '-pk')
         )
 
 
-class AnalysisBundleDetailViewStage3(LoginRequiredMixin, TeacherRequiredMixin ,DetailView):
+class AnalysisBundleDetailViewStage3(LoginRequiredMixin, TeacherRequiredMixin, CachedBundleDetailMixin, DetailView):
     model = AnalysisBundle
     template_name = "exercise_generate/bundle_detail_stage3.html"
     context_object_name = "bundle"
@@ -124,12 +126,12 @@ class AnalysisBundleDetailViewStage3(LoginRequiredMixin, TeacherRequiredMixin ,D
             teacher=self.request.user,
             exam__teacher=self.request.user,
             stage=AnalysisBundle.STAGE_THREE,
-        )
+        ).select_related("result")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['result'] = AnalysisResult.objects.filter(
-            bundle=self.object,
-            stage=AnalysisResult.STAGE_THREE
-        ).first()
+        result = getattr(self.object, "result", None)
+        context['result'] = (
+            result if result and result.stage == AnalysisResult.STAGE_THREE else None
+        )
         return context

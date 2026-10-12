@@ -14,6 +14,9 @@ from question.models import ExamSnapShot  # مسیر را مچ کن
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from question.mixins import TeacherRequiredMixin
+from ai_asistant_with_sina.query_cache import (
+    CachedBundleDetailMixin, CachedListMixin, cached_value,
+)
 
 class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
     template_name = "analysis/stage2_run.html"
@@ -36,7 +39,7 @@ class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
         ).order_by("-created_at")
         if exam_id:
             qs = qs.filter(exam_id=exam_id)
-        return qs.select_related("prompt_template", "exam")[:300]
+        return qs.defer("input_json")[:300]
 
     def _fill_stage2_prompt(self, template_text: str, *, exam_map_json: dict, student_answers: dict) -> str:
         return (
@@ -51,28 +54,37 @@ class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
         exam_id = self._get_exam_id_from_request()
         ctx["selected_exam_id"] = exam_id
 
-        ctx["stage1_bundles"] = self._get_stage1_bundles_for_exam(exam_id)
+        ctx["stage1_bundles"] = cached_value(
+            'stage2-stage1-options', (self.request.user.pk, exam_id),
+            ('bundles', 'exams'), 60,
+            lambda: list(self._get_stage1_bundles_for_exam(exam_id)),
+        )
 
         snapshot_info = None
         if exam_id:
-            snap = ExamSnapShot.objects.filter(
-                exam_id=exam_id,
-                exam__teacher=self.request.user,
-            ).order_by("-created_at").first()
-            if snap:
-                data = snap.data or {}
-                students = data.get("students", []) or []
-                snapshot_info = {
-                    "exists": True,
-                    "snapshot_id": snap.id,
-                    "created_at": snap.created_at,
-                    "student_count": len(students),
-                }
-            else:
-                snapshot_info = {"exists": False}
+            # Recheck ownership before reading cached snapshot information.
+            owned_exam = Exam.objects.filter(pk=exam_id, teacher=self.request.user).exists()
+            snapshot_info = (
+                cached_value(
+                    'latest-snapshot-info', (self.request.user.pk, exam_id),
+                    ('snapshots', 'exams'), 300,
+                    lambda: self._load_snapshot_info(exam_id),
+                ) if owned_exam else {'exists': False}
+            )
 
         ctx["snapshot_info"] = snapshot_info
         return ctx
+
+    def _load_snapshot_info(self, exam_id):
+        snap = ExamSnapShot.objects.filter(
+            exam_id=exam_id, exam__teacher=self.request.user,
+        ).order_by('-created_at', '-pk').first()
+        if snap is None:
+            return {'exists': False}
+        return {
+            'exists': True, 'snapshot_id': snap.pk, 'created_at': snap.created_at,
+            'student_count': len((snap.data or {}).get('students', []) or []),
+        }
 
     def form_invalid(self, form):
         messages.error(self.request, "فرم خطا دارد. موارد را بررسی کن.")
@@ -85,7 +97,7 @@ class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
 
         stage1_bundle = (
             AnalysisBundle.objects
-            .select_related("exam")
+            .select_related("result")
             .filter(
                 id=stage1_bundle_id,
                 teacher=self.request.user,
@@ -179,9 +191,10 @@ class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
 
 
 
-class Stage2ResultsView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+class Stage2ResultsView(LoginRequiredMixin, TeacherRequiredMixin, CachedListMixin, ListView):
     template_name = "analysis/stage2_results.html"
     context_object_name = "bundles"
+    paginate_by = 20
 
     def get_queryset(self):
         exam_id = self.kwargs["exam_id"]
@@ -197,12 +210,13 @@ class Stage2ResultsView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
                 teacher=self.request.user,
                 stage=AnalysisBundle.STAGE_TWO,
             )
-            .select_related("prompt_template", "exam")
-            .order_by("-created_at")
+            .select_related("prompt_template")
+            .defer("input_json", "prompt_template__instruction_text", "prompt_template__schema_json")
+            .order_by("-created_at", "-pk")
         )
 
 
-class Stage2StudentDetailView(LoginRequiredMixin, TeacherRequiredMixin, DetailView):
+class Stage2StudentDetailView(LoginRequiredMixin, TeacherRequiredMixin, CachedBundleDetailMixin, DetailView):
     model = AnalysisBundle
     template_name = "analysis/stage2_student_detail.html"
     context_object_name = "bundle"

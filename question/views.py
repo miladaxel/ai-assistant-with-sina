@@ -1,11 +1,12 @@
 import json
+from collections import defaultdict
 from symtable import Class
 import time
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 
 from .exam_data import EXAM_DATA, students_data, student_exercises
 from django.views.generic import TemplateView, CreateView, DetailView, ListView, FormView
@@ -20,7 +21,19 @@ import importlib
 from .mixins import TeacherRequiredMixin
 from django.urls import reverse_lazy
 from Profile.models import TeacherUser, Student
-from django.db.models import Sum
+from ai_asistant_with_sina.query_cache import (
+    CachedBundleDetailMixin, CachedListMixin, cached_value,
+)
+
+
+def cached_exam_questions(exam, teacher_id, *, allow_in_atomic=False):
+    return cached_value(
+        'exam-questions', (teacher_id, exam.pk), ('questions', 'exams'), 1800,
+        lambda: list(exam.questions.order_by('number', 'pk').prefetch_related(
+            Prefetch('subquestions', queryset=SubQuestion.objects.order_by('number', 'pk'))
+        )),
+        allow_in_atomic=allow_in_atomic,
+    )
 
 
 
@@ -205,7 +218,7 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
         return redirect("bundle_detail", pk=bundle.pk)
 
 
-class AnalysisBundleDetailView(LoginRequiredMixin, TeacherRequiredMixin ,DetailView):
+class AnalysisBundleDetailView(LoginRequiredMixin, TeacherRequiredMixin, CachedBundleDetailMixin, DetailView):
     model = AnalysisBundle
     template_name = "questions/bundle_detail.html"
     context_object_name = "bundle"
@@ -214,10 +227,10 @@ class AnalysisBundleDetailView(LoginRequiredMixin, TeacherRequiredMixin ,DetailV
         return AnalysisBundle.objects.filter(
             teacher=self.request.user,
             exam__teacher=self.request.user,
-        )
+        ).select_related("prompt_template", "result")
 
 
-class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, CachedListMixin, ListView):
     model = AnalysisBundle
     template_name = "questions/my_bundles.html"
     context_object_name = 'bundles'
@@ -229,7 +242,7 @@ class MyAnalysisBundlesView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
                 teacher=self.request.user,
                 exam__teacher=self.request.user,
                 stage=AnalysisBundle.STAGE_ONE,
-            ).order_by('-created_at')
+            ).select_related("exam").defer("input_json").order_by('-created_at', '-pk')
         )
 
 
@@ -281,7 +294,9 @@ class ExamQuestionsSetupView(LoginRequiredMixin, TemplateView):
         if not formset.is_valid():
             return self.render_to_response(self.get_context_data(formset=formset))
 
-        formset.save()
+        changed_questions = formset.save(commit=False)
+        if changed_questions:
+            Question.objects.bulk_update(changed_questions, ["has_subquestion"])
         return redirect('exam_sub_question_setup', exam_id=self.exam.pk)
 
 class ExamSubQuestionsSetupView(LoginRequiredMixin, TemplateView):
@@ -312,48 +327,78 @@ class ExamSubQuestionsSetupView(LoginRequiredMixin, TemplateView):
         if not formset.is_valid():
             return self.render_to_response(self.get_context_data(formset=formset))
 
-        question = formset.save(commit=False)
-        for q in question :
+        questions = formset.save(commit=False)
+        existing_by_question = defaultdict(list)
+        for sub in SubQuestion.objects.filter(question__in=questions).order_by("number", "pk"):
+            existing_by_question[sub.question_id].append(sub)
+
+        new_subquestions = []
+        delete_ids = []
+        for q in questions:
             desired = q.subquestion_count or 0
-            q.save(update_fields=["subquestion_count"])
-            existing_qs = q.subquestions.order_by('number')
-            existing_count = existing_qs.count()
+            existing = existing_by_question[q.pk]
+            existing_count = len(existing)
 
             if desired > existing_count:
                 start = existing_count + 1
-                SubQuestion.objects.bulk_create([
+                new_subquestions.extend([
                     SubQuestion(question=q, number=i) for i in range(start, desired + 1)
                 ])
             elif desired < existing_count:
-                q.subquestions.order_by('-number')[:existing_count - desired].delete()
+                delete_ids.extend(sub.pk for sub in existing[desired:])
+
+        if questions:
+            Question.objects.bulk_update(questions, ["subquestion_count"])
+        if delete_ids:
+            SubQuestion.objects.filter(pk__in=delete_ids).delete()
+        if new_subquestions:
+            SubQuestion.objects.bulk_create(new_subquestions)
 
         return redirect('exam_summary', exam_id=self.exam.pk)
 
-class ExamSummaryView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
+class ExamSummaryView(LoginRequiredMixin, TeacherRequiredMixin, DetailView):
+    model = Exam
     template_name = "questions/exam_summary.html"
+    context_object_name = "exam"
+    pk_url_kwarg = "exam_id"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return self.handle_no_permission()
-        self.exam = get_object_or_404(Exam, id=kwargs["exam_id"], teacher=request.user,)
-        return super().dispatch(request, *args, **kwargs)
+    def test_func(self):
+        return self.request.user.role == "teacher"
+
+    def get_queryset(self):
+        return Exam.objects.filter(teacher=self.request.user)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        questions = (Question.objects.filter(exam=self.exam).order_by('number'))
+        questions = cached_exam_questions(self.object, self.request.user.pk)
+        participants = (
+            self.object.participations
+            .select_related("student")
+            .only(
+                "exam_id",
+                "student_id",
+                "student__full_name",
+                "student__national_code",
+            )
+            .order_by("student__full_name")
+        )
 
-        total_sub = questions.aggregate(total=Sum('subquestion_count'))
-        participants = (ExamParticipation.objects.filter(exam=self.exam).select_related('student').order_by('student__full_name'))
-
-        ctx["exam"] = self.exam
         ctx["questions"] = questions
-        ctx["total_questions"] = questions.count()
-        ctx["total_subquestions"] = total_sub
-        ctx["participants"] = participants
+        ctx["exam_id"] = self.object.pk
+        ctx["total_questions"] = len(questions)
+        ctx["total_subquestions"] = sum(
+            question.subquestion_count for question in questions
+        )
+        ctx["participants"] = cached_value(
+            'exam-participants', (self.request.user.pk, self.object.pk),
+            ('participants', 'people', 'exams'), 300, lambda: list(participants),
+        )
         return ctx
 
 
-class ExamListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+class ExamListView(LoginRequiredMixin, TeacherRequiredMixin, CachedListMixin, ListView):
+    cache_groups = ('exams', 'participants')
+    cache_timeout = 120
     model = Exam
     template_name = "questions/exam_list.html"
     context_object_name = "exams"
@@ -407,7 +452,7 @@ class ExamSelectStudentsView(LoginRequiredMixin, TemplateView):
 
         ExamParticipation.objects.filter(exam=self.exam).exclude(student__in=selected_students).delete()
 
-        existing_ids = ExamParticipation.objects.filter(exam=self.exam, student__in=selected_students).values_list('student_id', flat=True)
+        existing_ids = set(ExamParticipation.objects.filter(exam=self.exam, student__in=selected_students).values_list('student_id', flat=True))
 
         new_rows = [ExamParticipation(exam=self.exam, student=s) for s in selected_students if s.id not in existing_ids]
         if new_rows:
@@ -423,7 +468,11 @@ class StudentParticipationListView(LoginRequiredMixin,TeacherRequiredMixin ,List
 
     def get_queryset(self):
         self.exam = get_object_or_404(Exam, id=self.kwargs['exam_id'], teacher=self.request.user,)
-        return ExamParticipation.objects.filter(exam=self.exam)
+        return cached_value(
+            'exam-participation-list', (self.request.user.pk, self.exam.pk),
+            ('participants', 'people', 'exams'), 300,
+            lambda: list(ExamParticipation.objects.filter(exam=self.exam).select_related('student')),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -433,25 +482,40 @@ class StudentParticipationListView(LoginRequiredMixin,TeacherRequiredMixin ,List
 class ExamCorrectionView(LoginRequiredMixin, View):
     template_name = 'questions/exam_correction.html'
 
+    @transaction.atomic
     def get(self, request, exam_id, student_id):
-        exam = get_object_or_404(Exam, id=exam_id, teacher=request.user)
+        exam = get_object_or_404(Exam.objects.select_for_update(), id=exam_id, teacher=request.user)
         student = get_object_or_404(Student, id=student_id)
         get_object_or_404(ExamParticipation, exam=exam, student=student)
 
-        # آماده‌سازی نتایج اولیه اگر وجود ندارند
-        results = []
-        for q in exam.questions.all():
+        questions = cached_exam_questions(exam, request.user.pk, allow_in_atomic=True)
+        result_qs = StudentQuestionResult.objects.filter(exam=exam, student=student)
+        existing = {
+            (r.question_id, r.subquestion_id): r
+            for r in result_qs.select_related("question", "subquestion__question").order_by("pk")
+        }
+        targets = []
+        missing = []
+        for q in questions:
             if q.has_subquestion:
-                for sub in q.subquestions.all():
-                    result, created = StudentQuestionResult.objects.get_or_create(
-                        exam=exam, student=student, subquestion=sub
-                    )
-                    results.append(result)
+                keys = [(None, sub.pk) for sub in q.subquestions.all()]
             else:
-                result, created = StudentQuestionResult.objects.get_or_create(
-                    exam=exam, student=student, question=q
-                )
-                results.append(result)
+                keys = [(q.pk, None)]
+            for key in keys:
+                targets.append(key)
+                if key not in existing:
+                    missing.append(StudentQuestionResult(
+                        exam=exam, student=student,
+                        question_id=key[0], subquestion_id=key[1],
+                    ))
+
+        if missing:
+            StudentQuestionResult.objects.bulk_create(missing)
+            existing = {
+                (r.question_id, r.subquestion_id): r
+                for r in result_qs.select_related("question", "subquestion__question").order_by("pk")
+            }
+        results = [existing[key] for key in targets]
 
         context = {
             'exam': exam,
@@ -466,12 +530,15 @@ class ExamCorrectionView(LoginRequiredMixin, View):
         student = get_object_or_404(Student, id=student_id)
         get_object_or_404(ExamParticipation, exam=exam, student=student)
 
-        # ذخیره نتایج بر اساس checkbox
+        selected_ids = [
+            int(key[7:]) for key in request.POST
+            if key.startswith("result_") and key[7:].isascii() and key[7:].isdigit()
+            and len(key[7:]) <= 19
+        ]
+        selected_ids = [pk for pk in selected_ids if 0 < pk <= 9223372036854775807]
         all_results = StudentQuestionResult.objects.filter(exam=exam, student=student)
-        for r in all_results:
-            # اگر checkbox ارسال شده → True، در غیر اینصورت → False
-            r.is_correct = f'result_{r.id}' in request.POST
-            r.save()
+        all_results.filter(pk__in=selected_ids).update(is_correct=True)
+        all_results.exclude(pk__in=selected_ids).update(is_correct=False)
 
         return redirect('exam_summary', exam_id=exam.id)
 
@@ -492,13 +559,19 @@ class ExamResultsReportView(LoginRequiredMixin, TeacherRequiredMixin, TemplateVi
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-
-        participations = (
-            ExamParticipation.objects
-            .filter(exam=self.exam)
-            .select_related('student')
-            .order_by('student__full_name')
+        ctx.update(cached_value(
+            'exam-report', (self.request.user.pk, self.exam.pk),
+            ('grades', 'questions', 'participants', 'people', 'exams'), 300,
+            self._load_report_data,
+        ))
+        # Keep this optional context lazy; the current report renders groups only.
+        ctx['participants'] = (
+            ExamParticipation.objects.filter(exam=self.exam)
+            .select_related('student').order_by('student__full_name')
         )
+        return ctx
+
+    def _load_report_data(self):
 
         results = (
             StudentQuestionResult.objects
@@ -512,16 +585,35 @@ class ExamResultsReportView(LoginRequiredMixin, TeacherRequiredMixin, TemplateVi
             .order_by('student__full_name')
         )
 
-        # گروه‌بندی نتایج بر اساس دانش‌آموز
         student_results = {}
+        grouped_results = {}
         for r in results:
             student_results.setdefault(r.student, []).append(r)
+            question = r.subquestion.question if r.subquestion_id else r.question
+            if question is None:
+                continue
+            student_groups = grouped_results.setdefault(r.student, {})
+            group = student_groups.setdefault(question.pk, {
+                "number": question.number,
+                "is_correct": True,
+                "subresults": [],
+            })
+            group["is_correct"] = group["is_correct"] and r.is_correct
+            if r.subquestion_id:
+                group["subresults"].append(r)
 
-        ctx["exam"] = self.exam
-        ctx["student_results"] = student_results
-        ctx["participants"] = participations
+        student_question_groups = {}
+        for student, groups in grouped_results.items():
+            ordered_groups = sorted(groups.values(), key=lambda group: group["number"])
+            for group in ordered_groups:
+                group["subresults"].sort(key=lambda r: (r.subquestion.number, r.pk))
+            student_question_groups[student] = ordered_groups
 
-        return ctx
+        return {
+            'exam': self.exam,
+            'student_results': student_results,
+            'student_question_groups': student_question_groups,
+        }
 
 
 class ExamSnapShotCreateView(LoginRequiredMixin, TeacherRequiredMixin, View):
@@ -544,16 +636,22 @@ class ExamSnapShotCreateView(LoginRequiredMixin, TeacherRequiredMixin, View):
             "students": []
         }
 
-        seen_students = set()
         participations = ExamParticipation.objects.filter(exam=exam).select_related('student')
+        answers_by_student = defaultdict(list)
+        answers = (
+            StudentQuestionResult.objects.filter(
+                exam=exam,
+                student_id__in=participations.values("student_id"),
+            )
+            .select_related('question', 'subquestion__question')
+            .order_by('question__number', 'subquestion__question__number', 'subquestion__number', 'id')
+        )
+        for answer in answers:
+            answers_by_student[answer.student_id].append(answer)
         for p in participations:
             student = p.student
-            if student.id in seen_students:
-                continue
-            seen_students.add(student.id)
-            answers = StudentQuestionResult.objects.filter(exam=exam, student=student).select_related('question', 'subquestion', 'subquestion__question').order_by('question__number', 'subquestion__question__number', 'subquestion__number','id')
             student_data = {"student_id": student.id, "full_name": student.full_name, "results": []}
-            for ans in answers:
+            for ans in answers_by_student[student.id]:
                 if ans.question:
                     student_data["results"].append({
                         "type": 'question',
@@ -575,14 +673,17 @@ class ExamSnapShotCreateView(LoginRequiredMixin, TeacherRequiredMixin, View):
         return redirect('teacher panel')
 
 
-class ExamSnapShotListView(LoginRequiredMixin, TeacherRequiredMixin, ListView):
+class ExamSnapShotListView(LoginRequiredMixin, TeacherRequiredMixin, CachedListMixin, ListView):
+    cache_groups = ('snapshots', 'exams')
+    cache_timeout = 300
     model = ExamSnapShot
     template_name = 'questions/snapshot_list.html'
     context_object_name = 'snapshots'
+    paginate_by = 10
 
     def get_queryset(self):
         self.exam = get_object_or_404(Exam, id=self.kwargs['exam_id'], teacher=self.request.user)
-        return self.exam.snapshots.all().order_by('-created_at')
+        return self.exam.snapshots.all().order_by('-created_at', '-pk')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

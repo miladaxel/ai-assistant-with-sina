@@ -43,6 +43,18 @@ def env_list(name, default=''):
     return [item.strip() for item in os.getenv(name, default).split(',') if item.strip()]
 
 
+def env_int(name, default):
+    """Read an integer environment variable and report invalid values clearly."""
+    value = os.getenv(name)
+    if value is None:
+        return default
+
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise ImproperlyConfigured(f'{name} must be an integer.') from exc
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -140,6 +152,28 @@ DATABASES = {
 }
 
 
+# Cache
+# https://github.com/jazzband/django-redis
+
+QUERY_CACHE_ENABLED = env_bool('DJANGO_QUERY_CACHE_ENABLED', default=True)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        'TIMEOUT': env_int('REDIS_CACHE_TIMEOUT', default=300),
+        'KEY_PREFIX': os.getenv('REDIS_KEY_PREFIX', 'ai_assistant_with_sina'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': env_int(
+                'REDIS_CONNECT_TIMEOUT', default=5
+            ),
+            'SOCKET_TIMEOUT': env_int('REDIS_SOCKET_TIMEOUT', default=5),
+        },
+    },
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -156,6 +190,24 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+# Celery: keep the broker and results separate from the Django cache (/1).
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/2')
+CELERY_RESULT_BACKEND = os.getenv(
+    'CELERY_RESULT_BACKEND', 'redis://127.0.0.1:6379/3'
+)
+CELERY_TASK_DEFAULT_QUEUE = 'ai_assistant_with_sina'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_RESULT_EXPIRES = env_int('CELERY_RESULT_EXPIRES', default=3600)
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_ALWAYS_EAGER = env_bool('CELERY_TASK_ALWAYS_EAGER', default=False)
+CELERY_TASK_EAGER_PROPAGATES = True
 
 
 # Static files (CSS, JavaScript, Images)

@@ -1,0 +1,11 @@
+{% if is_paginated %}
+<nav aria-label="صفحه‌بندی" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:24px 0">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">صفحه قبل</a>
+    {% endif %}
+    <span>صفحه {{ page_obj.number }} از {{ paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">صفحه بعد</a>
+    {% endif %}
+</nav>
+{% endif %}

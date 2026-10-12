@@ -158,7 +158,7 @@
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
           <span class="pill">
             تعداد کل:
-            <b class="numeric-value">{{ bundles|length }}</b>
+            <b class="numeric-value">{{ paginator.count }}</b>
           </span>
           <a class="btn" href="{% url 'teacher panel' %}">
             بازگشت به پنل معلم
@@ -208,6 +208,7 @@
         </div>
       {% endif %}
 
+      {% include "questions/_pagination.html" %}
     </div>
   </div>
 {% endblock %}

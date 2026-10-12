@@ -2,12 +2,14 @@ from symtable import Class
 
 from .models import AnalysisBundle, PromptTemplate, Exam, Question, StudentQuestionResult
 from django import forms
-from django.forms import modelformset_factory
+from django.forms import BaseModelFormSet, modelformset_factory
 from .models import StudentQuestionResult
+from ai_asistant_with_sina.query_cache import CachedPromptChoiceField
 
 
 class AnalysisBundleCreateForm(forms.ModelForm):
-    prompt_template = forms.ModelChoiceField(
+    prompt_template = CachedPromptChoiceField(
+        cache_variant='stage1-active-name-version',
         queryset=PromptTemplate.objects.filter(is_active=True, stage=PromptTemplate.STAGE_ONE).order_by(
             'name', '-version'),
         empty_label='یک پرامپت را انتخاب کنید',
@@ -48,7 +50,43 @@ class QuestionHasSubForm(forms.ModelForm):
         fields = ['has_subquestion']
 
 
-QuestionHasSubFormSet = modelformset_factory(Question, form=QuestionHasSubForm, extra=0)
+class CachedQuestionChoiceField(forms.ModelChoiceField):
+    """Validate hidden IDs using the formset's already scoped, loaded questions."""
+
+    def __init__(self, *args, instances, **kwargs):
+        self.instances = instances
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+        self.validate_no_null_characters(value)
+        try:
+            if isinstance(value, Question):
+                value = value.pk
+            return self.instances[Question._meta.pk.to_python(value)]
+        except (KeyError, ValueError, TypeError, forms.ValidationError):
+            raise forms.ValidationError(
+                self.error_messages["invalid_choice"],
+                code="invalid_choice", params={"value": value},
+            )
+
+
+class BaseQuestionFormSet(BaseModelFormSet):
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        if not hasattr(self, "_question_instances"):
+            self._question_instances = {question.pk: question for question in self.get_queryset()}
+        original = form.fields["id"]
+        form.fields["id"] = CachedQuestionChoiceField(
+            queryset=self.get_queryset(), instances=self._question_instances,
+            initial=original.initial, required=original.required, widget=original.widget,
+        )
+
+
+QuestionHasSubFormSet = modelformset_factory(
+    Question, form=QuestionHasSubForm, formset=BaseQuestionFormSet, extra=0,
+)
 
 
 class QuestionSubCountForm(forms.ModelForm):
@@ -64,7 +102,9 @@ class QuestionSubCountForm(forms.ModelForm):
             raise forms.ValidationError('Subquestion count must be non-negative')
         return val
 
-QuestionSubCountFormSet = modelformset_factory(Question, form=QuestionSubCountForm, extra=0)
+QuestionSubCountFormSet = modelformset_factory(
+    Question, form=QuestionSubCountForm, formset=BaseQuestionFormSet, extra=0,
+)
 
 class ExamStudentForm(forms.Form):
     students = forms.ModelMultipleChoiceField(

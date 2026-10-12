@@ -4,8 +4,12 @@
     <link rel="stylesheet" href="{% static 'css/exam.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}">
 {% endblock %}
+
+{% block extra_js %}
+    <script defer src="{% static 'js/exam.js' %}"></script>
+{% endblock %}
+
 {% block content %}
-<body>
 <div class="container">
  <div id="matrix-area" style="margin-bottom: 2rem">
   <a
@@ -22,13 +26,6 @@
         <div class="matrix-header-info"></div>
 
         <div class="matrix-container">
-
-          <table class="exam-table">
-            <thead>
-              <td><span>سوال</span></td>
-              <td><span>زیرسوال دارد؟</span></td>
-              <td><span>تعداد زیر سوالات</span></td>
-            </thead>
           <div style="display: flex;column-gap: 1rem ;margin: 2rem;margin-right: 2rem">
 
             <div
@@ -50,22 +47,26 @@
 
               "
             >
-              تعداد زیر سوال ها : <span>{{ total_subquestions.total }}</span>
+              تعداد زیر سوال ها : <span>{{ total_subquestions }}</span>
             </div>
           </div>
 
+          <table class="exam-table">
+            <thead>
+              <tr>
+                <th scope="col"><span>سوال</span></th>
+                <th scope="col"><span>زیرسوال دارد؟</span></th>
+                <th scope="col"><span>تعداد زیر سوالات</span></th>
+              </tr>
+            </thead>
             <tbody>
-                        {% for q in questions %}
-
+              {% for q in questions %}
                 <tr>
-
-              <td><span>{{ q.number }}</span></td>
-
-              <td>{{ q.has_subquestion }}</td>
-              <td>{{ q.subquestion_count }}</td>
+                  <td><span>{{ q.number }}</span></td>
+                  <td>{{ q.has_subquestion }}</td>
+                  <td>{{ q.subquestion_count }}</td>
                 </tr>
-
-            {% endfor %}
+              {% endfor %}
             </tbody>
           </table>
         </div>
@@ -103,12 +104,6 @@
         <a class="btn-primary-full" href="{% url 'exam_select_students' exam.id %}">تعیین دانش اموزان شرکت کننده</a>
     </div>
     </div>
-</body>
-{% block extra_js %}
-    {% static 'js/exam.js' %}
-{% endblock %}
-
-
 {% endblock %}
 
 {#<!doctype html>#}
