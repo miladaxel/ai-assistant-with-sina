@@ -1,102 +1,20 @@
-{% extends 'Profile/base.html' %}
-{% load static %}
-{% block extra_css %}
-    <title>ایجاد آزمون و تصحیح</title>
-    <link rel="stylesheet" href="{% static 'css/exam.css' %}" />
+{% extends 'questions/exam_workflow_base.html' %}
+{% block title %}ایجاد آزمون{% endblock %}
+{% block workflow_breadcrumb %}ایجاد آزمون{% endblock %}
+{% block workflow_heading %}ایجاد آزمون جدید{% endblock %}
+{% block workflow_description %}نام و تعداد سوال‌های آزمون را وارد کنید؛ ساختار سوال‌ها را در مرحله بعد تنظیم می‌کنید.{% endblock %}
+{% block workflow_progress %}{% include 'questions/_exam_workflow_steps.html' with stage='create' %}{% endblock %}
+{% block workflow_form %}
+<form method="post">
+  {% csrf_token %}
+  <div class="workflow-panel-heading"><div><h2 id="workflow-form-title">اطلاعات آزمون</h2><p>با ثبت این اطلاعات، سوال‌های آزمون ساخته می‌شوند.</p></div></div>
+  {% if form.non_field_errors %}<div class="workflow-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="workflow-fields">
+    <div class="workflow-field"><label for="{{ form.name.id_for_label }}">عنوان آزمون</label>{{ form.name }}{{ form.name.errors }}<p class="workflow-field-help">عنوانی انتخاب کنید که تشخیص آزمون را برایتان آسان کند.</p></div>
+    <div class="workflow-field"><label for="{{ form.total_question.id_for_label }}">تعداد سوال‌ها</label>{{ form.total_question }}{{ form.total_question.errors }}<p class="workflow-field-help">بین ۱ تا ۳۰۰ سوال؛ تعداد زیرسوال‌ها جداگانه تعیین می‌شود.</p></div>
+  </div>
+  <div class="workflow-form-actions"><a class="workflow-cancel" href="{% url 'exam_list' %}">انصراف</a><button type="submit" class="summary-button summary-button-primary">ایجاد آزمون و تنظیم سوال‌ها<span aria-hidden="true">‹</span></button></div>
+</form>
 {% endblock %}
-{% block content %}
-  <body>
-    <div class="container">
-      <div class="card config-card expanded" id="configCard">
-        <div class="card-header">
-          <div class="header-title">
-            <i class="fa-solid fa-gear"></i>
-            <h2>پیکربندی آزمون</h2>
-          </div>
-          <button class="btn-edit" id="editBtn" onclick="toggleEditMode()">
-            <i class="fa-solid fa-pen"></i> ویرایش
-          </button>
-        </div>
-        <form method="post">
-            {% csrf_token %}
-        <div class="card-body" id="configBody">
-          <div class="form-group">
-            <label for="examTitle">عنوان آزمون</label>
-            <input
-              type="text"
-              id="examTitle"
-              placeholder="مثلاً: امتحان ریاضی نوبت اول"
-              class="large-input"
-              name="name"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="totalQuestions" >تعداد کل سوالات</label>
-            <input
-              type="number"
-              id="totalQuestions"
-              placeholder="0"
-              min="0"
-              oninput="generateQuestions()"
-              name="total_question"
-            />
-          </div>
-
-          <div class="dynamic-questions-grid" id="questionsContainer"></div>
-        </div>
-
-
-        <div class="card-footer" id="configFooter">
-          <button class="btn-primary-full" onclick="saveAndLoadList()">
-            <i class="fa-solid fa-check"></i> ذخیره و نمایش لیست کلاس
-          </button>
-        </div>
-        </form>
-      </div>
-
-      <div class="grading-section hidden" id="gradingSection">
-        <div class="student-list" id="studentListContainer"></div>
-      </div>
-    </div>
-    <div id="gradingModalOverlay" class="grading-modal-overlay">
-      <div class="grading-modal-content">
-        <div class="grading-modal-header">
-          <div class="header-left">
-            <button class="close-modal-btn" onclick="closeGradingModal()">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="student-mini-profile">
-              <img src="" id="modalAvatar" class="mini-avatar" alt="Student" />
-              <div>
-                <h3 id="modalStName" class="mini-name">---</h3>
-                <span class="mini-status">در حال تصحیح...</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="header-right">
-            <span class="score-label">نمره فعلی:</span>
-            <div class="live-score-box">
-              <span id="modalLiveScore">0</span>
-              <span class="score-divider">/</span>
-              <span id="modalMaxScore">20</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="grading-modal-body" id="gradingQuestionsList"></div>
-
-        <div class="grading-modal-footer">
-          <button class="g-btn g-btn-outline" onclick="closeGradingModal()">
-            لغو
-          </button>
-          <button class="g-btn g-btn-primary" onsubmit="submitGrade()">
-            ثبت نمره و نفر بعدی <i class="fa-solid fa-chevron-left"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </body>
-{% endblock %}
+{% block workflow_guide_title %}شروع تنظیم آزمون{% endblock %}
+{% block workflow_guide %}<p>ابتدا اطلاعات اصلی را ثبت کنید. سپس مشخص می‌کنید کدام سوال‌ها زیرسوال دارند و هرکدام چند بخش دارند.</p><div class="workflow-guide-example"><strong>یک مثال</strong><p>برای آزمونی با ۲۰ سوال اصلی، عدد ۲۰ را وارد کنید؛ حتی اگر بعضی سوال‌ها چند بخش دارند.</p></div><p>انتخاب دانش‌آموزان از صفحه خلاصه آزمون در دسترس است.</p>{% endblock %}

@@ -1,124 +1,22 @@
-{% extends 'Profile/base.html' %}
-{% load static %}
-{% block extra_css %}
- <title>ورود نمرات آزمون</title>
-     <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends 'questions/exam_workflow_base.html' %}
+{% block title %}تعداد زیرسوال‌ها | {{ exam.name }}{% endblock %}
+{% block workflow_breadcrumb %}تعداد زیرسوال‌ها{% endblock %}
+{% block workflow_heading %}تعداد زیرسوال‌ها را تعیین کنید{% endblock %}
+{% block workflow_description %}برای هر سوال چندبخشی، تعداد بخش‌های جداگانه را وارد کنید.{% endblock %}
+{% block workflow_progress %}{% include 'questions/_exam_workflow_steps.html' with stage='subquestions' %}{% endblock %}
+{% block workflow_form %}
+<form method="post">
+  {% csrf_token %}{{ formset.management_form }}
+  <div class="workflow-panel-heading"><div><h2 id="workflow-form-title">سوال‌های دارای زیرسوال</h2><p>{{ exam.name|default:'آزمون بدون عنوان' }}</p></div><span class="summary-count">{{ formset.total_form_count }} سوال</span></div>
+  {% if formset.non_form_errors or formset.management_form.errors %}<div class="workflow-alert" role="alert">{{ formset.non_form_errors }}{{ formset.management_form.errors }}</div>{% endif %}
+  <div class="summary-table-scroll workflow-table-scroll" tabindex="0" role="region" aria-label="تنظیم تعداد زیرسوال‌ها">
+    <table class="summary-table workflow-table"><thead><tr><th scope="col">سوال</th><th scope="col">تعداد زیرسوال</th></tr></thead><tbody>
+      {% for form in formset %}<tr><th scope="row"><span class="summary-question-number" aria-hidden="true">{{ form.instance.number }}</span>سوال {{ form.instance.number }}{{ form.id }}{{ form.id.errors }}{{ form.non_field_errors }}</th><td><label class="workflow-number-control" for="{{ form.subquestion_count.id_for_label }}"><span class="workflow-sr-only">تعداد زیرسوال‌های سوال {{ form.instance.number }}</span>{{ form.subquestion_count }}<span aria-hidden="true">زیرسوال</span></label>{{ form.subquestion_count.errors }}</td></tr>
+      {% empty %}<tr><td colspan="2" class="summary-empty">هیچ سوالی با گزینه «زیرسوال دارد» انتخاب نشده است.<br><a href="{% url 'exam_question_setup' exam.id %}">بازگشت به تنظیم نوع سوال‌ها</a></td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="workflow-form-actions"><a class="workflow-cancel" href="{% url 'exam_question_setup' exam.id %}">مرحله قبل</a><button type="submit" class="summary-button summary-button-primary">ذخیره و مشاهده خلاصه آزمون<span aria-hidden="true">‹</span></button></div>
+</form>
 {% endblock %}
-
-{% block content %}
-
-<body>
-
-    <div class="main-content">
-        <div id="matrix-area">
-<div class="matrix-header-info"></div>
-<div class="matrix-container">
-    <form method="post">
-        {% csrf_token %}
-        {{ formset.management_form }}
-
-        <table class="exam-table">
-          <thead>
-            <tr>
-              <th>شماره سوال</th>
-              <th>تعداد زیرسوال</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for form in formset %}
-              <tr>
-                <td>
-                  سوال {{ form.instance.number }}
-                  {{ form.id }}
-                </td>
-                <td>
-                  {{ form.subquestion_count }}
-                  {% if form.subquestion_count.errors %}
-                    <div class="err">{{ form.subquestion_count.errors.0 }}</div>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-    </table>
-    <div style="text-align: center">
-
-    <button class="btn-primary-full" style="width: 25% !important;margin: 1rem 0" type="submit" value="ثبت">ثبت</button>
-    </div>
-    </form>
-</div>
-<div id="quickMenu" class="quick-menu"></div>
-        </div>
-    </div>
-{% block extra_js %}
-    <script src="{% static 'js/layout.js' %}"></script>
-    {% endblock %}
-</body>
-{% endblock %}
-
-
-
-{#<!doctype html>#}
-{#<html lang="fa" dir="rtl">#}
-{#<head>#}
-{#  <meta charset="utf-8">#}
-{#  <title>تعداد زیرسوال‌ها</title>#}
-{#  <style>#}
-{#    body { font-family: sans-serif; background:#f6f6f6; margin:0; }#}
-{#    .wrap { max-width: 900px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }#}
-{#    h1 { margin:0 0 10px; font-size: 20px; }#}
-{#    .muted { color:#666; font-size: 13px; margin-bottom: 16px; }#}
-{#    table { width:100%; border-collapse: collapse; }#}
-{#    th, td { padding:10px; border-bottom:1px solid #eee; text-align:right; }#}
-{#    th { background:#fafafa; font-weight:600; }#}
-{#    input[type="number"] { width: 110px; padding:6px; }#}
-{#    .btn { padding:10px 16px; border:0; border-radius:10px; cursor:pointer; }#}
-{#    .btn-primary { background:#111; color:#fff; }#}
-{#    .err { color:#b00020; font-size: 13px; margin-top:6px; }#}
-{#  </style>#}
-{#</head>#}
-{#<body>#}
-{#  <div class="wrap">#}
-{#    <h1>تعیین تعداد زیرسوال‌ها: {{ exam.name }}</h1>#}
-{#    <div class="muted">اینجا فقط سوال‌هایی نمایش داده می‌شن که زیرسوال دارند. تعداد رو بزن و ذخیره کن.</div>#}
-{##}
-{#    {% if formset.total_form_count == 0 %}#}
-{#      <div class="muted">هیچ سوالی با گزینه «زیرسوال دارد» انتخاب نشده.</div>#}
-{#    {% else %}#}
-{#      <form method="post">#}
-{#        {% csrf_token %}#}
-{#        {{ formset.management_form }}#}
-{##}
-{#        <table>#}
-{#          <thead>#}
-{#            <tr>#}
-{#              <th>شماره سوال</th>#}
-{#              <th>تعداد زیرسوال</th>#}
-{#            </tr>#}
-{#          </thead>#}
-{#          <tbody>#}
-{#            {% for form in formset %}#}
-{#              <tr>#}
-{#                <td>#}
-{#                  سوال {{ form.instance.number }}#}
-{#                  {{ form.id }}#}
-{#                </td>#}
-{#                <td>#}
-{#                  {{ form.subquestion_count }}#}
-{#                  {% if form.subquestion_count.errors %}#}
-{#                    <div class="err">{{ form.subquestion_count.errors.0 }}</div>#}
-{#                  {% endif %}#}
-{#                </td>#}
-{#              </tr>#}
-{#            {% endfor %}#}
-{#          </tbody>#}
-{#        </table>#}
-{##}
-{#        <div style="margin-top:16px;">#}
-{#          <button class="btn btn-primary" type="submit">ذخیره</button>#}
-{#        </div>#}
-{#      </form>#}
-{#    {% endif %}#}
-{#  <div class="muted">تعداد فرم‌ها: {{ formset.total_form_count }}</div>#}
-{#  </div>#}
-{#</body>#}
-{#</html>#}
+{% block workflow_guide_title %}تعداد بخش‌های هر سوال{% endblock %}
+{% block workflow_guide %}<p>در این فهرست فقط سوال‌هایی نمایش داده می‌شوند که در مرحله قبل برایشان زیرسوال فعال کرده‌اید.</p><div class="workflow-guide-example"><strong>یک مثال</strong><p>اگر سوالی بخش‌های «الف»، «ب» و «ج» دارد، تعداد زیرسوال‌های آن ۳ است.</p></div><p>پس از ذخیره، ساختار کامل آزمون را در صفحه خلاصه می‌بینید.</p>{% endblock %}

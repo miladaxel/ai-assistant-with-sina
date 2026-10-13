@@ -1,183 +1,100 @@
 {% extends 'Profile/base.html' %}
 {% load static %}
+{% block title %}خلاصه آزمون | {{ exam.name|default:'آزمون' }}{% endblock %}
+{% block body_class %}exam-summary-page{% endblock %}
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/exam.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}">
+  <link rel="stylesheet" href="{% static 'css/exam-summary.css' %}">
 {% endblock %}
-
 {% block extra_js %}
-    <script defer src="{% static 'js/exam.js' %}"></script>
+  <script defer src="{% static 'js/exam.js' %}"></script>
 {% endblock %}
-
 {% block content %}
-<div class="container">
- <div id="matrix-area" style="margin-bottom: 2rem">
-  <a
-            href="{% url 'home' %}"
-            style="
-              display: inline-block;
-              margin-bottom: 15px;
-              color: #64748b;
-              text-decoration: none;
-            "
-          >
-            <i class="fa-solid fa-arrow-right"></i> بازگشت به خانه
-          </a>
-        <div class="matrix-header-info"></div>
-
-        <div class="matrix-container">
-          <div style="display: flex;column-gap: 1rem ;margin: 2rem;margin-right: 2rem">
-
-            <div
-              style="
-              width: fit-content;
-                background-color: #eee;
-                border-radius: 5px;
-                padding: 2rem;
-              "
-            >
-              تعداد سوال ها : <span>{{ total_questions }}</span>
-            </div>
-            <div
-              style="
-              width: fit-content;
-                background-color: #eee;
-                border-radius: 5px;
-                padding: 2rem;
-
-              "
-            >
-              تعداد زیر سوال ها : <span>{{ total_subquestions }}</span>
-            </div>
-          </div>
-
-          <table class="exam-table">
-            <thead>
+<main class="exam-summary" id="main-content">
+  <nav class="summary-breadcrumb" aria-label="مسیر صفحه">
+    <a href="{% url 'home' %}">خانه</a><span aria-hidden="true">/</span>
+    <a href="{% url 'exam_list' %}">آزمون‌ها</a><span aria-hidden="true">/</span>
+    <span aria-current="page">خلاصه آزمون</span>
+  </nav>
+  <header class="summary-heading">
+    <div>
+      <h1>{{ exam.name|default:'آزمون بدون عنوان' }}</h1>
+      <p>ساختار سوال‌ها، تنظیمات و دانش‌آموزان این آزمون را مدیریت کنید.</p>
+    </div>
+    <a class="summary-button summary-button-primary" href="{% url 'exam_results_report' exam.id %}">
+      <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 4v16h16M8 15v-4m5 4V7m5 8v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      گزارش نتایج
+    </a>
+  </header>
+  <dl class="summary-overview" aria-label="آمار آزمون">
+    <div><dt>تعداد سوال‌ها</dt><dd>{{ total_questions }}</dd></div>
+    <div><dt>تعداد زیرسوال‌ها</dt><dd>{{ total_subquestions }}</dd></div>
+    <div><dt>دانش‌آموزان شرکت‌کننده</dt><dd>{{ participants|length }}</dd></div>
+  </dl>
+  <div class="summary-layout">
+    <section class="summary-questions" aria-labelledby="questions-title">
+      <div class="summary-section-heading">
+        <div><h2 id="questions-title">ساختار سوال‌ها</h2><p>نمای کلی سوال‌ها و تعداد بخش‌های هر سوال</p></div>
+        <span class="summary-count">{{ total_questions }} سوال</span>
+      </div>
+      <div class="summary-table-scroll" tabindex="0" role="region" aria-label="جدول ساختار سوال‌های آزمون">
+        <table class="summary-table">
+          <thead><tr><th scope="col">سوال</th><th scope="col">نوع سوال</th><th scope="col">تعداد زیرسوال</th></tr></thead>
+          <tbody>
+            {% for q in questions %}
               <tr>
-                <th scope="col"><span>سوال</span></th>
-                <th scope="col"><span>زیرسوال دارد؟</span></th>
-                <th scope="col"><span>تعداد زیر سوالات</span></th>
+                <th scope="row"><span class="summary-question-number">{{ q.number }}</span>سوال {{ q.number }}</th>
+                <td>{% if q.has_subquestion %}<span class="summary-badge summary-badge-parts">دارای زیرسوال</span>{% else %}<span class="summary-badge">بدون زیرسوال</span>{% endif %}</td>
+                <td><span class="summary-subcount">{% if q.has_subquestion %}{{ q.subquestion_count }}{% else %}۰{% endif %}</span></td>
               </tr>
-            </thead>
-            <tbody>
-              {% for q in questions %}
-                <tr>
-                  <td><span>{{ q.number }}</span></td>
-                  <td>{{ q.has_subquestion }}</td>
-                  <td>{{ q.subquestion_count }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div id="quickMenu" class="quick-menu"></div>
-      </div>
-      <div class="grading-section hidden" id="gradingSection">
-        <div class="student-list" id="studentListContainer">
-            {% for p in participants %}
-          <div class="student-row">
-            <div>
-              <div class="student-info">
-                <img src="{% static '' %}" class="avatar" alt="Avatar" />
-                <div>
-                  <span class="st-name">{{ p.student.full_name }}</span>
-                  <span class="st-father">{{ p.student.national_code }}</span>
-                </div>
-                <div class="grading-status">
-                  <a
-                    class="btn-grading"
-                    href="{% url 'exam_correction' exam_id p.student_id %}"
-                  >
-                    <i class="fa-solid fa-pen-to-square"></i> شروع تصحیح
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+            {% empty %}
+              <tr><td colspan="3" class="summary-empty">هنوز سوالی برای این آزمون ثبت نشده است.<br><a href="{% url 'exam_question_setup' exam.id %}">تنظیم سوال‌های آزمون</a></td></tr>
             {% endfor %}
-        </div>
+          </tbody>
+        </table>
       </div>
-    <div style="display: grid;grid-template-columns: repeat(3,1fr);gap: 10px;height: fit-content;justify-content: center;margin-top: 3rem" >
-        <a class="btn-primary-full" href="{% url 'exam_question_setup' exam.id %}">مرحله ۱: تعیین زیرسوال دارد/ندارد</a>
-        <a class="btn-primary-full" href="{% url 'exam_sub_question_setup' exam.id %}">مرحله ۲: تعیین تعداد زیرسوال</a>
-      <a class="btn-primary-full" href="{% url 'exam_results_report' exam.id %}">مشاهده گزارش کامل نتایج دانش‌آموزان</a>
-        <a class="btn-primary-full" href="{% url 'exam_select_students' exam.id %}">تعیین دانش اموزان شرکت کننده</a>
+      <div class="summary-table-footer"><span>مجموع زیرسوال‌های آزمون</span><strong>{{ total_subquestions }} زیرسوال</strong></div>
+    </section>
+    <aside class="summary-settings" aria-labelledby="settings-title">
+      <h2 id="settings-title">تنظیمات آزمون</h2>
+      <p class="summary-settings-intro">برای تغییر ساختار آزمون، از مراحل زیر استفاده کنید.</p>
+      <ol class="summary-steps">
+        <li><a href="{% url 'exam_question_setup' exam.id %}">
+          <span class="summary-step-number" aria-hidden="true">۱</span>
+          <span class="summary-step-copy"><strong>نوع سوال‌ها</strong><span>تعیین سوال‌های دارای زیرسوال</span></span>
+          <span class="summary-chevron" aria-hidden="true">‹</span>
+        </a></li>
+        <li><a href="{% url 'exam_sub_question_setup' exam.id %}">
+          <span class="summary-step-number" aria-hidden="true">۲</span>
+          <span class="summary-step-copy"><strong>تعداد زیرسوال‌ها</strong><span>تعیین تعداد بخش‌های هر سوال</span></span>
+          <span class="summary-chevron" aria-hidden="true">‹</span>
+        </a></li>
+      </ol>
+      <a class="summary-students-link" href="{% url 'exam_select_students' exam.id %}">
+        <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m3 9v-2a6 6 0 0 0-2-4" stroke-linecap="round"/></svg>
+        <span>انتخاب دانش‌آموزان</span><span class="summary-chevron" aria-hidden="true">‹</span>
+      </a>
+      <div class="summary-settings-note">
+        <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-9v.5" stroke-linecap="round"/></svg>
+        <p>پس از تنظیم سوال‌ها و انتخاب دانش‌آموزان، می‌توانید تصحیح پاسخ‌ها را شروع کنید.</p>
+      </div>
+    </aside>
+  </div>
+  <details class="summary-participants" id="gradingSection">
+    <summary>
+      <span class="summary-participants-title">دانش‌آموزان و تصحیح پاسخ‌ها<span>{{ participants|length }} شرکت‌کننده</span></span>
+      <span class="summary-details-toggle"><span class="summary-details-label-closed">مشاهده فهرست</span><span class="summary-details-label-open">بستن فهرست</span><svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </summary>
+    <div class="summary-student-list" id="studentListContainer">
+      {% for p in participants %}
+        <div class="summary-student-row">
+          <span class="summary-student-avatar" aria-hidden="true">{{ p.student.full_name|first }}</span>
+          <div class="summary-student-info"><strong>{{ p.student.full_name }}</strong><span>کد ملی: <bdi>{{ p.student.national_code }}</bdi></span></div>
+          <a class="summary-button summary-button-secondary" href="{% url 'exam_correction' exam_id p.student_id %}">شروع تصحیح<span aria-hidden="true">‹</span></a>
+        </div>
+      {% empty %}
+        <div class="summary-empty">هنوز دانش‌آموزی برای این آزمون انتخاب نشده است.<br><a href="{% url 'exam_select_students' exam.id %}">انتخاب دانش‌آموزان</a></div>
+      {% endfor %}
     </div>
-    </div>
+  </details>
+</main>
 {% endblock %}
-
-{#<!doctype html>#}
-{#<html lang="fa" dir="rtl">#}
-{#<head>#}
-{#  <meta charset="utf-8">#}
-{#  <title>خلاصه آزمون</title>#}
-{#  <style>#}
-{#    body { font-family: sans-serif; background:#f6f6f6; margin:0; }#}
-{#    .wrap { max-width: 950px; margin: 30px auto; background:#fff; padding:20px; border-radius:12px; }#}
-{#    h1 { margin:0 0 8px; font-size: 20px; }#}
-{#    .meta { color:#666; font-size: 13px; margin-bottom: 16px; }#}
-{#    .cards { display:flex; gap:10px; flex-wrap:wrap; margin: 14px 0 18px; }#}
-{#    .card { background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px 14px; min-width: 200px; }#}
-{#    .card .label { color:#666; font-size: 12px; }#}
-{#    .card .value { font-size: 18px; font-weight: 700; margin-top: 4px; }#}
-{##}
-{#    table { width:100%; border-collapse: collapse; }#}
-{#    th, td { padding:10px; border-bottom:1px solid #eee; text-align:right; }#}
-{#    th { background:#fafafa; font-weight:600; }#}
-{#    .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-size: 12px; border:1px solid #ddd; background:#fff; }#}
-{#    .yes { border-color:#b7e3c2; }#}
-{#    .no { border-color:#f2c2c2; }#}
-{#    .btns { margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap; }#}
-{#    a.btn { text-decoration:none; padding:10px 14px; border-radius:10px; border:1px solid #ddd; color:#111; background:#fff; }#}
-{#    a.primary { background:#111; border-color:#111; color:#fff; }#}
-{#  </style>#}
-{#</head>#}
-{#<body>#}
-{#  <div class="wrap">#}
-{#    <h1>خلاصه آزمون: {{ exam.name }}</h1>#}
-{#    <div class="meta">این صفحه برای یک نگاه سریع به ساختار آزمون است.</div>#}
-{##}
-{#    <div class="cards">#}
-{#      <div class="card">#}
-{#        <div class="label">تعداد سوال‌ها</div>#}
-{#        <div class="value">{{ total_questions }}</div>#}
-{#      </div>#}
-{##}
-{#      <div class="card">#}
-{#        <div class="label">جمع کل زیرسوال‌ها</div>#}
-{#        <div class="value">{{ total_subquestions.total }}</div>#}
-{#      </div>#}
-{#    </div>#}
-{##}
-{#    <table>#}
-{#      <thead>#}
-{#        <tr>#}
-{#          <th>سوال</th>#}
-{#          <th>زیرسوال دارد؟</th>#}
-{#          <th>تعداد زیرسوال</th>#}
-{#        </tr>#}
-{#      </thead>#}
-{#      <tbody>#}
-{#        {% for q in questions %}#}
-{#          <tr>#}
-{#            <td>سوال {{ q.number }}</td>#}
-{#            <td>#}
-{#              {% if q.has_subquestion %}#}
-{#                <span class="badge yes">بله</span>#}
-{#              {% else %}#}
-{#                <span class="badge no">خیر</span>#}
-{#              {% endif %}#}
-{#            </td>#}
-{#            <td>#}
-{#              {% if q.has_subquestion %}#}
-{#                {{ q.subquestion_count }}#}
-{#              {% else %}#}
-{#                0#}
-{#              {% endif %}#}
-{#            </td>#}
-{#          </tr>#}
-{#        {% endfor %}#}
-{#      </tbody>#}
-{#    </table>#}
-{#    <hr style="margin:30px 0; border:none; border-top:1px solid #eee;">#}
-{##}

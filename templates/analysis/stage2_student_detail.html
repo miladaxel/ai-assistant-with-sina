@@ -69,8 +69,10 @@
 {% endblock %}
 
 {% block content %}
+{% include "questions/_job_poll.html" %}
 <div class="main-content result-page stage-2">
 <div class="result-shell">
+{% include "questions/_job_pending.html" %}
 
 
 <div class="topbar">
@@ -91,7 +93,7 @@
         <h2>وضعیت پردازش</h2>
         {% if bundle.status == "success" %}
           <span class="badge success"><span class="dot"></span> موفق</span>
-        {% elif bundle.status == "pending" %}
+        {% elif bundle.status == "pending" or bundle.status == "processing" %}
           <span class="badge pending"><span class="dot"></span> در حال پردازش</span>
         {% else %}
           <span class="badge failure"><span class="dot"></span> ناموفق</span>

@@ -144,6 +144,7 @@
 {% endblock %}
 
 {% block content %}
+{% include "questions/_job_poll.html" %}
   <div class="main-content result-page stage-3">
     <div class="page-wrap result-shell">
 
@@ -170,6 +171,8 @@
         <div class="grid">
           {% for result in bundles %}
             <div class="cardx">
+{% include "questions/_job_marker.html" with job=result %}
+<p role="status">{% include "questions/_job_label.html" with status=result.status %}</p>
 
               <div class="card-head">
 

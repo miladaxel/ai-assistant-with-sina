@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+{% include "questions/_job_poll.html" %}
 <div class="main-content result-page stage-2">
   <div class="result-shell">
 
@@ -57,7 +58,7 @@
             <tbody>
               {% for b in bundles %}
                 <tr>
-                  <td>{{ b.id }}</td>
+                  <td>{% include "questions/_job_marker.html" with job=b %}{{ b.id }}</td>
                   <td>
                     <div><strong>{{ b.title|default:"بدون عنوان" }}</strong></div>
                     <div class="muted" style="margin-top:5px;">
@@ -67,7 +68,7 @@
                       <div class="muted" style="margin-top:6px;color:#ffc1cd !important;">{{ b.error_message|truncatechars:140 }}</div>
                     {% endif %}
                   </td>
-                  <td><span class="status {{ b.status }}">{{ b.status }}</span></td>
+                  <td><span class="status {{ b.status }}">{% include "questions/_job_label.html" with status=b.status %}</span></td>
                   <td>
                     {% if b.prompt_template %}
                       <div><strong>{{ b.prompt_template.name }}</strong></div>

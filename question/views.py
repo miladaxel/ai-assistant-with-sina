@@ -10,16 +10,18 @@ from django.db.models import Count, Prefetch
 
 from .exam_data import EXAM_DATA, students_data, student_exercises
 from django.views.generic import TemplateView, CreateView, DetailView, ListView, FormView
-from openai import OpenAI
 from django.conf import settings
 from django.db import transaction
 from .forms import AnalysisBundleCreateForm, ExamForm, QuestionHasSubFormSet, QuestionSubCountForm, QuestionSubCountFormSet, QuestionHasSubForm, ExamStudentForm, StudentQuestionResultForm, StudentQuestionResultFormSet
 from .models import AnalysisBundle, AnalysisResult, PromptTemplate, Exam, Question, SubQuestion, ExamParticipation, StudentQuestionResult, ExamSnapShot
-from question.services.openai_client import OpenAIAnalyzer
 import inspect
 import importlib
 from .mixins import TeacherRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.http import JsonResponse
+from .models import ChatRequest
+from .tasks import process_analysis_bundle, process_chat_request
+from .services.background import enqueue_after_commit
 from Profile.models import TeacherUser, Student
 from ai_asistant_with_sina.query_cache import (
     CachedBundleDetailMixin, CachedListMixin, cached_value,
@@ -40,49 +42,43 @@ def cached_exam_questions(exam, teacher_id, *, allow_in_atomic=False):
 
 class ChatTestView(LoginRequiredMixin, View):
     def get(self, request):
-        q = (request.GET.get("q") or "").strip()
+        chat = None
+        request_id = request.GET.get("request")
+        if request_id:
+            if not request_id.isdecimal():
+                return JsonResponse({"error": "Invalid request ID"}, status=400)
+            chat = get_object_or_404(ChatRequest, pk=request_id, user=request.user)
+        return render(request, "questions/chat_test_1.html", {"chat": chat})
 
-        if not q:
-            return render(request, "questions/chat_test_1.html")
+    def post(self, request):
+        prompt = (request.POST.get("q") or "").strip()
+        if not prompt:
+            return render(request, "questions/chat_test_1.html", {"error": "لطفاً متن سوال را وارد کنید."})
+        with transaction.atomic():
+            chat = ChatRequest.objects.create(user=request.user, prompt=prompt)
+            enqueue_after_commit(process_chat_request, chat)
+        return redirect(f"{reverse('chat')}?request={chat.pk}")
 
-        try:
-            client = OpenAI(
-                api_key=settings.OPENAI_API_KEY
-            )
 
-            resp = client.responses.create(
-                model="gpt-5.2",
-                input=q,
-            )
+class ChatRequestStatusView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        chat = get_object_or_404(ChatRequest, pk=pk, user=request.user)
+        response = JsonResponse({"statuses": {str(chat.pk): chat.status}})
+        response["Cache-Control"] = "no-store"
+        return response
 
-            # برای اطمینان
-            answer_text = resp.output_text
-            if not answer_text:
-                answer_text = str(resp)
 
-            response = {
-                "choices": [
-                    {
-                        "message": {
-                            "content": answer_text
-                        }
-                    }
-                ]
-            }
-
-            return render(
-                request,
-                "questions/chat_test_1.html",
-                {"response": response}
-            )
-
-        except Exception as e:
-            return render(
-                request,
-                "questions/chat_test_1.html",
-                {"error": str(e)}
-            )
-
+class BundleStatusView(LoginRequiredMixin, TeacherRequiredMixin, View):
+    def get(self, request):
+        ids = request.GET.get("ids", "").split(",")
+        if len(ids) > 20 or any(not value.isdecimal() for value in ids):
+            return JsonResponse({"error": "Invalid bundle IDs"}, status=400)
+        statuses = AnalysisBundle.objects.filter(
+            pk__in=ids, teacher=request.user, exam__teacher=request.user,
+        ).values_list("pk", "status")
+        response = JsonResponse({"statuses": {str(pk): status for pk, status in statuses}})
+        response["Cache-Control"] = "no-store"
+        return response
 
 
 class ExamQuestionListView(LoginRequiredMixin, TemplateView):
@@ -169,52 +165,13 @@ class AnalysisBundleCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateV
         return kwargs
 
     def form_valid(self, form):
-        analyzer = OpenAIAnalyzer()
-
         with transaction.atomic():
-            bundle: AnalysisBundle = form.save(commit=False)
-            selected_prompt = form.cleaned_data["prompt_template"]
-            bundle.prompt_template = selected_prompt
+            bundle = form.save(commit=False)
             bundle.teacher = self.request.user
             bundle.status = AnalysisBundle.STATUS_PENDING
-            bundle.exam = form.cleaned_data["exam"]
             bundle.stage = AnalysisBundle.STAGE_ONE
             bundle.save()
-
-        try:
-            textbook_file_id = analyzer.upload_pdf(bundle.lesson_pdf.path)
-            exam_file_id = analyzer.upload_pdf(bundle.example_pdf.path)
-
-            bundle.openai_lesson_file_id = textbook_file_id
-            bundle.openai_example_file_id = exam_file_id
-            bundle.save(update_fields=["openai_lesson_file_id", "openai_example_file_id"])
-
-            out = analyzer.analyze(
-                model='gpt-4o-mini',
-                temperature=0,
-                instructions=selected_prompt.instruction_text,
-                json_schema=selected_prompt.schema_json,
-                textbook_file_id=textbook_file_id,
-                exam_file_id=exam_file_id,
-            )
-
-            AnalysisResult.objects.create(
-                bundle=bundle,
-                result_json=out.parsed_json,
-                raw_output_text=out.raw_output_text,
-                openai_response_id=out.response_id,
-                usage_json=out.usage,
-                stage=AnalysisResult.STAGE_ONE,
-            )
-
-            bundle.status = AnalysisBundle.STATUS_SUCCESS
-            bundle.save(update_fields=["status"])
-
-        except Exception as e:
-            bundle.status = AnalysisBundle.STATUS_FAILURE
-            bundle.error_message = str(e)
-            bundle.save(update_fields=["status", "error_message"])
-
+            enqueue_after_commit(process_analysis_bundle, bundle)
         return redirect("bundle_detail", pk=bundle.pk)
 
 

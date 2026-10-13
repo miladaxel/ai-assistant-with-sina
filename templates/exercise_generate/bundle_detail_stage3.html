@@ -339,8 +339,10 @@
 {% endblock %}
 
 {% block content %}
+{% include "questions/_job_poll.html" %}
 <div class="main-content stage3-detail result-page stage-3">
   <div class="stage3-shell result-shell">
+{% include "questions/_job_pending.html" %}
 
   <div class="stage3-hero">
     <div>
@@ -356,7 +358,7 @@
   {% if not result %}
     <div class="card card-blue" style="margin-top:20px;">
       <div class="section-title">خروجی Stage 3 موجود نیست</div>
-      <div class="body-text" style="color:#334155 !important;">برای این باندل نتیجه‌ای ثبت نشده است.</div>
+      <div class="body-text" style="color:#334155 !important;">{% if bundle.status == "failure" %}پردازش ناموفق بود: {{ bundle.error_message }}{% else %}نتیجه پس از تکمیل پردازش نمایش داده می‌شود.{% endif %}</div>
     </div>
   {% else %}
 
@@ -1186,7 +1188,7 @@
 {#        <h2>وضعیت پردازش Bundle</h2>#}
 {#        {% if bundle.status == "success" %}#}
 {#          <span class="badge success"><span class="dot"></span> موفق</span>#}
-{#        {% elif bundle.status == "pending" %}#}
+{#        {% elif bundle.status == "pending" or bundle.status == "processing" %}#}
 {#          <span class="badge pending"><span class="dot"></span> در حال پردازش</span>#}
 {#        {% else %}#}
 {#          <span class="badge failure"><span class="dot"></span> ناموفق</span>#}

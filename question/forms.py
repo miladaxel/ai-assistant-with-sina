@@ -22,6 +22,8 @@ class AnalysisBundleCreateForm(forms.ModelForm):
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['lesson_pdf'].required = True
+        self.fields['example_pdf'].required = True
         if user is not None and user.is_authenticated:
             self.fields['exam'].queryset = Exam.objects.filter(
                 teacher=user
@@ -34,14 +36,23 @@ class AnalysisBundleCreateForm(forms.ModelForm):
 
 
 class ExamForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.is_bound and not self.instance.pk and self.initial.get('total_question') == 0:
+            self.initial['total_question'] = None
+
     class Meta:
         model = Exam
         fields = ['name', 'total_question']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'مثلاً آزمون ریاضی نوبت اول'}),
+            'total_question': forms.NumberInput(attrs={'min': 1, 'max': 300, 'placeholder': 'مثلاً ۲۰'}),
+        }
 
     def clean_total_question(self):
         n = self.cleaned_data['total_question']
         if n < 1 or n > 300 :
-            raise forms.ValidationError('question must be between 1 and 300')
+            raise forms.ValidationError('تعداد سوال‌ها باید بین ۱ تا ۳۰۰ باشد.')
         return n
 
 class QuestionHasSubForm(forms.ModelForm):

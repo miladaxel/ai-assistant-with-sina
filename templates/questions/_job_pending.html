@@ -1,0 +1,6 @@
+{% include "questions/_job_marker.html" with job=bundle %}
+{% if bundle.status == 'pending' %}
+  <p role="status">درخواست شما ثبت شد و در صف پردازش است. نتیجه در همین صفحه به‌صورت خودکار نمایش داده می‌شود.</p>
+{% elif bundle.status == 'processing' %}
+  <p role="status">پاسخ در حال آماده‌سازی است. می‌توانید این صفحه را ببندید و بعداً نتیجه را از فهرست درخواست‌ها ببینید.</p>
+{% endif %}

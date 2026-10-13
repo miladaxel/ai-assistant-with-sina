@@ -1,0 +1,30 @@
+{% extends 'Profile/base.html' %}
+{% load static %}
+{% block body_class %}exam-summary-page exam-workflow-page{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/exam-summary.css' %}">
+  <link rel="stylesheet" href="{% static 'css/exam-workflow.css' %}">
+{% endblock %}
+{% block content %}
+<main class="exam-summary exam-workflow" id="main-content">
+  <nav class="summary-breadcrumb" aria-label="مسیر صفحه">
+    <a href="{% url 'home' %}">خانه</a><span aria-hidden="true">/</span>
+    <a href="{% url 'exam_list' %}">آزمون‌ها</a><span aria-hidden="true">/</span>
+    {% if exam %}<a href="{% url 'exam_summary' exam.id %}">{{ exam.name|default:'آزمون بدون عنوان' }}</a><span aria-hidden="true">/</span>{% endif %}
+    <span aria-current="page">{% block workflow_breadcrumb %}{% endblock %}</span>
+  </nav>
+  <header class="summary-heading">
+    <div><h1>{% block workflow_heading %}{% endblock %}</h1><p>{% block workflow_description %}{% endblock %}</p></div>
+    {% if exam %}<a class="workflow-back" href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون<span aria-hidden="true">‹</span></a>{% else %}<a class="workflow-back" href="{% url 'exam_list' %}">بازگشت به آزمون‌ها<span aria-hidden="true">‹</span></a>{% endif %}
+  </header>
+  {% block workflow_progress %}{% endblock %}
+  <div class="workflow-layout">
+    <section class="workflow-panel" aria-labelledby="workflow-form-title">{% block workflow_form %}{% endblock %}</section>
+    <aside class="workflow-guide" aria-labelledby="workflow-guide-title">
+      <div class="workflow-guide-icon" aria-hidden="true"><svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18h6m-5 3h4M8.5 14.5a6 6 0 1 1 7 0L15 17H9z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h2 id="workflow-guide-title">{% block workflow_guide_title %}راهنمای این مرحله{% endblock %}</h2>
+      {% block workflow_guide %}{% endblock %}
+    </aside>
+  </div>
+</main>
+{% endblock %}

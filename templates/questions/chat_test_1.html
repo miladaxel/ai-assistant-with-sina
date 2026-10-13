@@ -194,6 +194,7 @@
 {% endblock %}
 
 {% block content %}
+{% include "questions/_job_poll.html" %}
 <div class="main-content">
 
     <div class="chat-container">
@@ -210,25 +211,30 @@
         </div>
 
         <div class="chat-messages" id="messageContainer">
+            {% if chat.status == 'pending' or chat.status == 'processing' %}
+                <span hidden data-job-id="{{ chat.pk }}" data-job-status="{{ chat.status }}" data-job-status-url="{% url 'chat_request_status' chat.pk %}"></span>
+                <p role="status">پاسخ در حال آماده‌سازی است و به‌صورت خودکار نمایش داده می‌شود.</p>
+            {% endif %}
 
-            {% if error %}
+
+            {% if error or chat.error_message %}
                 <div class="alert alert-danger">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    خطا در برقراری ارتباط: {{ error }}
+                    خطا در برقراری ارتباط: {% if error %}{{ error }}{% else %}{{ chat.error_message }}{% endif %}
                 </div>
             {% endif %}
 
-            {% if request.GET.q %}
+            {% if chat %}
                 <div class="message-bubble message-user">
                     <span class="avatar">شما</span>
-                    <div class="content-text">{{ request.GET.q }}</div>
+                    <div class="content-text">{{ chat.prompt }}</div>
                 </div>
 
-                {% if response %}
+                {% if chat.status == "success" %}
                     <div class="message-bubble message-ai">
                         <span class="avatar"><i class="fa-solid fa-sparkles"></i> AI</span>
                         <div class="content-text">
-                            {{ response.choices.0.message.content|linebreaks }}
+                            {{ chat.answer|linebreaks }}
                         </div>
                     </div>
                 {% endif %}
@@ -243,13 +249,14 @@
 
         </div>
 
-        <form method="get" class="chat-input-area" id="chatForm">
+        <form method="post" action="{% url 'chat' %}" class="chat-input-area" id="chatForm">
+{% csrf_token %}
             <input
                 type="text"
                 name="q"
                 class="chat-input"
                 placeholder="اینجا بنویسید..."
-                value="{{ request.GET.q|default:'' }}"
+                value=""
                 autocomplete="off"
                 required
                 autofocus
@@ -292,7 +299,7 @@
             const tempUserDiv = document.createElement('div');
             tempUserDiv.className = 'message-bubble message-user';
             tempUserDiv.style.opacity = '0.5';
-            tempUserDiv.innerHTML = `<span class="avatar">شما</span><div class="content-text">${input.value}</div>`;
+            tempUserDiv.textContent = input.value;
             messageContainer.appendChild(tempUserDiv);
             messageContainer.scrollTop = messageContainer.scrollHeight;
         });

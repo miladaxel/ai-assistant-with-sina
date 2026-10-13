@@ -1,0 +1,8 @@
+<nav class="workflow-progress" aria-label="مراحل تنظیم آزمون">
+  <ol>
+    <li {% if stage == 'create' %}aria-current="step"{% endif %}><span class="workflow-progress-item"><span class="workflow-progress-number" aria-hidden="true">۱</span><span>اطلاعات آزمون</span></span></li>
+    <li {% if stage == 'questions' %}aria-current="step"{% endif %}>{% if exam %}<a class="workflow-progress-item" href="{% url 'exam_question_setup' exam.id %}">{% else %}<span class="workflow-progress-item workflow-progress-unavailable">{% endif %}<span class="workflow-progress-number" aria-hidden="true">۲</span><span>نوع سوال‌ها</span>{% if exam %}</a>{% else %}</span>{% endif %}</li>
+    <li {% if stage == 'subquestions' %}aria-current="step"{% endif %}>{% if exam %}<a class="workflow-progress-item" href="{% url 'exam_sub_question_setup' exam.id %}">{% else %}<span class="workflow-progress-item workflow-progress-unavailable">{% endif %}<span class="workflow-progress-number" aria-hidden="true">۳</span><span>تعداد زیرسوال‌ها</span>{% if exam %}</a>{% else %}</span>{% endif %}</li>
+    <li {% if stage == 'students' %}aria-current="step"{% endif %}>{% if exam %}<a class="workflow-progress-item" href="{% url 'exam_select_students' exam.id %}">{% else %}<span class="workflow-progress-item workflow-progress-unavailable">{% endif %}<span class="workflow-progress-number" aria-hidden="true">۴</span><span>انتخاب دانش‌آموزان</span>{% if exam %}</a>{% else %}</span>{% endif %}</li>
+  </ol>
+</nav>

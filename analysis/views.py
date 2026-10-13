@@ -6,7 +6,8 @@ from django.urls import reverse
 from .forms import Stage2RunForm
 from question.models import AnalysisBundle, AnalysisResult, ExamSnapShot, Exam, PromptTemplate
 from .services.stage2 import fill_stage2_prompt
-from question.services.openai_client import OpenAIAnalyzer
+from question.tasks import process_analysis_bundle
+from question.services.background import enqueue_after_commit
 from Profile.models import Student
 import json
 from django import forms
@@ -132,61 +133,32 @@ class Stage2RunView(LoginRequiredMixin, TeacherRequiredMixin, FormView):
             messages.error(self.request, "Snapshot انتخابی دانش‌آموزی ندارد.")
             return redirect(f"{reverse('analysis:stage2_run')}?exam={exam.id}")
 
-        analyzer = OpenAIAnalyzer()
-        ok, bad = 0, 0
-        for sp in students_payloads:
-            student_id = sp.get("student_id")
-            full_name = sp.get("full_name") or ""
-
-            if not student_id:
-                bad += 1
-                continue
-
-            input_json = {
-                "EXAM_MAP_JSON": exam_map_json,
-                "STUDENT_ANSWERS": sp,
-                "STAGE1_BUNDLE_ID": stage1_bundle.id,
-                "SNAPSHOT_ID": snapshot_obj.id,
-            }
-
-            with transaction.atomic():
+        queued, skipped = 0, 0
+        with transaction.atomic():
+            for sp in students_payloads:
+                student_id = sp.get("student_id")
+                if not student_id:
+                    skipped += 1
+                    continue
+                full_name = sp.get("full_name") or ""
                 bundle = AnalysisBundle.objects.create(
-                    title=f"Stage2 | Exam {exam.id} | Student {student_id} - {full_name}",
+                    title=f"Stage2 | Exam {exam.id} | Student {student_id} - {full_name}"[:120],
                     teacher=self.request.user,
                     prompt_template=stage2_prompt,
                     model_name="gpt-4o-mini",
                     status=AnalysisBundle.STATUS_PENDING,
                     stage=AnalysisBundle.STAGE_TWO,
                     exam=exam,
-                    input_json=input_json,
+                    input_json={
+                        "EXAM_MAP_JSON": exam_map_json,
+                        "STUDENT_ANSWERS": sp,
+                        "STAGE1_BUNDLE_ID": stage1_bundle.id,
+                        "SNAPSHOT_ID": snapshot_obj.id,
+                    },
                 )
-
-                try:
-                    prompt_text = self._fill_stage2_prompt(
-                        stage2_prompt.instruction_text,
-                        exam_map_json=exam_map_json,
-                        student_answers=sp,
-                    )
-                    resp = analyzer.analyze_text(model=bundle.model_name, prompt_text=prompt_text, temperature=0.2)
-                    AnalysisResult.objects.create(
-                        bundle=bundle,
-                        result_json=resp.parsed_json,
-                        raw_output_text=resp.raw_output_text,
-                        openai_response_id=resp.response_id,
-                        usage_json=resp.usage,
-                        stage=AnalysisResult.STAGE_TWO
-                    )
-
-                    bundle.status = AnalysisBundle.STATUS_SUCCESS
-                    bundle.save(update_fields=["status"])
-                    ok += 1
-                except Exception as e:
-                    bundle.status = AnalysisBundle.STATUS_FAILURE
-                    bundle.error_message = str(e)
-                    bundle.save(update_fields=["status", "error_message"])
-                    bad += 1
-
-        messages.success(self.request, f"Stage2 تمام شد. موفق: {ok} | ناموفق: {bad}")
+                enqueue_after_commit(process_analysis_bundle, bundle)
+                queued += 1
+        messages.info(self.request, f"{queued} درخواست تحلیل ثبت شد؛ نتیجه‌ها پس از پردازش نمایش داده می‌شوند. موارد بدون شناسه: {skipped}")
         return redirect('analysis:stage2_result', exam_id=exam.id)
 
 

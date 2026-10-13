@@ -1,6 +1,7 @@
 // js/layout.js
 
 function createSidebar() {
+  if (document.querySelector(".sidebar")) return;
   const sidebar = document.createElement("div");
   sidebar.className = "sidebar";
 
@@ -56,8 +57,6 @@ function createSidebar() {
 // اجرا شدن تابع
 createSidebar();
 
-// اجرا شدن تابع به محض لود شدن فایل
-createSidebar();
 
 
 

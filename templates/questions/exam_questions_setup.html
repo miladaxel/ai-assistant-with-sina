@@ -1,52 +1,22 @@
-{% extends 'Profile/base.html' %}
-{% load static %}
-{% block extra_css %}
- <title>ورود نمرات آزمون</title>
-     <link rel="stylesheet" href="{% static 'css/exam-entry.css' %}"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends 'questions/exam_workflow_base.html' %}
+{% block title %}نوع سوال‌ها | {{ exam.name }}{% endblock %}
+{% block workflow_breadcrumb %}نوع سوال‌ها{% endblock %}
+{% block workflow_heading %}نوع سوال‌ها را مشخص کنید{% endblock %}
+{% block workflow_description %}سوال‌هایی را که چند بخش دارند انتخاب کنید؛ تعداد بخش‌ها در مرحله بعد تعیین می‌شود.{% endblock %}
+{% block workflow_progress %}{% include 'questions/_exam_workflow_steps.html' with stage='questions' %}{% endblock %}
+{% block workflow_form %}
+<form method="post">
+  {% csrf_token %}{{ formset.management_form }}
+  <div class="workflow-panel-heading"><div><h2 id="workflow-form-title">سوال‌های آزمون</h2><p>{{ exam.name|default:'آزمون بدون عنوان' }}</p></div><span class="summary-count">{{ formset.total_form_count }} سوال</span></div>
+  {% if formset.non_form_errors or formset.management_form.errors %}<div class="workflow-alert" role="alert">{{ formset.non_form_errors }}{{ formset.management_form.errors }}</div>{% endif %}
+  <div class="summary-table-scroll workflow-table-scroll" tabindex="0" role="region" aria-label="تنظیم نوع سوال‌ها">
+    <table class="summary-table workflow-table"><thead><tr><th scope="col">سوال</th><th scope="col">زیرسوال دارد؟</th></tr></thead><tbody>
+      {% for form in formset %}<tr><th scope="row"><span class="summary-question-number" aria-hidden="true">{{ form.instance.number }}</span>سوال {{ form.instance.number }}{{ form.id }}{{ form.id.errors }}{{ form.non_field_errors }}</th><td><label class="workflow-toggle" for="{{ form.has_subquestion.id_for_label }}"><span class="workflow-sr-only">سوال {{ form.instance.number }}: </span>{{ form.has_subquestion }}<span>زیرسوال دارد</span></label>{{ form.has_subquestion.errors }}</td></tr>
+      {% empty %}<tr><td colspan="2" class="summary-empty">هنوز سوالی برای این آزمون ثبت نشده است.<br><a href="{% url 'exam_summary' exam.id %}">بازگشت به خلاصه آزمون</a></td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="workflow-form-actions"><a class="workflow-cancel" href="{% url 'exam_summary' exam.id %}">انصراف</a><button type="submit" class="summary-button summary-button-primary">ذخیره و تعیین تعداد زیرسوال‌ها<span aria-hidden="true">‹</span></button></div>
+</form>
 {% endblock %}
-
-{% block content %}
-
-<body>
-
-    <div class="main-content">
-        <div id="matrix-area">
-<div class="matrix-header-info"></div>
-<div class="matrix-container">
-    <form method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
-    <table class="exam-table">
-        <thead>
-            <td><span>سوال</span></td>
-            <td><span>آیا زیر سوال دارد؟</span></td>
-        </thead>
-        <tbody>
-            {% for form in formset %}
-            <tr>
-              <td>
-                سوال {{ form.instance.number }}
-                {{ form.id }}
-              </td>
-              <td>{{ form.has_subquestion }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <div style="text-align: center">
-
-    <button class="btn-primary-full" style="width: 25% !important;margin: 1rem 0" type="submit" value="ثبت">ثبت</button>
-    </div>
-
-    </form>
-</div>
-<div id="quickMenu" class="quick-menu"></div>
-        </div>
-    </div>
-{% block extra_js %}
-    <script src="{% static 'js/layout.js' %}"></script>
-    {% endblock %}
-</body>
-{% endblock %}
-
-
+{% block workflow_guide_title %}کدام سوال زیرسوال دارد؟{% endblock %}
+{% block workflow_guide %}<p>اگر پاسخ یک سوال در چند بخش جداگانه تصحیح می‌شود، گزینه «زیرسوال دارد» را برای آن روشن کنید.</p><div class="workflow-guide-example"><strong>مثلاً سوال ۳</strong><p>سوالی با بخش‌های «الف»، «ب» و «ج» دارای زیرسوال است. تعداد ۳ را در مرحله بعد وارد می‌کنید.</p></div><p>برای سوال‌های تک‌بخشی، گزینه را خاموش نگه دارید.</p>{% endblock %}

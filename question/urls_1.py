@@ -3,6 +3,8 @@ from question import views
 
 urlpatterns = [
     path('', views.ChatTestView.as_view(), name='chat'),
+    path('chat/<int:pk>/status/', views.ChatRequestStatusView.as_view(), name='chat_request_status'),
+    path('bundles/status/', views.BundleStatusView.as_view(), name='bundle_status'),
     path('exam/', views.ExamQuestionListView.as_view(), name='exam_question_list'),
     path('analyze/', views.AnalyzeStudentsView.as_view(), name='text_analyze'),
     path('assignment/', views.AssignExercisesView.as_view(), name='assignment_question_list'),

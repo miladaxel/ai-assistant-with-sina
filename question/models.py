@@ -34,11 +34,13 @@ class PromptTemplate(models.Model):
 class AnalysisBundle(models.Model):
     objects = CacheInvalidatingManager()
     STATUS_PENDING = 'pending'
+    STATUS_PROCESSING = 'processing'
     STATUS_SUCCESS = 'success'
     STATUS_FAILURE = 'failure'
 
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending'),
+        (STATUS_PROCESSING, 'Processing'),
         (STATUS_SUCCESS, 'Success'),
         (STATUS_FAILURE, 'Failure'),
     ]
@@ -96,6 +98,20 @@ class AnalysisResult(models.Model):
 
     def __str__(self):
         return f"Bundle {self.bundle.id} - {self.bundle.status}"
+
+class ChatRequest(models.Model):
+    """Persist a user's chat input and the answer produced by the worker."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    prompt = models.TextField()
+    answer = models.TextField(blank=True, default='')
+    status = models.CharField(
+        max_length=20, choices=AnalysisBundle.STATUS_CHOICES,
+        default=AnalysisBundle.STATUS_PENDING,
+    )
+    error_message = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Exam(models.Model):
     objects = CacheInvalidatingManager()
